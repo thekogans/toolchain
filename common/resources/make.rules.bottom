@@ -1,0 +1,435 @@
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# Supported make optional parameters:
+# mode=[Development or Install] (default to Development)
+# hide_commands=[yes or no] (default to yes)
+
+# Supported make optional targets:
+# If no target is provided, make the goal.
+# all - Make the goal.
+# tests - Make and run regression tests.
+# clean - Clean the project and it's dependencies.
+# clean_self - Clean only the project.
+# tags - Create etags for project and it's dependencies.
+
+# Empty the default suffix rules. This is done so that there
+# are no surprises. If something fails to build, we'll analyze
+# it carefully and create our own rule for it.
+.SUFFIXES:
+
+.PHONY: all tests clean clean_self tags
+
+# Include toolchain specific make rules.
+# This file needs to provide definitions for the following:
+#   masm_flags
+#   masm_preprocessor_definitions
+#   make_masm_dependencies
+#   masm_it
+#
+#   nasm_flags
+#   nasm_preprocessor_definitions
+#   make_nasm_dependencies
+#   nasm_it
+#
+#   c_compiler_flags
+#   c_compiler_preprocessor_definitions
+#   make_c_dependencies
+#   c_compile_it
+#
+#   cpp_compiler_flags
+#   cpp_compiler_preprocessor_definitions
+#   make_cpp_dependencies
+#   cpp_compile_it
+#
+#   objective_c_compiler_flags
+#   objective_c_compiler_preprocessor_definitions
+#   make_objective_c_dependencies
+#   objective_c_compile_it
+#
+#   objective_cpp_compiler_flags
+#   objective_cpp_compiler_preprocessor_definitions
+#   make_objective_cpp_dependencies
+#   objective_cpp_compile_it
+#
+#   linker_flags
+#   link_it
+#   test_link_it
+#
+#   librarian_flags
+#
+# On Windows the following are also available:
+#   subsystem
+#   rc_compiler_flags
+#   rc_compiler_preprocessor_definitions
+#
+# If you need to, you can provide overrides for all of them.
+ifneq "$(wildcard $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/make.rules.bottom)" ""
+  os_make_rules_bottom := $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/make.rules.bottom
+  include $(os_make_rules_bottom)
+endif
+ifneq "$(wildcard $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/$(TOOLCHAIN_ARCH)/make.rules.bottom)" ""
+  arch_make_rules_bottom := $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/$(TOOLCHAIN_ARCH)/make.rules.bottom
+  include $(arch_make_rules_bottom)
+endif
+ifneq "$(wildcard $(TOOLCHAIN_DIR)/resources/make.rules.bottom)" ""
+  comp_make_rules_bottom := $(TOOLCHAIN_DIR)/resources/make.rules.bottom
+  include $(comp_make_rules_bottom)
+endif
+
+# Assemble various lists used in rules below.
+ifeq "$(mode)" "Development"
+  masm_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(masm_sources))))
+  nasm_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(nasm_sources))))
+  c_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(c_sources))))
+  cpp_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(cpp_sources))))
+  objective_c_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(objective_c_sources))))
+  objective_cpp_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(objective_cpp_sources))))
+  dependencies :=\
+    $(masm_dependencies)\
+    $(nasm_dependencies)\
+    $(c_dependencies)\
+    $(cpp_dependencies)\
+    $(objective_c_dependencies)\
+    $(objective_cpp_dependencies)
+endif
+
+masm_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(masm_sources))))
+nasm_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(nasm_sources))))
+c_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(c_sources))))
+cpp_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(cpp_sources))))
+objective_c_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(objective_c_sources))))
+objective_cpp_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(objective_cpp_sources))))
+rc_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .res,$(basename $(rc_sources))))
+objects :=\
+  $(masm_objects)\
+  $(nasm_objects)\
+  $(c_objects)\
+  $(cpp_objects)\
+  $(objective_c_objects)\
+  $(objective_cpp_objects)\
+  $(rc_objects)
+
+headers :=\
+  $(masm_headers)\
+  $(nasm_headers)\
+  $(c_headers)\
+  $(cpp_headers)\
+  $(objective_c_headers)\
+  $(objective_cpp_headers)
+
+ifeq "$(mode)" "Development"
+  masm_tests_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(masm_tests))))
+  nasm_tests_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(nasm_tests))))
+  c_tests_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(c_tests))))
+  cpp_tests_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(cpp_tests))))
+  objective_c_tests_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(objective_c_tests))))
+  objective_cpp_tests_dependencies :=\
+    $(subst $(project_root),$(build_root),$(addsuffix .$(dependencies_suffix),$(basename $(objective_cpp_tests))))
+  tests_dependencies :=\
+    $(masm_tests_dependencies)\
+    $(nasm_tests_dependencies)\
+    $(c_tests_dependencies)\
+    $(cpp_tests_dependencies)\
+    $(objective_c_tests_dependencies)\
+    $(objective_cpp_tests_dependencies)
+endif
+
+masm_tests_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(masm_tests))))
+nasm_tests_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(nasm_tests))))
+c_tests_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(c_tests))))
+cpp_tests_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(cpp_tests))))
+objective_c_tests_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(objective_c_tests))))
+objective_cpp_tests_objects :=\
+  $(subst $(project_root),$(build_root),$(addsuffix .$(object_suffix),$(basename $(objective_cpp_tests))))
+tests_objects :=\
+  $(masm_tests_objects)\
+  $(nasm_tests_objects)\
+  $(c_tests_objects)\
+  $(cpp_tests_objects)\
+  $(objective_c_tests_objects)\
+  $(objective_cpp_tests_objects)
+
+masm_tests_goals :=\
+  $(subst $(project_root),$(build_root),$(addsuffix $(program_suffix),$(basename $(masm_tests))))
+nasm_tests_goals :=\
+  $(subst $(project_root),$(build_root),$(addsuffix $(program_suffix),$(basename $(nasm_tests))))
+c_tests_goals :=\
+  $(subst $(project_root),$(build_root),$(addsuffix $(program_suffix),$(basename $(c_tests))))
+cpp_tests_goals :=\
+  $(subst $(project_root),$(build_root),$(addsuffix $(program_suffix),$(basename $(cpp_tests))))
+objective_c_tests_goals :=\
+  $(subst $(project_root),$(build_root),$(addsuffix $(program_suffix),$(basename $(objective_c_tests))))
+objective_cpp_tests_goals :=\
+  $(subst $(project_root),$(build_root),$(addsuffix $(program_suffix),$(basename $(objective_cpp_tests))))
+tests_goals :=\
+  $(masm_tests_goals)\
+  $(nasm_tests_goals)\
+  $(c_tests_goals)\
+  $(cpp_tests_goals)\
+  $(objective_c_tests_goals)\
+  $(objective_cpp_tests_goals)
+
+# Make a directory unless it already exists
+maybe-mkdir = $(if $(wildcard $1),,mkdir -p $1)
+
+# If no target is specified, make the goal.
+all: $(goal)
+
+# Top level goal.
+ifeq ($(strip $(objects)),)
+  $(goal): $(headers) $(dependencies_goals)
+else
+  $(goal): $(objects) $(headers) $(dependencies_goals)
+	$(hide)$(call maybe-mkdir,$(dir $@))
+	$(hide)echo Linking $@
+	$(hide)$(link_it)
+endif
+
+# Build and run the tests.
+tests: $(tests_goals)
+	$(foreach tests_goal,$(tests_goals),$(tests_goal);)
+
+# Clean project.
+clean clean_self:
+	$(hide)echo Cleaning $(project_root)
+	$(hide)rm -f $(dependencies) $(objects) $(goal) $(tests_dependencies) $(tests_objects) $(tests_goals) $(extra_clean)
+
+# Generate etags style tags.
+tags:
+	$(hide)echo Generating TAGS in $(project_root)
+	$(hide)cd $(project_root)
+	$(hide)etags $(c_sources) $(cpp_sources) $(objective_c_sources) $(objective_cpp_sources)
+
+# Pattern rules for various supported suffixes.
+ifeq "$(mode)" "Development"
+  define masm_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1 $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(dependencies_suffix)
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Generating dependencies for $$<
+	$$(hide)$$(make_masm_dependencies)
+	$$(hide)echo Assembling $$<
+	$$(hide)$$(masm_it)
+  endef
+  $(foreach masm_source,$(masm_sources),$(eval $(call masm_it_rule,$(masm_source))))
+
+  define nasm_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1 $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(dependencies_suffix)
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Generating dependencies for $$<
+	$$(hide)$$(make_nasm_dependencies)
+	$$(hide)echo Assembling $$<
+	$$(hide)$$(nasm_it)
+  endef
+  $(foreach nasm_source,$(nasm_sources),$(eval $(call nasm_it_rule,$(nasm_source))))
+
+  define c_compile_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1 $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(dependencies_suffix)
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Generating dependencies for $$<
+	$$(hide)$$(make_c_dependencies)
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(c_compile_it)
+  endef
+  $(foreach c_source,$(c_sources),$(eval $(call c_compile_it_rule,$(c_source))))
+
+  define cpp_compile_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1 $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(dependencies_suffix)
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Generating dependencies for $$<
+	$$(hide)$$(make_cpp_dependencies)
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(cpp_compile_it)
+  endef
+  $(foreach cpp_source,$(cpp_sources),$(eval $(call cpp_compile_it_rule,$(cpp_source))))
+
+  define objective_c_compile_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1 $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(dependencies_suffix)
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Generating dependencies for $$<
+	$$(hide)$$(make_objective_c_dependencies)
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(objective_c_compile_it)
+  endef
+  $(foreach objective_c_source,$(objective_c_sources),$(eval $(call objective_c_compile_it_rule,$(objective_c_source))))
+
+  define objective_cpp_compile_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1 $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(dependencies_suffix)
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Generating dependencies for $$<
+	$$(hide)$$(make_objective_cpp_dependencies)
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(objective_cpp_compile_it)
+  endef
+  $(foreach objective_cpp_source,$(objective_cpp_sources),$(eval $(call objective_cpp_compile_it_rule,$(objective_cpp_source))))
+
+  $(dependencies): ;
+  .PRECIOUS: $(dependencies)
+
+  # If we're building the goal, include the various dependecies files.
+  # This will regenerate them if missing or stale.
+  ifneq "$(MAKECMDGOALS)" "clean"
+    ifneq "$(MAKECMDGOALS)" "clean_self"
+      ifneq "$(MAKECMDGOALS)" "tags"
+        -include $(dependencies)
+      endif
+    endif
+  endif
+else
+  define masm_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1
+	$$(hide)$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Assembling $$<
+	$$(hide)$$(masm_it)
+  endef
+  $(foreach masm_source,$(masm_sources),$(eval $(call masm_it_rule,$(masm_source))))
+
+  define nasm_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Assembling $$<
+	$$(hide)$$(nasm_it)
+  endef
+  $(foreach nasm_source,$(nasm_sources),$(eval $(call nasm_it_rule,$(nasm_source))))
+
+  define c_compile_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(c_compile_it)
+  endef
+  $(foreach c_source,$(c_sources),$(eval $(call c_compile_it_rule,$(c_source))))
+
+  define cpp_compile_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(cpp_compile_it)
+  endef
+  $(foreach cpp_source,$(cpp_sources),$(eval $(call cpp_compile_it_rule,$(cpp_source))))
+
+  define objective_c_compile_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(objective_c_compile_it)
+  endef
+  $(foreach objective_c_source,$(objective_c_sources),$(eval $(call objective_c_compile_it_rule,$(objective_c_source))))
+
+  define objective_cpp_compile_it_rule
+  $$(subst $$(project_root),$$(build_root),$$(basename $1)).$$(object_suffix): $1
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(objective_cpp_compile_it)
+  endef
+  $(foreach objective_cpp_source,$(objective_cpp_sources),$(eval $(call objective_cpp_compile_it_rule,$(objective_cpp_source))))
+endif
+
+define rc_compile_it_rule
+$$(subst $$(project_root),$$(build_root),$$(basename $1)).res: $1
+	$$(hide)$$(call maybe-mkdir,$$(dir $$@))
+	$$(hide)echo Compiling $$<
+	$$(hide)$$(rc_compile_it)
+endef
+$(foreach rc_source,$(rc_sources),$(eval $(call rc_compile_it_rule,$(rc_source))))
+
+ifeq "$(MAKECMDGOALS)" "tests"
+  $(foreach masm_test,$(masm_tests),$(eval $(call masm_it_rule,$(masm_test))))
+  $(foreach nasm_test,$(nasm_tests),$(eval $(call nasm_it_rule,$(nasm_test))))
+  $(foreach c_test,$(c_tests),$(eval $(call c_compile_it_rule,$(c_test))))
+  $(foreach cpp_test,$(cpp_tests),$(eval $(call cpp_compile_it_rule,$(cpp_test))))
+  $(foreach objective_c_test,$(objective_c_tests),$(eval $(call objective_c_compile_it_rule,$(objective_c_test))))
+  $(foreach objective_cpp_test,$(objective_cpp_tests),$(eval $(call objective_cpp_compile_it_rule,$(objective_cpp_test))))
+
+  ifeq "$(mode)" "Development"
+    $(tests_dependencies): ;
+    .PRECIOUS: $(tests_dependencies)
+
+    # If we're building the tests target, include the various tests dependecies files.
+    # This will regenerate them if missing or stale.
+    -include $(tests_dependencies)
+  endif
+
+  $(masm_tests_goals): %$(program_suffix): %.$(object_suffix)
+	$(hide)$(call maybe-mkdir,$(dir $@))
+	$(hide)echo Linking $@
+	$(hide)$(test_link_it)
+
+  $(nasm_tests_goals): %$(program_suffix): %.$(object_suffix)
+	$(hide)$(call maybe-mkdir,$(dir $@))
+	$(hide)echo Linking $@
+	$(hide)$(test_link_it)
+
+  $(c_tests_goals): %$(program_suffix): %.$(object_suffix)
+	$(hide)$(call maybe-mkdir,$(dir $@))
+	$(hide)echo Linking $@
+	$(hide)$(test_link_it)
+
+  $(cpp_tests_goals): %$(program_suffix): %.$(object_suffix)
+	$(hide)$(call maybe-mkdir,$(dir $@))
+	$(hide)echo Linking $@
+	$(hide)$(test_link_it)
+
+  $(objective_c_tests_goals): %$(program_suffix): %.$(object_suffix)
+	$(hide)$(call maybe-mkdir,$(dir $@))
+	$(hide)echo Linking $@
+	$(hide)$(test_link_it)
+
+  $(objective_cpp_tests_goals): %$(program_suffix): %.$(object_suffix)
+	$(hide)$(call maybe-mkdir,$(dir $@))
+	$(hide)echo Linking $@
+	$(hide)$(test_link_it)
+
+  # Special rule to make all tests_goals depend on the goal.
+  $(tests_goals): $(goal)
+endif
+
+# Special rule to make all objects depend on the Makefile chain.
+# This will rebuild everything if it changes. A bit heavy handed,
+# but better than having stale objects.
+$(objects): $(makefile_path)\
+  $(TOOLCHAIN_ROOT)/common/resources/make.rules.top\
+  $(TOOLCHAIN_ROOT)/common/resources/make.rules.bottom\
+  $(os_make_rules_top)\
+  $(arch_make_rules_top)\
+  $(comp_make_rules_top)\
+  $(os_make_rules_bottom)\
+  $(arch_make_rules_bottom)\
+  $(comp_make_rules_bottom)

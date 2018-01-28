@@ -1,0 +1,170 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# This script will create a version stamped *.tar.gz drop of
+# the given organization project and optionally install it in
+# to $DEVELOPMENT_ROOT/sources/$organization/projects.
+
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN/setenvironment" ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN/setenvironment" "$@"
+fi
+
+organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+url=
+project="$TOOLCHAIN_DEFAULT_PROJECT"
+branch=
+svnschema="$DEVELOPMENT_SVNSCHEMA"
+user="$DEVELOPMENT_USER"
+host="$DEVELOPMENT_HOST"
+svndepot="$DEVELOPMENT_SVNDEPOT"
+add_source=yes
+
+for i in "$@"; do
+    case $i in
+        -o:*|--organization:*)
+            organization="${i#*:}"
+            ;;
+        -u:*|--url:*)
+            url="${i#*:}"
+            ;;
+        -p:*|--project:*)
+            project="${i#*:}"
+            ;;
+        -b:*|--branch:*)
+            branch="${i#*:}"
+            ;;
+        -s:*|--svnschema:*)
+            svnschema="${i#*:}"
+            ;;
+        -u:*|--user:*)
+            user="${i#*:}"
+            ;;
+        -h:*|--host:*)
+            host="${i#*:}"
+            ;;
+        -d:*|--svndepot:*)
+            svndepot="${i#*:}"
+            ;;
+        -a:*|--add-source:*)
+            add_source="${i#*:}"
+            ;;
+    esac
+done
+
+# Verify arguments.
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[[-u | --url]:url] \
+[[-p | --project]:project] \
+[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
+[[-s | --svnschema]:svnschema] \
+[[-u | --user]:user] \
+[[-h | --host]:host] \
+[[-d | --svndepot]:svndepot] \
+[[-a | --add_source]:[yes | no]]"
+    exit 1
+fi
+
+project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
+if [ ! -d "$project_drops" ]; then
+    mkdir "$project_drops"
+    check_errors $?
+fi
+cd "$project_drops"
+
+if [ "$branch" == "" ]; then
+    branch="$(get_default_branch -o:$organization -p:$project)"
+fi
+project_root="$organization/${project//_//}/$branch"
+
+if [ -d foo ]; then
+    rm -rf foo
+    check_errors $?
+fi
+
+# Check out the source tree.
+svn co "$svnschema://$user@$host/$svndepot/$organization/${project//_//}/$branch" "foo/$project_root"
+check_errors $?
+
+# Clean up the source tree.
+cd foo
+check_errors $?
+find . -name ".svn" -print0 | xargs -0 rm -rf
+check_errors $?
+find . -name "*.h" -print0 | xargs -0 chmod 664
+check_errors $?
+find . -name "*.cpp" -print0 | xargs -0 chmod 664
+check_errors $?
+
+# Package the source tree.
+version="$(get_project_version -pr:$project_root)"
+check_errors $?
+mv "$project_root" "$project_root-$version"
+check_errors $?
+tarball="$organization"_"$project-${branch////_}-$version.tar.gz"
+tar zcvf "../$tarball" "$organization"
+check_errors $?
+
+SHA2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n ../$tarball`
+
+if [ "$add_source" == "yes" ]; then
+    "$(get_toolchain_program -o:thekogans -p:make)"\
+        -a:create_source\
+        -o:"$organization"\
+        -u:"$url"
+    check_errors $?
+    source="$DEVELOPMENT_ROOT/sources/$organization"
+    if [ ! -d "$source/projects" ]; then
+        mkdir -p "$source/projects"
+        check_errors $?
+    fi
+    cp -v "../$tarball" "$source/projects"
+    check_errors $?
+    svn add "$source/projects/$tarball"
+    "$(get_toolchain_program -o:thekogans -p:make)"\
+        -a:add_source_project\
+        -o:"$organization"\
+        -p:"$project"\
+        -b:"$branch"\
+        -v:"$version"\
+        -s:"$SHA2_256"
+    check_errors $?
+    svn commit -m'checkpoint' "$source"
+    check_errors $?
+else
+    echo "$SHA2_256"
+fi
+
+# Clean up.
+cd ..
+check_errors $?
+rm -rf foo
+check_errors $?
+cd ..
+check_errors $?
+
+exit 0

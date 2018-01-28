@@ -1,0 +1,91 @@
+Copyright 2011 Boris Kogan (boris@thekogans.net)
+
+This file is part of thekogans_toolchain.
+
+thekogans_toolchain is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+thekogans_toolchain is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+This folder contains the third party sources for thekogans.net
+toolchain and build system. A convenient build script (bootstrap)
+is provided to build the build system on Windows, Linux and OS X.
+
+The rational behind maintaining my own toolchain is;
+
+    - isolation - To minimize cross contamination with
+      libraries installed on the underlying OS.
+    - uniformity - To provide a uniform build environment
+      (compiler flags...).
+    - commonality - To provide a standard library naming
+      convention (also aids in isolation).
+
+To build the toolchain for your particular os-arch-compiler
+($TOOLCHAIN_TRIPLET) run bootstrap form the bash prompt
+(cygwin bash on Windows). This will take some time. When finished,
+check $TOOLCHAIN_DIR to make sure everything is there. If the build
+fails mid-stream, you will need to fix whatever's broken on your
+system and re-run buildtoolchain. It will pick up where it left off.
+
+IMPORTANT: On Windows the only thing you should need to install is
+Cygwin (select GNU make and gcc during install). On Linux and OS X
+you will need to make sure perl is installed.
+
+Qt:
+
+Qt is not distributed with the toolchain. At >400MB per archive (one
+for Windows and one for Linux/OS X), it's way too bloated. It's only
+used in mex (which is slowly replacing it with an internal canvas and
+widget set). If you're using Qt, follow these instructions to build it
+on your platform. The build system is fully instrumented to handle Qt
+resources. Look at $TOOLCHAIN_ROOT/common/resources/Makefile to see
+what lists need to be setup for various Qt resources.
+
+To build Qt:
+IMPORTANT: Qt cannot at this time be used in static builds.
+- On Windows:
+  - unzip qt-everywhere-opensource-src-5.5.1.zip
+  - configure.bat -prefix %TOOLCHAIN_DIR% -opensource -shared -opengl desktop
+  - nmake install
+- On Linux:
+  - Make sure the following development libraries are installed:
+    - On Ubuntu 15.04: sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev\
+      libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1\
+      libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0\
+      libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-xfixes0-dev\
+      libxrender-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0\
+      libxcb-render-util0-dev libxcb-glx0-dev
+  - IMPORTANT NOTE: On my Ubuntu 15.04 machine the build fails
+    because of the libqtpcre, libqtharfbuzzng and libqtfreetype
+    dependencies. To fix it, I had to build them manually like
+    this:
+    - Do the steps below.
+      - If the build fails with:
+        - 'error: cannot find '-l:qtpcre':
+          - cd qtbase/src/3rdparty/pcre
+          - qmake pcre.pro
+          - make
+        - 'error: cannot find '-lqtharfbuzzng':
+          - cd qtbase/src/3rdparty/harfbuzz-ng
+          - qmake harfbuzz-ng.pro
+          - make
+        - 'error: cannot find '-lqtfreetype':
+          - cd qtbase/src/3rdparty/freetype
+          - qmake freetype.pro
+          - make
+  - tar zxvf qt-everywhere-opensource-src-5.5.1.tar.gz
+  - ./configure -prefix $TOOLCHAIN_DIR -opensource -shared
+  - make -j"$TOOLCHAIN_PROCESSOR_COUNT" install
+- On OS X:
+  - tar zxvf qt-everywhere-opensource-src-5.5.1.tar.gz
+  - ./configure -prefix $TOOLCHAIN_DIR -opensource -shared\
+    -debug-and-release -no-framework
+  - make -j"$TOOLCHAIN_PROCESSOR_COUNT" install

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# This script dispaly the basic environment variables defined
+# by setenvironment.
+
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN"/setenvironment ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
+fi
+
+echo "DEVELOPMENT_ROOT = $DEVELOPMENT_ROOT"
+echo "TOOLCHAIN_DEFAULT_ORGANIZATION = $TOOLCHAIN_DEFAULT_ORGANIZATION"
+echo "TOOLCHAIN_DEFAULT_PROJECT = $TOOLCHAIN_DEFAULT_PROJECT"
+echo "TOOLCHAIN_DEFAULT_BRANCH = $TOOLCHAIN_DEFAULT_BRANCH"
+echo "TOOLCHAIN_DEFAULT_SVC = $TOOLCHAIN_DEFAULT_SVC"
+echo "TOOLCHAIN_NAME = $TOOLCHAIN_NAME"
+echo "TOOLCHAIN_ROOT = $TOOLCHAIN_ROOT"
+echo "TOOLCHAIN_OS = $TOOLCHAIN_OS"
+echo "TOOLCHAIN_ARCH = $TOOLCHAIN_ARCH"
+echo "TOOLCHAIN_COMPILER = $TOOLCHAIN_COMPILER"
+echo "TOOLCHAIN_NAMING_CONVENTION = $TOOLCHAIN_NAMING_CONVENTION"
+echo "TOOLCHAIN_ENDIAN = $TOOLCHAIN_ENDIAN"
+echo "TOOLCHAIN_BRANCH = $TOOLCHAIN_BRANCH"
+echo "TOOLCHAIN_DIR = $TOOLCHAIN_DIR"
+echo "TOOLCHAIN_TRIPLET = $TOOLCHAIN_TRIPLET"
+echo "TOOLCHAIN_SHELL = $TOOLCHAIN_SHELL"
+echo "TOOLCHAIN_PROGRAM_SUFFIX = $TOOLCHAIN_PROGRAM_SUFFIX"
+echo "TOOLCHAIN_SHARED_LIBRARY_SUFFIX = $TOOLCHAIN_SHARED_LIBRARY_SUFFIX"
+echo "TOOLCHAIN_STATIC_LIBRARY_SUFFIX = $TOOLCHAIN_STATIC_LIBRARY_SUFFIX"
+
+exit 0

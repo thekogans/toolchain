@@ -1,0 +1,198 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# Download (if doesn't exist) the given source toolchain,
+# build and install it in to the toolchain.
+
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN"/setenvironment ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
+fi
+
+organization=
+url=
+project=
+version=
+file=
+source_sha2_256=
+config=
+type=
+rm_source=no
+
+for i in "$@"; do
+    case $i in
+        -o:*|--organization:*)
+            organization="${i#*:}"
+            ;;
+        -u:*|--url:*)
+            url="${i#*:}"
+            ;;
+        -p:*|--project:*)
+            project="${i#*:}"
+            ;;
+        -v:*|--version:*)
+            version="${i#*:}"
+            ;;
+        -f:*|--file:*)
+            file="${i#*:}"
+            ;;
+        -s:*|--sha2_256:*)
+            source_sha2_256="${i#*:}"
+            ;;
+        -c:*|--config:*)
+            config="${i#*:}"
+            ;;
+        -t:*|--type:*)
+            type="${i#*:}"
+            ;;
+        -r:*|--rm_source:*)
+            type="${i#*:}"
+            ;;
+    esac
+done
+
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "usage: $0 \
+$environment_options \
+[-o | --organization]:organization \
+[[-u | --url]:url] \
+[-p | --project]:project \
+[[-v | --version]:version] \
+[[-f | --file]:file] \
+[[-s | --sha2_256]:sha2_256] \
+[[-c | --config]:[Debug | Release]] \
+[[-t | --type]:[Static | Shared]] \
+[[-r | --rm_source]:[yes | no]]"
+    exit 1
+fi
+
+if [ "$config" != "" ] && [ "$config" != "Debug" ] && [ "$config" != "Release" ]; then
+    echo "Unsupported config [-c | --config]: $config [Debug | Release]."
+    exit 1
+fi
+
+if [ "$type" != "" ] && [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
+    echo "Unsupported type [-t | --type]: $type [Static | Shared]."
+    exit 1
+fi
+
+if [ "$rm_source" != "" ] && [ "$rm_source" != "yes" ] && [ "$rm_source" != "no" ]; then
+    echo "Unsupported flag [-r | --rm_source]: $rm_source [yes | no]."
+    exit 1
+fi
+
+if [ "$version" == "" ]; then
+    version=`"$(get_toolchain_program -o:thekogans -p:make)" \
+        -a:get_toolchain_source_toolchain_latest_version \
+        -o:"$organization" \
+        -p:"$project"`
+    check_errors $?
+    if [ "$version" == "" ]; then
+        echo "No entry for toolchain $organization"_"$project in Sources.xml."
+        exit 1
+    fi
+fi
+
+if [ "$file" == "" ]; then
+    file=`"$(get_toolchain_program -o:thekogans -p:make)" \
+        -a:get_toolchain_source_toolchain_file \
+        -o:"$organization" \
+        -p:"$project" \
+        -v:"$version"`
+    check_errors $?
+    if [ "$file" == "" ]; then
+        file="$(get_tarball_name -o:$organization -p:$project -v:$version)"
+    fi
+fi
+
+if [ "$source_sha2_256" == "" ]; then
+    source_sha2_256=`"$(get_toolchain_program -o:thekogans -p:make)" \
+        -a:get_toolchain_source_toolchain_sha2_256 \
+        -o:"$organization" \
+        -p:"$project" \
+        -v:"$version"`
+    check_errors $?
+fi
+
+to="$TOOLCHAIN_ROOT/sources/$file".tar.gz
+
+function get_file_sha2_256 () {
+    local sha2_256=`"$(get_toolchain_program -o:thekogans -p:hash)" \
+        -h:SHA2 \
+        -d:256 \
+        -n \
+        "$(to_system_path -p:$to)"`
+    check_errors $?
+    echo "$sha2_256"
+}
+
+if [ ! -e "$TOOLCHAIN_ROOT/sources" ]; then
+    mkdir -p "$TOOLCHAIN_ROOT/sources"
+    check_errors $?
+fi
+
+if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
+    if [ "$url" == "" ]; then
+        url=`"$(get_toolchain_program -o:thekogans -p:make)" -a:get_toolchain_source_url -o:"$organization"`
+        check_errors $?
+        if [ "$url" == "" ]; then
+            echo "No URL for $organization."
+            exit 1
+        fi
+    fi
+    from="$url/$organization/toolchain/$file".tar.gz
+    echo "Downloading $from -> $to"
+    "$(get_toolchain_program -o:thekogans -p:curl)" -# -k "$from" -o "$(to_system_path -p:$to)"
+    check_errors $?
+    if [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
+        echo "$to failed integrity check."
+        exit 1
+    fi
+fi
+
+project_root="$TOOLCHAIN_ROOT/sources/$file"
+
+if [ -d "$project_root" ]; then
+    rm -rf "$project_root"
+    check_errors $?
+fi
+
+tar zxvf "$to" -C "$TOOLCHAIN_ROOT/sources"
+check_errors $?
+
+cd "$project_root"
+check_errors $?
+
+"$TOOLCHAIN_SHELL" ./install -c:"$config" -t:"$type"
+check_errors $?
+
+cd ..
+check_errors $?
+
+if [ "$rm_source" == "yes" ]; then
+    rm -rf "$project_root"
+    check_errors $?
+fi
+
+exit 0

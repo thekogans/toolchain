@@ -1,0 +1,369 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# Create a local sandbox.
+export DEVELOPMENT_ROOT=`pwd`
+export TOOLCHAIN_DEFAULT_BRANCH=trunk
+
+function get_tarball_version () {
+    local organization=
+    local project=
+    local branch=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+        esac
+    done
+    local latest_major_version=0
+    local latest_minor_version=0
+    local latest_patch_version=0
+    local template="$organization"_"$project"
+    if [ "$branch" != "" ]; then
+        template="$template-${branch////_}"
+    fi
+    template="$template-"
+    local file=
+    for file in "$template"*; do
+        # Trim off everything but the version.
+        file="${file#$template}"
+        if [ "$file" != "*" ]; then
+            file="${file%.tar.gz}"
+            # Break the version string in to (major, minor, patch) int array.
+            local version=(${file//./ })
+            if (( "$latest_major_version" < ${version[0]} )) ||\
+                  ((( "$latest_major_version" == ${version[0]} )) &&\
+                   (( "$latest_minor_version" < ${version[1]} ))) ||\
+                  ((( "$latest_major_version" == ${version[0]} )) &&\
+                   (( "$latest_minor_version" == ${version[1]} )) &&\
+                   (( "$latest_patch_version" < ${version[2]} ))); then
+                latest_major_version=${version[0]}
+                latest_minor_version=${version[1]}
+                latest_patch_version=${version[2]}
+            fi
+        fi
+    done
+    local latest_version="$latest_major_version.$latest_minor_version.$latest_patch_version"
+    if [ "$latest_version" != "0.0.0" ]; then
+        echo "$latest_version"
+    else
+        echo ""
+    fi
+}
+
+# gnu_make
+gnu_make_version="$(get_tarball_version -o:gnu -p:make)"
+if [ ! -f .gnu_make-"$gnu_make_version"_done ]; then
+    if [ -d gnu_make-"$gnu_make_version" ]; then
+        rm -rf gnu_make-"$gnu_make_version"
+        check_errors $?
+    fi
+    tar zxvf gnu_make-"$gnu_make_version".tar.gz
+    check_errors $?
+    cd gnu_make-"$gnu_make_version"
+    check_errors $?
+    ./install
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -rf gnu_make-"$gnu_make_version"
+    check_errors $?
+    touch .gnu_make-"$gnu_make_version"_done
+    check_errors $?
+fi
+
+# thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"
+# In order to bootstrap the build system, we create a
+# temporary toolchain to build thekogans_make. After
+# that we use it to build XcodeEditor, zlib, openssl,
+# pugixml and curl. Once that's done we build it one
+# more time using the newly built libraries.
+thekogans_util_version="$(get_tarball_version -o:thekogans -p:util -b:$TOOLCHAIN_DEFAULT_BRANCH)"
+thekogans_make_core_version="$(get_tarball_version -o:thekogans -p:make_core -b:$TOOLCHAIN_DEFAULT_BRANCH)"
+thekogans_make_version="$(get_tarball_version -o:thekogans -p:make -b:$TOOLCHAIN_DEFAULT_BRANCH)"
+if [ ! -f "$(get_toolchain_program -o:thekogans -p:make -v:$thekogans_make_version)" ]; then
+    if [ -d thekogans ]; then
+        rm -rf thekogans
+        check_errors $?
+    fi
+    tar zxvf thekogans_util-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_util_version".tar.gz
+    check_errors $?
+    tar zxvf thekogans_make_core-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_core_version".tar.gz
+    check_errors $?
+    tar zxvf thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version".tar.gz
+    check_errors $?
+    cd thekogans/make/"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"
+    check_errors $?
+    ./bootstrap -uv:"$thekogans_util_version" -mcv:"$thekogans_make_core_version" -mv:"$thekogans_make_version"
+    check_errors $?
+    cd ../../..
+    rm -rf thekogans
+    check_errors $?
+fi
+
+# thekogans_nasm
+thekogans_nasm_version="$(get_tarball_version -o:thekogans -p:nasm)"
+if [ ! -f .thekogans_nasm-"$thekogans_nasm_version"_done ]; then
+    if [ -d thekogans_nasm-"$thekogans_nasm_version" ]; then
+        rm -rf thekogans_nasm-"$thekogans_nasm_version"
+        check_errors $?
+    fi
+    tar zxvf thekogans_nasm-"$thekogans_nasm_version".tar.gz
+    check_errors $?
+    cd thekogans_nasm-"$thekogans_nasm_version"
+    check_errors $?
+    ./install -c:Release -t:Static
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -r thekogans_nasm-"$thekogans_nasm_version"
+    check_errors $?
+    touch .thekogans_nasm-"$thekogans_nasm_version"_done
+    check_errors $?
+fi
+
+# thekogans_pugixml
+thekogans_pugixml_version="$(get_tarball_version -o:thekogans -p:pugixml)"
+if [ ! -f .thekogans_pugixml-"$thekogans_pugixml_version"_done ]; then
+    if [ -d thekogans_pugixml-"$thekogans_pugixml_version" ]; then
+        rm -rf thekogans_pugixml-"$thekogans_pugixml_version"
+        check_errors $?
+    fi
+    tar zxvf thekogans_pugixml-"$thekogans_pugixml_version".tar.gz
+    check_errors $?
+    cd thekogans_pugixml-"$thekogans_pugixml_version"
+    check_errors $?
+    ./install -c:Release
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -rf thekogans_pugixml-"$thekogans_pugixml_version"
+    check_errors $?
+    touch .thekogans_pugixml-"$thekogans_pugixml_version"_done
+    check_errors $?
+fi
+
+# thekogans_zlib
+thekogans_zlib_version="$(get_tarball_version -o:thekogans -p:zlib)"
+if [ ! -f .thekogans_zlib-"$thekogans_zlib_version"_done ]; then
+    if [ -d thekogans_zlib-"$thekogans_zlib_version" ]; then
+        rm -rf thekogans_zlib-"$thekogans_zlib_version"
+        check_errors $?
+    fi
+    tar zxvf thekogans_zlib-"$thekogans_zlib_version".tar.gz
+    check_errors $?
+    cd thekogans_zlib-"$thekogans_zlib_version"
+    check_errors $?
+    ./install -c:Release
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -rf thekogans_zlib-"$thekogans_zlib_version"
+    check_errors $?
+    touch .thekogans_zlib-"$thekogans_zlib_version"_done
+    check_errors $?
+fi
+
+# thekogans_xerces
+thekogans_xerces_version="$(get_tarball_version -o:thekogans -p:xerces)"
+if [ ! -f .thekogans_xerces-"$thekogans_xerces_version"_done ]; then
+    if [ -d thekogans_xerces-"$thekogans_xerces_version" ]; then
+        rm -rf thekogans_xerces-"$thekogans_xerces_version"
+        check_errors $?
+    fi
+    tar zxvf thekogans_xerces-"$thekogans_xerces_version".tar.gz
+    check_errors $?
+    cd thekogans_xerces-"$thekogans_xerces_version"
+    check_errors $?
+    ./install -c:Release
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -rf thekogans_xerces-"$thekogans_xerces_version"
+    check_errors $?
+    touch .thekogans_xerces-"$thekogans_xerces_version"_done
+    check_errors $?
+fi
+
+# thekogans_CppUnitXLite
+thekogans_CppUnitXLite_version="$(get_tarball_version -o:thekogans -p:CppUnitXLite)"
+if [ ! -f .thekogans_CppUnitXLite-"$thekogans_CppUnitXLite_version"_done ]; then
+    if [ -d thekogans_CppUnitXLite-"$thekogans_CppUnitXLite_version" ]; then
+        rm -rf thekogans_CppUnitXLite-"$thekogans_CppUnitXLite_version"
+        check_errors $?
+    fi
+    tar zxvf thekogans_CppUnitXLite-"$thekogans_CppUnitXLite_version".tar.gz
+    check_errors $?
+    cd thekogans_CppUnitXLite-"$thekogans_CppUnitXLite_version"
+    check_errors $?
+    ./install
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -rf thekogans_CppUnitXLite-"$thekogans_CppUnitXLite_version"
+    check_errors $?
+    touch .thekogans_CppUnitXLite-"$thekogans_CppUnitXLite_version"_done
+    check_errors $?
+fi
+
+# thekogans_XcodeEditor
+if [ "$TOOLCHAIN_OS" == "OSX" ]; then
+    thekogans_XcodeEditor_version="$(get_tarball_version -o:thekogans -p:XcodeEditor)"
+    if [ ! -f .thekogans_XcodeEditor-"$thekogans_XcodeEditor_version"_done ]; then
+        if [ -d thekogans_XcodeEditor-"$thekogans_XcodeEditor_version" ]; then
+            rm -rf thekogans_XcodeEditor-"$thekogans_XcodeEditor_version"
+            check_errors $?
+        fi
+        tar zxvf thekogans_XcodeEditor-"$thekogans_XcodeEditor_version".tar.gz
+        check_errors $?
+        cd thekogans_XcodeEditor-"$thekogans_XcodeEditor_version"
+        check_errors $?
+        ./install -c:Release
+        check_errors $?
+        cd ..
+        check_errors $?
+        rm -rf thekogans_XcodeEditor-"$thekogans_XcodeEditor_version"
+        check_errors $?
+        touch .thekogans_XcodeEditor-"$thekogans_XcodeEditor_version"_done
+        check_errors $?
+    fi
+fi
+
+# thekogans_openssl
+thekogans_openssl_version="$(get_tarball_version -o:thekogans -p:openssl)"
+if [ ! -f .thekogans_openssl-"$thekogans_openssl_version"_done ]; then
+    if [ -d thekogans_openssl-"$thekogans_openssl_version" ]; then
+        rm -rf thekogans_openssl-"$thekogans_openssl_version"
+        check_errors $?
+    fi
+    tar zxvf thekogans_openssl-"$thekogans_openssl_version".tar.gz
+    check_errors $?
+    cd thekogans_openssl-"$thekogans_openssl_version"
+    check_errors $?
+    ./install -c:Release
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -rf thekogans_openssl-"$thekogans_openssl_version"
+    check_errors $?
+    touch .thekogans_openssl-"$thekogans_openssl_version"_done
+    check_errors $?
+fi
+
+# thekogans_curllib
+thekogans_curllib_version="$(get_tarball_version -o:thekogans -p:curllib)"
+if [ ! -f .thekogans_curllib-"$thekogans_curllib_version"_done ]; then
+    if [ -d thekogans_curllib-"$thekogans_curllib_version" ]; then
+        rm -rf thekogans_curllib-"$thekogans_curllib_version"
+        check_errors $?
+    fi
+    tar zxvf thekogans_curllib-"$thekogans_curllib_version".tar.gz
+    check_errors $?
+    cd thekogans_curllib-"$thekogans_curllib_version"
+    check_errors $?
+    ./install -c:Release
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -rf thekogans_curllib-"$thekogans_curllib_version"
+    check_errors $?
+    touch .thekogans_curllib-"$thekogans_curllib_version"_done
+    check_errors $?
+fi
+
+# thekogans_curl
+thekogans_curl_version="$(get_tarball_version -o:thekogans -p:curl)"
+if [ ! -f .thekogans_curl-"$thekogans_curl_version"_done ]; then
+    if [ -d thekogans_curl-"$thekogans_curl_version" ]; then
+        rm -rf thekogans_curl-"$thekogans_curl_version"
+        check_errors $?
+    fi
+    tar zxvf thekogans_curl-"$thekogans_curl_version".tar.gz
+    check_errors $?
+    cd thekogans_curl-"$thekogans_curl_version"
+    check_errors $?
+    ./install -c:Release -t:Static
+    check_errors $?
+    cd ..
+    check_errors $?
+    rm -rf thekogans_curl-"$thekogans_curl_version"
+    check_errors $?
+    touch .thekogans_curl-"$thekogans_curl_version"_done
+    check_errors $?
+fi
+
+# thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"
+# Now build the real thing.
+if [ ! -f .thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"_done ]; then
+    if [ -d thekogans ]; then
+        rm -rf thekogans
+        check_errors $?
+    fi
+    tar zxvf thekogans_util-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_util_version".tar.gz
+    check_errors $?
+    tar zxvf thekogans_make_core-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_core_version".tar.gz
+    check_errors $?
+    tar zxvf thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version".tar.gz
+    check_errors $?
+    cd thekogans/util/"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_util_version"/examples/genguid
+    check_errors $?
+    "$TOOLCHAIN_ROOT"/common/bin/installprogram -pr:. -c:Release -t:Static
+    check_errors $?
+    cd ../hash
+    check_errors $?
+    "$TOOLCHAIN_ROOT"/common/bin/installprogram -pr:. -c:Release -t:Static
+    check_errors $?
+    cd ../../../../make/"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"
+    check_errors $?
+    # On Windows thekogans_make can't overwrite itself while running.
+    # We resort to this trickery to get around this problem.
+    "$TOOLCHAIN_ROOT"/common/bin/build -pr:. -c:Release -t:Shared -m:Install
+    check_errors $?
+    mv "$(get_toolchain_program -o:thekogans -p:make -v:"$thekogans_make_version")" thekogans_make
+    check_errors $?
+    ./thekogans_make -a:install_program -c:Release -t:Shared `cd .; pwd`
+    check_errors $?
+    cd ../../..
+    check_errors $?
+    rm -rf thekogans
+    check_errors $?
+    touch .thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"_done
+    check_errors $?
+fi
+
+# cleanup
+rm -rf "$TOOLCHAIN_DIR"/config/thekogans_curllib-"$thekogans_curllib_version".xml\
+   "$TOOLCHAIN_DIR"/config/thekogans_openssl_crypto-"$thekogans_openssl_version".xml\
+   "$TOOLCHAIN_DIR"/config/thekogans_openssl_ssl-"$thekogans_openssl_version".xml\
+   "$TOOLCHAIN_DIR"/config/thekogans_pugixml-"$thekogans_pugixml_version".xml\
+   "$TOOLCHAIN_DIR"/config/thekogans_zlib-"$thekogans_zlib_version".xml\
+   "$TOOLCHAIN_DIR"/config/thekogans_xerces-"$thekogans_xerces_version".xml\
+   "$TOOLCHAIN_DIR"/config/thekogans_CppUnitXLite-"$thekogans_CppUnitXLite_version".xml\
+   "$TOOLCHAIN_DIR"/config/thekogans_XcodeEditor-"$thekogans_XcodeEditor_version".xml\
+   "$TOOLCHAIN_DIR"/resources/mime-types.txt\
+   "$TOOLCHAIN_DIR"/include\
+   "$TOOLCHAIN_DIR"/lib\
+   "$TOOLCHAIN_DIR"/share

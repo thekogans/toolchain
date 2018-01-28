@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# Uninstall a library from the toolchain and optionally it's dependencies.
+
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN"/setenvironment ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
+fi
+
+organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+project=
+version=
+dependencies=no
+
+for i in "$@"; do
+    case $i in
+        -o:*|--organization:*)
+            organization="${i#*:}"
+            ;;
+        -p:*|--project:*)
+            project="${i#*:}"
+            ;;
+        -v:*|--version:*)
+            version="${i#*:}"
+            ;;
+        -d:*|--dependencies:*)
+            dependencies="${i#*:}"
+            ;;
+    esac
+done
+
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[-p | --project]:project \
+[[-v | --version]:version] \
+[[-d | --dependencies]:[yes | no]]"
+    exit 1
+fi
+
+if [ "$dependencies" != "yes" ] && [ "$dependencies" != "no" ]; then
+    echo "Unsupported dependencies [-d | --dependencies]: $type [yes | no]."
+    exit 1
+fi
+
+dependencies_flag=
+if [ "$dependencies" == "yes" ]; then
+    dependencies_flag=-d
+fi
+
+version_flag=
+if [ "$version" != "" ]; then
+    version_flag=-v:"$version"
+fi
+
+"$(get_toolchain_program -o:thekogans -p:make)" \
+    -a:uninstall_library \
+    -o:"$organization" \
+    -p:"$project" \
+    "$version_flag" \
+    "$dependencies_flag"
+check_errors $?
+
+exit 0

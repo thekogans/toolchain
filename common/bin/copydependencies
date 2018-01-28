@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# This script will copy shared dependencies for the specified program project.
+
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN"/setenvironment ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
+fi
+
+organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+project="$TOOLCHAIN_DEFAULT_PROJECT"
+branch=
+version=
+example=
+project_root=
+config=
+type=
+
+# Parse command line options.
+for i in "$@"; do
+    case $i in
+        -o:*|--organization:*)
+            organization="${i#*:}"
+            ;;
+        -p:*|--project:*)
+            project="${i#*:}"
+            ;;
+        -b:*|--branch:*)
+            branch="${i#*:}"
+            ;;
+        -v:*|--version:*)
+            version="${i#*:}"
+            ;;
+        -e:*|--example:*)
+            example="${i#*:}"
+            ;;
+        -pr:*|--project-root:*)
+            project_root="${i#*:}"
+            ;;
+        -c:*|--config:*)
+            config="${i#*:}"
+            ;;
+        -t:*|--type:*)
+            type="${i#*:}"
+            ;;
+    esac
+done
+
+if [ "$project_root" == "" ]; then
+    if [ "$organization" == "" ] || [ "$project" == "" ]; then
+        common_options="\
+[-c | --config]:[Debug | Release] \
+[-t | --type]:[Shared | Static]"
+        echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[[-p | --project]:project] \
+[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
+[[-v | --version]:version] \
+[[-e | --example]:example] \
+$common_options or"
+        echo "       $0 \
+$environment_options \
+[-pr | --project-root]:'folder containing thekogans_make.xml' \
+$common_options"
+        exit 1
+    fi
+    project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
+else
+    project_root=`cd "$project_root"; pwd`
+fi
+
+config_file="$project_root"/thekogans_make.xml
+
+# Validate input.
+if [ ! -e "$config_file" ]; then
+    echo "$config_file Not found."
+    exit 1
+fi
+
+if [ "$config" != "Debug" ] && [ "$config" != "Release" ]; then
+    echo "Unsupported config [-c | --config]: $config [Debug | Release]."
+    exit 1
+fi
+
+if [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
+    echo "Unsupported type [-t | --type]: $type [Static | Shared]."
+    exit 1
+fi
+
+"$(get_toolchain_program -o:thekogans -p:make)" \
+    -a:copy_dependencies \
+    -c:"$config" \
+    -t:"$type" \
+    "$project_root"
+check_errors $?
+
+exit 0

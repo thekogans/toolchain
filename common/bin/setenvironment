@@ -1,0 +1,185 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# This script will setup the environment for building with
+# thekogans.net development environment and toolchain.
+
+TOOLCHAIN_ROOT="$(dirname $(dirname $(cd $(dirname ${BASH_SOURCE[0]}) && pwd)))"
+
+toolchain_version="$TOOLCHAIN_ROOT"/common/bin/version
+
+if [ -e "$toolchain_version" ]; then
+    . "$toolchain_version"
+else
+    echo "Unable to find $toolchain_version."
+    exit 1
+fi
+
+if [ -e "$TOOLCHAIN_ROOT"/defaultenvironment ]; then
+    . "$TOOLCHAIN_ROOT"/defaultenvironment
+else
+    operating_system=
+    architecture=
+    compiler=
+    naming_convention=Hierarchical
+    development_root=
+    default_organization=
+    default_project=
+    default_branch=
+    default_svc=
+fi
+
+# Parse the command line.
+for i in "$@"; do
+    case $i in
+        -tv|--toolchain-version)
+            echo "thekogans.net toolchain and build system version: \
+$TOOLCHAIN_MAJOR_VERSION"."$TOOLCHAIN_MINOR_VERSION"."$TOOLCHAIN_PATCH_VERSION"
+            exit 0
+            ;;
+        -os:*|--operating-system:*)
+            operating_system="${i#*:}"
+            ;;
+        -arch:*|--architecture:*)
+            architecture="${i#*:}"
+            ;;
+        -comp:*|--compiler:*)
+            compiler="${i#*:}"
+            ;;
+        -nc:*|--naming-convention:*)
+            naming_convention="${i#*:}"
+            ;;
+        -dr:*|--development-root:*)
+            development_root="${i#*:}"
+            ;;
+        -do:*|--default-organization:*)
+            default_organization="${i#*:}"
+            ;;
+        -dp:*|--default-project:*)
+            default_project="${i#*:}"
+            ;;
+        -db:*|--default-branch:*)
+            default_branch="${i#*:}"
+            ;;
+        -ds:*|--default-svc:*)
+            default_svc="${i#*:}"
+            ;;
+    esac
+done
+
+environment_options="\
+[-tv | --toolchain-version] \
+[[-os | --operating-system]:[Windows | OSX | Linux]] \
+[[-arch | --architecture]:[i386 | x86_64]] \
+[[-comp | --compiler]:compiler] \
+[[-nc | --naming-convention]:[Flat | Hierarchical]] \
+[[-dr | --development-root]:development_root] \
+[[-do | --default-organization]:default_organization] \
+[[-dp | --default-project]:default_project] \
+[[-db | --default-branch]:[trunk | branches/branch | tags/tag]] \
+[[-ds | --default-svc]:[svn | git]]"
+
+# Check if the TOOLCHAIN_TRIPLET was specified.
+if [ "$operating_system" == "" ] || [ "$architecture" == "" ] || [ "$compiler" == "" ]; then
+    echo "usage: $0 $environment_options"
+    exit 1
+fi
+
+# Validate naming_convention.
+if [ "$naming_convention" != "Flat" ] && [ "$naming_convention" != "Hierarchical" ]; then
+    echo "Unknown naming convention [-nc | --naming-convention]: $naming_convention [Flat | Hierarchical]"
+    exit 1
+fi
+
+# Discover the environment...
+if [ "$development_root" != "" ]; then
+    DEVELOPMENT_ROOT="$(cd $development_root && pwd)"
+else
+    DEVELOPMENT_ROOT="$(dirname $TOOLCHAIN_ROOT)"
+fi
+TOOLCHAIN_NAME="$(basename $TOOLCHAIN_ROOT)"
+TOOLCHAIN_OS="$operating_system"
+TOOLCHAIN_ARCH="$architecture"
+TOOLCHAIN_COMPILER="$compiler"
+if [ "$default_organization" != "" ]; then
+    export TOOLCHAIN_DEFAULT_ORGANIZATION="$default_organization"
+fi
+if [ "$default_project" != "" ]; then
+    export TOOLCHAIN_DEFAULT_PROJECT="$default_project"
+fi
+if [ "$default_branch" != "" ]; then
+    export TOOLCHAIN_DEFAULT_BRANCH="$default_branch"
+fi
+if [ "$default_svc" != "" ]; then
+    export TOOLCHAIN_DEFAULT_SVC="$default_svc"
+fi
+TOOLCHAIN_NAMING_CONVENTION="$naming_convention"
+endian=`echo -n I | od -to2 | awk '{print substr($2,6,1); exit}'`
+if [ "$endian" == 1 ]; then
+    TOOLCHAIN_ENDIAN=Little
+else
+    TOOLCHAIN_ENDIAN=Big
+fi
+TOOLCHAIN_BRANCH="$TOOLCHAIN_OS"/"$TOOLCHAIN_ARCH"/"$TOOLCHAIN_COMPILER"
+TOOLCHAIN_DIR="$TOOLCHAIN_ROOT"/"$TOOLCHAIN_BRANCH"
+if [ ! -d "$TOOLCHAIN_DIR" ]; then
+    echo "Toolchain $TOOLCHAIN_DIR does not exist."
+    exit 1
+fi
+TOOLCHAIN_TRIPLET="$TOOLCHAIN_OS"-"$TOOLCHAIN_ARCH"-"$TOOLCHAIN_COMPILER"
+TOOLCHAIN_SHELL=`which bash`
+if [ ! -e "$TOOLCHAIN_SHELL" ]; then
+    echo "System shell (bash) is missing."
+    exit 1
+fi
+
+# ...and export it.
+export DEVELOPMENT_ROOT \
+    TOOLCHAIN_NAME \
+    TOOLCHAIN_ROOT \
+    TOOLCHAIN_OS \
+    TOOLCHAIN_ARCH \
+    TOOLCHAIN_COMPILER \
+    TOOLCHAIN_NAMING_CONVENTION \
+    TOOLCHAIN_ENDIAN \
+    TOOLCHAIN_BRANCH \
+    TOOLCHAIN_DIR \
+    TOOLCHAIN_TRIPLET \
+    TOOLCHAIN_SHELL
+
+# Pull in toolchain specific environment (if specified).
+toolchain_common_setenvironment="$TOOLCHAIN_ROOT"/common/setenvironment
+if [ -e "$toolchain_common_setenvironment" ]; then
+    . "$toolchain_common_setenvironment" "$@"
+fi
+toolchain_os_setenvironment="$TOOLCHAIN_ROOT"/"$TOOLCHAIN_OS"/setenvironment
+if [ -e "$toolchain_os_setenvironment" ]; then
+    . "$toolchain_os_setenvironment" "$@"
+fi
+toolchain_arch_setenvironment="$TOOLCHAIN_ROOT"/"$TOOLCHAIN_OS"/"$TOOLCHAIN_ARCH"/setenvironment
+if [ -e "$toolchain_arch_setenvironment" ]; then
+    . "$toolchain_arch_setenvironment" "$@"
+fi
+toolchain_dir_setenvironment="$TOOLCHAIN_DIR"/setenvironment
+if [ -e "$toolchain_dir_setenvironment" ]; then
+    . "$toolchain_dir_setenvironment" "$@"
+fi
+
+# Pull in a bunch of useful utility functions.
+. "$TOOLCHAIN_ROOT"/common/bin/utils

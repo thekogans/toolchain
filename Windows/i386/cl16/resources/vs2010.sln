@@ -1,0 +1,17 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+$(dependency_dependencies)
+$(project_dependencies)
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		$(config) $(type)|Win32 = $(config) $(type)|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+$(dependency_targets)
+$(project_targets)
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

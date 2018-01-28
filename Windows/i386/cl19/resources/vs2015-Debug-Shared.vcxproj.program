@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug Shared|Win32">
+      <Configuration>Debug Shared</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{$(project_guid)}</ProjectGuid>
+    <RootNamespace>$(project)</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <TargetName>$(target_name)</TargetName>
+    <TargetExt>.exe</TargetExt>
+    <OutDir>$(project_root)\bin\$(naming_convention_prefix)</OutDir>
+    <IntDir>obj\</IntDir>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(include_directories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;$(subsystem);_DEBUG;BOOST_ALL_NO_LIB;$(preprocessor_definitions);$(features);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>$(runtime_library)</RuntimeLibrary>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(link_libraries)%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>$(link_subsystem)</SubSystem>
+    </Link>
+    <!-- <PreBuildEvent>
+      <Message>Update build system.</Message>
+      <Command>$(TOOLCHAIN_SHELL) $(TOOLCHAIN_ROOT)/common/bin/makebuild -g:$(generator) -pr:$(project_root) -c:$(config) -t:$(type)</Command>
+    </PreBuildEvent> -->
+    <PostBuildEvent>
+      <Message>Copy dependencies.</Message>
+      <Command>$(TOOLCHAIN_SHELL) $(TOOLCHAIN_ROOT)/common/bin/copydependencies -pr:$(project_root) -c:$(config) -t:$(type)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+$(masm_headers)
+  </ItemGroup>
+  <ItemGroup>
+$(masm_sources)
+  </ItemGroup>
+  <ItemGroup>
+$(nasm_headers)
+  </ItemGroup>
+  <ItemGroup>
+$(nasm_sources)
+  </ItemGroup>
+  <ItemGroup>
+$(c_headers)
+  </ItemGroup>
+  <ItemGroup>
+$(c_sources)
+  </ItemGroup>
+  <ItemGroup>
+$(cpp_headers)
+  </ItemGroup>
+  <ItemGroup>
+$(cpp_sources)
+  </ItemGroup>
+  <ItemGroup>
+$(rc_sources)
+  </ItemGroup>
+  <ItemGroup>
+$(resources)
+  </ItemGroup>
+  <ItemGroup>
+$(custom_build_sources)
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

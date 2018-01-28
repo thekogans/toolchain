@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+flush_cygwin_mount_table=no
+
+# Parse the command line.
+for i in "$@"; do
+    case $i in
+        -fcmt:*|--flush-cygwin-mount-table:*)
+            flush_cygwin_mount_table="${i#*:}"
+            ;;
+    esac
+done
+
+TOOLCHAIN_PROGRAM_SUFFIX=.exe
+TOOLCHAIN_SHARED_LIBRARY_SUFFIX=dll
+TOOLCHAIN_STATIC_LIBRARY_SUFFIX=lib
+
+TOOLCHAIN_CYGWIN_MOUNT_TABLE="$TOOLCHAIN_ROOT"/common/resources/cygwin_mount_table.txt
+# NOTE: mount can take a very long time to list the mount points
+# (depending on how many you have). Mounts is not something that
+# changes frequently, so this caching strategy is justified. The
+# downside is, if your mounts do change, you need to delete the
+# path pointed to by TOOLCHAIN_CYGWIN_MOUNT_TABLE or you risk
+# trying to build against stale mounts. To aid with that, pass
+# [-fcmt | --flush-cygwin-mount-table]:yes to any of the toolchain
+# scripts.
+if [ "$flush_cygwin_mount_table" == "yes" ]; then
+    rm -f "$TOOLCHAIN_CYGWIN_MOUNT_TABLE"
+fi
+if [ ! -e "$TOOLCHAIN_CYGWIN_MOUNT_TABLE" ]; then
+    mount > "$TOOLCHAIN_CYGWIN_MOUNT_TABLE"
+fi
+# This should be the only non UNIX path in the environment. It's
+# used by thekogans_make to find the cygwin_mount_table.txt used
+# to map paths from Cygwin to Windows and as such has to be in
+# Windows native format.
+TOOLCHAIN_CYGWIN_MOUNT_TABLE=`cygpath -aw "$TOOLCHAIN_CYGWIN_MOUNT_TABLE"`
+
+export TOOLCHAIN_PROGRAM_SUFFIX \
+    TOOLCHAIN_SHARED_LIBRARY_SUFFIX \
+    TOOLCHAIN_STATIC_LIBRARY_SUFFIX \
+    TOOLCHAIN_CYGWIN_MOUNT_TABLE

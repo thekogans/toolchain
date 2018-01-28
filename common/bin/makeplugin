@@ -1,0 +1,238 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# This script will configure a directory tree and some
+# helpful starter files for a new organization plugin.
+
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN"/setenvironment ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
+fi
+
+organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+project=
+svc=
+
+for i in "$@"; do
+    case $i in
+        -o:*|--organization:*)
+            organization="${i#*:}"
+            ;;
+        -p:*|--project:*)
+            project="${i#*:}"
+            ;;
+        -s:*|--svc:*)
+            svc="${i#*:}"
+            ;;
+    esac
+done
+
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[-p | --project]:project \
+[[-s | --svc]:[svn | git]]"
+    exit 1
+fi
+
+project_root="$DEVELOPMENT_ROOT"/"$organization"/"${project//_//}"
+if [ ! -d "$project_root" ]; then
+    mkdir -p "$project_root"
+    check_errors $?
+fi
+cd "$project_root"
+check_errors $?
+
+if [ "$svc" == "" ]; then
+    svc="$(get_default_svc -o:$organization)"
+fi
+if [ "$svc" == "svn" ]; then
+    mkdir trunk branches tags
+    check_errors $?
+    cd trunk
+    check_errors $?
+fi
+mkdir -p include/"$organization"/"${project//_//}" src resources doc examples tests
+check_errors $?
+if [ "$svc" == "git" ]; then
+    touch resources/.keep doc/.keep tests/.keep
+    check_errors $?
+    cp -v "$TOOLCHAIN_ROOT"/common/resources/.gitignore .gitignore
+    check_errors $?
+fi
+touch README
+check_errors $?
+
+ORGANIZATION=`echo ${organization} | tr '[:lower:]' '[:upper:]'`
+PROJECT=`echo ${project} | tr '[:lower:]' '[:upper:]'`
+
+cat > include/"$organization"/"${project//_//}"/Config.h << EOF
+#if !defined (__${organization}_${project}_Config_h)
+#define __${organization}_${project}_Config_h
+
+#if !defined (__cplusplus)
+    #error lib${organization}_${project} requires C++ compilation (use a .cpp suffix)
+#endif // !defined (__cplusplus)
+
+#if defined (TOOLCHAIN_OS_Windows)
+    #define _LIB_${ORGANIZATION}_${PROJECT}_API __stdcall
+    #if defined (TOOLCHAIN_TYPE_Shared)
+        #if defined (_LIB_${ORGANIZATION}_${PROJECT}_BUILD)
+            #define _LIB_${ORGANIZATION}_${PROJECT}_DECL __declspec (dllexport)
+        #else // defined (_LIB_${ORGANIZATION}_${PROJECT}_BUILD)
+            #define _LIB_${ORGANIZATION}_${PROJECT}_DECL __declspec (dllimport)
+        #endif // defined (_LIB_${ORGANIZATION}_${PROJECT}_BUILD)
+    #else // defined (TOOLCHAIN_TYPE_Shared)
+        #define _LIB_${ORGANIZATION}_${PROJECT}_DECL
+    #endif // defined (TOOLCHAIN_TYPE_Shared)
+    #if defined (_MSC_VER)
+        #pragma warning (disable: 4251)  // using non-exported as public in exported
+        #pragma warning (disable: 4786)
+    #endif // defined (_MSC_VER)
+#else // defined (TOOLCHAIN_OS_Windows)
+    #define _LIB_${ORGANIZATION}_${PROJECT}_API
+    #define _LIB_${ORGANIZATION}_${PROJECT}_DECL
+#endif // defined (TOOLCHAIN_OS_Windows)
+
+/// \def ${ORGANIZATION}_${PROJECT}_DISALLOW_COPY_AND_ASSIGN(type)
+/// A convenient macro to suppress copy construction and assignment.
+#define ${ORGANIZATION}_${PROJECT}_DISALLOW_COPY_AND_ASSIGN(type)\\
+private:\\
+    type (const type &);\\
+    type &operator = (const type &);
+
+/// \def ${ORGANIZATION}_${PROJECT}
+/// Logging subsystem name.
+#define ${ORGANIZATION}_${PROJECT} "${organization}_${project}"
+
+#endif // !defined (__${organization}_${project}_Config_h)
+EOF
+check_errors $?
+
+cat > include/"$organization"/"${project//_//}"/Version.h << EOF
+#if !defined (__${organization}_${project}_Version_h)
+#define __${organization}_${project}_Version_h
+
+#include "thekogans/util/Version.h"
+
+namespace ${organization} {
+    namespace ${project} {
+
+        /// \brief
+        /// Return the compiled ${organization}_${project} version.
+        /// \return Compiled ${organization}_${project} version.
+        const thekogans::util::Version &GetVersion ();
+
+    } // namespace ${project}
+} // namespace ${organization}
+
+#endif // !defined (__${organization}_${project}_Version_h)
+EOF
+check_errors $?
+
+cat > src/main.cpp << EOF
+#include "thekogans/util/Plugins.h"
+#include "$organization/${project//_//}/Config.h"
+#include "$organization/${project//_//}/Version.h"
+
+using namespace thekogans;
+
+#if defined (__clang__)
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+#endif
+
+extern "C"
+    _LIB_${ORGANIZATION}_${PROJECT}_DECL thekogans::util::Plugins::Plugin::Interface &
+    _LIB_${ORGANIZATION}_${PROJECT}_API GetPluginInterface () {
+        struct PluginInterface : public thekogans::util::Plugins::Plugin::Interface {
+            virtual const thekogans::util::Version &GetVersion () const throw () {
+                return $project::GetVersion ();
+            }
+            virtual void Initialize () throw () {
+                // FIXME: implement
+            }
+            virtual void Shutdown () throw () {
+                // FIXME: implement
+            }
+        } static pluginInterface;
+        return pluginInterface;
+    }
+}
+
+#if defined (__clang__)
+    #pragma clang diagnostic pop
+#endif
+EOF
+check_errors $?
+
+cat > src/Version.cpp << EOF
+#include "$organization/${project//_//}/Version.h"
+
+namespace $organization {
+    namespace $project {
+
+        const thekogans::util::Version &GetVersion () {
+            static const thekogans::util::Version version (
+                ${ORGANIZATION}_${PROJECT}_MAJOR_VERSION,
+                ${ORGANIZATION}_${PROJECT}_MINOR_VERSION,
+                ${ORGANIZATION}_${PROJECT}_PATCH_VERSION);
+            return version;
+        }
+
+    } // namespace $project
+} // namespace $organization
+EOF
+check_errors $?
+
+cat > thekogans_make.xml << EOF
+<thekogans_make organization = "$organization"
+                project = "$project"
+                project_type = "plugin"
+                major_version = "0"
+                minor_version = "1"
+                patch_version = "0"
+                build_type = "Shared"
+                guid = "`$(get_toolchain_program -o:thekogans -p:genguid)`"
+                schema_version = "`$(get_toolchain_program -o:thekogans -p:make) -a:get_schema_version`">
+  <plugin_hosts>
+  </plugin_hosts>
+  <dependencies>
+    <project organization = "thekogans"
+             name = "util"/>
+  </dependencies>
+  <cpp_headers prefix = "include">
+    <cpp_header>\$(organization)/\$(project_directory)/Config.h</cpp_header>
+    <cpp_header>\$(organization)/\$(project_directory)/Version.h</cpp_header>
+  </cpp_headers>
+  <cpp_sources prefix = "src">
+    <cpp_source>main.cpp</cpp_source>
+    <cpp_source>Version.cpp</cpp_source>
+  </cpp_sources>
+</thekogans_make>
+EOF
+check_errors $?
+
+exit 0

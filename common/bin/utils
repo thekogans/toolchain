@@ -1,0 +1,1218 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# This script contains helpful utilities used by other scripts. When writing
+# your own scripts, use these functions to query thekogans.net build environment
+# and toolchain.
+
+function check_errors () {
+    if [ "$1" -ne "0" ]; then
+        exit $1
+    fi
+}
+
+function to_system_path () {
+    local path=
+    for i in "$@"; do
+        case $i in
+            -p:*|--path:*)
+                path="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$TOOLCHAIN_OS" == "Windows" ]; then
+        path=`cygpath -am "$path"`
+    fi
+    echo "$path"
+}
+
+function copy_file () {
+    local from=
+    local to=
+    for i in "$@"; do
+        case $i in
+            -f:*|--from:*)
+                from="${i#*:}"
+                ;;
+            -t:*|--to:*)
+                to="${i#*:}"
+                ;;
+        esac
+    done
+    mkdir -p "$(dirname $to)"
+    check_errors $?
+    cp -v "$from" "$to"
+    check_errors $?
+}
+
+function get_library_suffix () {
+    local type=
+    for i in "$@"; do
+        case $i in
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    local library_suffix=
+    if [ "$type" == "Shared" ]; then
+        library_suffix="$TOOLCHAIN_SHARED_LIBRARY_SUFFIX"
+    else
+        library_suffix="$TOOLCHAIN_STATIC_LIBRARY_SUFFIX"
+    fi
+    echo "$library_suffix"
+}
+
+function get_link_library_suffix () {
+    if [ "$TOOLCHAIN_OS" == "Windows" ]; then
+        echo "$TOOLCHAIN_STATIC_LIBRARY_SUFFIX"
+    else
+        local type=
+        for i in "$@"; do
+            case $i in
+                -t:*|--type:*)
+                    type="${i#*:}"
+                    ;;
+            esac
+        done
+        local link_library_suffix=
+        if [ "$type" == "Shared" ]; then
+            link_library_suffix="$TOOLCHAIN_SHARED_LIBRARY_SUFFIX"
+        else
+            link_library_suffix="$TOOLCHAIN_STATIC_LIBRARY_SUFFIX"
+        fi
+        echo "$link_library_suffix"
+    fi
+}
+
+function get_default_svc () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$organization" != "" ]; then
+        local svc="$(eval echo $`echo ${organization}_DEFAULT_SVC | tr '[:lower:]' '[:upper:]'`)"
+        if [ "$svc" != "" ]; then
+            echo "$svc"
+            return
+        fi
+    fi
+    echo "$TOOLCHAIN_DEFAULT_SVC"
+}
+
+function get_default_branch () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$organization" != "" ] && [ "$project" != "" ]; then
+        local branch="$(eval echo $`echo ${organization}_${project}_DEFAULT_BRANCH | tr '[:lower:]' '[:upper:]'`)"
+        if [ "$branch" != "" ]; then
+            echo "$branch"
+            return
+        fi
+    fi
+    if [ "$organization" != "" ]; then
+        local branch="$(eval echo $`echo ${organization}_DEFAULT_BRANCH | tr '[:lower:]' '[:upper:]'`)"
+        if [ "$branch" != "" ]; then
+            echo "$branch"
+            return
+        fi
+    fi
+    echo "$TOOLCHAIN_DEFAULT_BRANCH"
+}
+
+function get_default_version () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$organization" != "" ] && [ "$project" != "" ]; then
+        local version="$(eval echo $`echo ${organization}_${project}_DEFAULT_VERSION | tr '[:lower:]' '[:upper:]'`)"
+        if [ "$version" != "" ]; then
+            echo "$version"
+            return
+        fi
+    fi
+    if [ "$organization" != "" ]; then
+        local version="$(eval echo $`echo ${organization}_DEFAULT_VERSION | tr '[:lower:]' '[:upper:]'`)"
+        if [ "$version" != "" ]; then
+            echo "$version"
+            return
+        fi
+    fi
+    echo "$TOOLCHAIN_DEFAULT_VERSION"
+}
+
+function get_tarball_name () {
+    local organization=
+    local project=
+    local branch=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    local tarball_name="$organization"_"$project"
+    if [ "$branch" != "" ]; then
+        tarball_name="$tarball_name-${branch////_}"
+    fi
+    tarball_name="$tarball_name-$version"
+    echo "$tarball_name"
+}
+
+function get_tarball_latest_version () {
+    local directory=
+    local organization=
+    local project=
+    local branch=
+    for i in "$@"; do
+        case $i in
+            -d:*|--directory:*)
+                directory="${i#*:}"
+                ;;
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+        esac
+    done
+    local latest_major_version=0
+    local latest_minor_version=0
+    local latest_patch_version=0
+    local template="$directory/$organization"_"$project"
+    if [ "$branch" != "" ]; then
+        template="$template-${branch////_}"
+    fi
+    template="$template-"
+    local file=
+    for file in "$template"*; do
+        # Trim off everything but the version.
+        file="${file#$template}"
+        if [ "$file" != "*" ]; then
+            file="${file%.tar.gz}"
+            # Break the version string in to (major, minor, patch) int array.
+            local version=(${file//./ })
+            if (( "$latest_major_version" < ${version[0]} )) ||\
+                  ((( "$latest_major_version" == ${version[0]} )) &&\
+                   (( "$latest_minor_version" < ${version[1]} ))) ||\
+                  ((( "$latest_major_version" == ${version[0]} )) &&\
+                   (( "$latest_minor_version" == ${version[1]} )) &&\
+                   (( "$latest_patch_version" < ${version[2]} ))); then
+                latest_major_version=${version[0]}
+                latest_minor_version=${version[1]}
+                latest_patch_version=${version[2]}
+            fi
+        fi
+    done
+    local latest_version="$latest_major_version.$latest_minor_version.$latest_patch_version"
+    if [ "$latest_version" != "0.0.0" ]; then
+        echo "$latest_version"
+    else
+        echo ""
+    fi
+}
+
+function get_project_latest_version () {
+    local organization=
+    local project=
+    local branch=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+        esac
+    done
+    local latest_major_version=0
+    local latest_minor_version=0
+    local latest_patch_version=0
+    local template="$DEVELOPMENT_ROOT/$organization/${project//_//}"
+    if [ "$branch" != "" ]; then
+        template="$template/$branch"
+    fi
+    template="$template-"
+    local file=
+    for file in "$template"*; do
+        # Trim off everything but the version.
+        file="${file#$template}"
+        if [ "$file" != "*" ]; then
+            # Break the version string in to (major, minor, patch) int array.
+            local version=(${file//./ })
+            if (( "$latest_major_version" < ${version[0]} )) ||\
+                  ((( "$latest_major_version" == ${version[0]} )) &&\
+                   (( "$latest_minor_version" < ${version[1]} ))) ||\
+                  ((( "$latest_major_version" == ${version[0]} )) &&\
+                   (( "$latest_minor_version" == ${version[1]} )) &&\
+                   (( "$latest_patch_version" < ${version[2]} ))); then
+                latest_major_version=${version[0]}
+                latest_minor_version=${version[1]}
+                latest_patch_version=${version[2]}
+            fi
+        fi
+    done
+    local latest_version="$latest_major_version.$latest_minor_version.$latest_patch_version"
+    if [ "$latest_version" != "0.0.0" ]; then
+        echo "$latest_version"
+    else
+        echo ""
+    fi
+}
+
+function get_project_root () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    local version=
+    local example=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+        esac
+    done
+    local project_root="$DEVELOPMENT_ROOT/$organization/${project//_//}"
+    if [ "$branch" == "" ]; then
+        branch="$(get_default_branch -o:$organization -p:$project)"
+    fi
+    if [ "$branch" != "" ]; then
+        project_root="$project_root/$branch"
+    fi
+    # If no version was provided, and the floating version is not installed...
+    if [ "$version" == "" ] && [ ! -e "$project_root" ]; then
+        # ...try the default version.
+        version="$(get_default_version -o:$organization -p:$project)"
+        # If no default version was specified...
+        if [ "$version" == "" ]; then
+            # ...find the latest sandbox installed version and use it as default.
+            version="$(get_project_latest_version -o:$organization -p:$project -b:$branch)"
+        fi
+    fi
+    if [ "$version" != "" ]; then
+        project_root="$project_root-$version"
+    fi
+    if [ "$example" != "" ]; then
+        project_root="$project_root/examples/${example//_//}"
+    fi
+    echo "$project_root"
+}
+
+function get_project_project_type () {
+    local project_root=
+    for i in "$@"; do
+        case $i in
+            -pr:*|--project-root:*)
+                project_root="${i#*:}"
+                ;;
+        esac
+    done
+    local config_file="$project_root/thekogans_make.xml"
+    if [ -e "$config_file" ]; then
+        "$(get_toolchain_program -o:thekogans -p:make)" -a:get_project_type "$config_file"
+    else
+        echo "$config_file not found."
+    fi
+}
+
+function get_project_version () {
+    local project_root=
+    for i in "$@"; do
+        case $i in
+            -pr:*|--project-root:*)
+                project_root="${i#*:}"
+                ;;
+        esac
+    done
+    local config_file="$project_root/thekogans_make.xml"
+    if [ -e "$config_file" ]; then
+        "$(get_toolchain_program -o:thekogans -p:make)" -a:get_project_version "$config_file"
+    else
+        echo "$config_file not found."
+    fi
+}
+
+function get_project_naming_convention () {
+    local project_root=
+    for i in "$@"; do
+        case $i in
+            -pr:*|--project-root:*)
+                project_root="${i#*:}"
+                ;;
+        esac
+    done
+    local config_file="$project_root/thekogans_make.xml"
+    if [ -e "$config_file" ]; then
+        local thekogans_make="$(get_toolchain_program -o:thekogans -p:make)"
+        if [ -e "$thekogans_make" ]; then
+            "$thekogans_make" -a:get_naming_convention "$config_file"
+        else
+            echo "$TOOLCHAIN_NAMING_CONVENTION"
+        fi
+    else
+        echo "$config_file not found."
+    fi
+}
+
+function get_project_build_config () {
+    local project_root=
+    for i in "$@"; do
+        case $i in
+            -pr:*|--project-root:*)
+                project_root="${i#*:}"
+                ;;
+        esac
+    done
+    local config_file="$project_root/thekogans_make.xml"
+    if [ -e "$config_file" ]; then
+        "$(get_toolchain_program -o:thekogans -p:make)" -a:get_build_config "$config_file"
+    else
+        echo "$config_file not found."
+    fi
+}
+
+function get_project_build_type () {
+    local project_root=
+    for i in "$@"; do
+        case $i in
+            -pr:*|--project-root:*)
+                project_root="${i#*:}"
+                ;;
+        esac
+    done
+    local config_file="$project_root/thekogans_make.xml"
+    if [ -e "$config_file" ]; then
+        "$(get_toolchain_program -o:thekogans -p:make)" -a:get_build_type "$config_file"
+    else
+        echo "$config_file not found."
+    fi
+}
+
+function get_project_program () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    local version=
+    local example=
+    local config=Release
+    local type=Static
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
+    if [ "$example" != "" ]; then
+        project="$project"_"$example"
+        version="$(get_project_version -pr:$project_root)"
+    elif [ "$version" == "" ]; then
+        version="$(get_project_version -pr:$project_root)"
+    fi
+    local naming_convention="$(get_project_naming_convention -pr:$project_root)"
+    local project_program=
+    if [ "$naming_convention" == "Flat" ]; then
+        project_program="$project_root/bin/$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version$TOOLCHAIN_PROGRAM_SUFFIX"
+    else
+        project_program="$project_root/bin/$TOOLCHAIN_BRANCH/$config/$type/$organization"_"$project.$version$TOOLCHAIN_PROGRAM_SUFFIX"
+    fi
+    echo "$project_program"
+}
+
+function get_project_library () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    local version=
+    local example=
+    local config=Release
+    local type=Static
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
+    if [ "$example" != "" ]; then
+        project="$project"_"$example"
+        version="$(get_project_version -pr:$project_root)"
+    elif [ "$version" == "" ]; then
+        version="$(get_project_version -pr:$project_root)"
+    fi
+    local naming_convention="$(get_project_naming_convention -pr:$project_root)"
+    local project_library=
+    if [ "$naming_convention" == "Flat" ]; then
+        project_library="$project_root/lib/lib$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version.$(get_library_suffix -t:$type)"
+    else
+        project_library="$project_root/lib/$TOOLCHAIN_BRANCH/$config/$type/lib$organization"_"$project.$version.$(get_library_suffix -t:$type)"
+    fi
+    echo "$project_library"
+}
+
+function get_project_plugin () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    local version=
+    local example=
+    local config=Release
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+        esac
+    done
+    local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
+    if [ "$example" != "" ]; then
+        project="$project"_"$example"
+        version="$(get_project_version -pr:$project_root)"
+    elif [ "$version" == "" ]; then
+        version="$(get_project_version -pr:$project_root)"
+    fi
+    local naming_convention="$(get_project_naming_convention -pr:$project_root)"
+    local project_plugin=
+    if [ "$naming_convention" == "Flat" ]; then
+        project_plugin="$project_root/lib/$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-Shared.$version.$(get_library_suffix -t:Shared)"
+    else
+        project_plugin="$project_root/lib/$TOOLCHAIN_BRANCH/$config/Shared/$organization"_"$project.$version.$(get_library_suffix -t:Shared)"
+    fi
+    echo "$project_plugin"
+}
+
+function get_project_include_dir () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    local version=
+    local example=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+        esac
+    done
+    local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
+    echo "$project_root/include/$organization/$project"
+}
+
+function get_project_bin_dir () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    local version=
+    local example=
+    local config=Release
+    local type=Static
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
+    local naming_convention="$(get_project_naming_convention -pr:$project_root)"
+    local project_bin_dir=
+    if [ "$naming_convention" == "Flat" ]; then
+        project_bin_dir="$project_root/bin"
+    else
+        project_bin_dir="$project_root/bin/$TOOLCHAIN_BRANCH/$config/$type"
+    fi
+    echo "$project_bin_dir"
+}
+
+function get_project_lib_dir () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    local version=
+    local example=
+    local config=Release
+    local type=Static
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
+    local naming_convention="$(get_project_naming_convention -pr:$project_root)"
+    local project_lib_dir=
+    if [ "$naming_convention" == "Flat" ]; then
+        project_lib_dir="$project_root/lib"
+    else
+        project_lib_dir="$project_root/lib/$TOOLCHAIN_BRANCH/$config/$type"
+    fi
+    echo "$project_lib_dir"
+}
+
+function get_project_link_library () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    local version=
+    local example=
+    local config=Release
+    local type=Static
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
+    if [ "$example" != "" ]; then
+        project="$project"_"$example"
+        version="$(get_project_version -pr:$project_root)"
+    elif [ "$version" == "" ]; then
+        version="$(get_project_version -pr:$project_root)"
+    fi
+    local naming_convention="$(get_project_naming_convention -pr:$project_root)"
+    local project_link_library=
+    if [ "$naming_convention" == "Flat" ]; then
+        project_link_library="$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version"
+    else
+        project_link_library="$organization"_"$project.$version"
+    fi
+    echo "$project_link_library"
+}
+
+function get_toolchain_version () {
+    echo "$TOOLCHAIN_MAJOR_VERSION.$TOOLCHAIN_MINOR_VERSION.$TOOLCHAIN_PATCH_VERSION"
+}
+
+function get_toolchain_latest_version () {
+    local organization=
+    local project=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+        esac
+    done
+    local latest="$TOOLCHAIN_DIR/config/$organization"_"$project-latest"
+    if [ -e "$latest" ]; then
+        cat "$latest"
+    else
+        local latest_major_version=0
+        local latest_minor_version=0
+        local latest_patch_version=0
+        local template="$TOOLCHAIN_DIR/config/$organization"_"$project-"
+        local file=
+        for file in "$template"*; do
+            # Trim off everything but the version.
+            file="${file#$template}"
+            if [ "$file" != "*" ]; then
+                file="${file%.xml}"
+                # Break the version string in to (major, minor, patch) int array.
+                local version=(${file//./ })
+                if (( "$latest_major_version" < ${version[0]} )) ||\
+                      ((( "$latest_major_version" == ${version[0]} )) &&\
+                       (( "$latest_minor_version" < ${version[1]} ))) ||\
+                      ((( "$latest_major_version" == ${version[0]} )) &&\
+                       (( "$latest_minor_version" == ${version[1]} )) &&\
+                       (( "$latest_patch_version" < ${version[2]} ))); then
+                    latest_major_version=${version[0]}
+                    latest_minor_version=${version[1]}
+                    latest_patch_version=${version[2]}
+                fi
+            fi
+        done
+        echo "$latest_major_version.$latest_minor_version.$latest_patch_version"
+    fi
+}
+
+function is_installed () {
+    local organization=
+    local project=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    local config_file="$TOOLCHAIN_DIR/config/$organization"_"$project-$version.xml"
+    if [ -e "$config_file" ]; then
+        echo "yes"
+    else
+        echo "no"
+    fi
+}
+
+function get_toolchain_project_type () {
+    local organization=
+    local project=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    local config_file="$TOOLCHAIN_DIR/config/$organization"_"$project-$version.xml"
+    "$(get_toolchain_program -o:thekogans -p:make)" -a:get_project_type "$config_file"
+}
+
+function get_toolchain_naming_convention () {
+    local organization=
+    local project=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    local thekogans_make="$(get_toolchain_program -o:thekogans -p:make)"
+    if [ -e "$thekogans_make" ]; then
+        local config_file="$TOOLCHAIN_DIR/config/$organization"_"$project-$version.xml"
+        "$thekogans_make" -a:get_naming_convention "$config_file"
+    else
+        echo "$TOOLCHAIN_NAMING_CONVENTION"
+    fi
+}
+
+function get_toolchain_build_config () {
+    local organization=
+    local project=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    local config_file="$TOOLCHAIN_DIR/config/$organization"_"$project-$version.xml"
+    "$(get_toolchain_program -o:thekogans -p:make)" -a:get_build_config "$config_file"
+}
+
+function get_toolchain_build_type () {
+    local organization=
+    local project=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    local config_file="$TOOLCHAIN_DIR/config/$organization"_"$project-$version.xml"
+    "$(get_toolchain_program -o:thekogans -p:make)" -a:get_build_type "$config_file"
+}
+
+function get_toolchain_program () {
+    local organization=
+    local project=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    echo "$TOOLCHAIN_DIR/bin/$organization"_"$project-$version/$organization"_"$project$TOOLCHAIN_PROGRAM_SUFFIX"
+}
+
+function get_toolchain_library () {
+    local organization=
+    local project=
+    local version=
+    local config=
+    local type=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    local naming_convention="$(get_toolchain_naming_convention -o:$organization -p:$project -v:$version)"
+    local toolchain_library=
+    if [ "$naming_convention" == "Flat" ]; then
+        toolchain_library="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/lib$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version.$(get_library_suffix -t:$type)"
+    else
+        toolchain_library="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/$config/$type/lib$organization"_"$project.$version.$(get_library_suffix -t:$type)"
+    fi
+    echo "$toolchain_library"
+}
+
+function get_toolchain_include_dir () {
+    local organization=
+    local project=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    echo "$TOOLCHAIN_DIR/include/$organization"_"$project-$version"
+}
+
+function get_toolchain_bin_dir () {
+    local organization=
+    local project=
+    local version=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    echo "$TOOLCHAIN_DIR/bin/$organization"_"$project-$version"
+}
+
+function get_toolchain_lib_dir () {
+    local organization=
+    local project=
+    local version=
+    local config=
+    local type=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    local naming_convention="$(get_toolchain_naming_convention -o:$organization -p:$project -v:$version)"
+    local toolchain_lib_dir=
+    if [ "$naming_convention" == "Flat" ]; then
+        toolchain_lib_dir="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version"
+    else
+        toolchain_lib_dir="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/$config/$type"
+    fi
+    echo "$toolchain_lib_dir"
+}
+
+function get_toolchain_link_library () {
+    local organization=
+    local project=
+    local version=
+    local config=
+    local type=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -v:*|--version:*)
+                version="${i#*:}"
+                ;;
+            -c:*|--config:*)
+                config="${i#*:}"
+                ;;
+            -t:*|--type:*)
+                type="${i#*:}"
+                ;;
+        esac
+    done
+    if [ "$version" == "" ]; then
+        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
+    fi
+    local naming_convention="$(get_toolchain_naming_convention -o:$organization -p:$project -v:$version)"
+    local toolchain_link_library=
+    if [ "$naming_convention" == "Flat" ]; then
+        toolchain_link_library="$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version"
+    else
+        toolchain_link_library="$organization"_"$project.$version"
+    fi
+    echo "$toolchain_link_library"
+}
+
+function get_toolchain_source_project_latest_version () {
+    local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+    local project="$TOOLCHAIN_DEFAULT_PROJECT"
+    local branch=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -b:*|--branch:*)
+                branch="${i#*:}"
+                ;;
+        esac
+    done
+    "$(get_toolchain_program -o:thekogans -p:make)" \
+        -a:get_toolchain_source_project_latest_version \
+        -o:"$organization" \
+        -p:"$project" \
+        -b:"$branch"
+}
+
+function get_toolchain_source_toolchain_latest_version () {
+    local organization=
+    local project=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+        esac
+    done
+    "$(get_toolchain_program -o:thekogans -p:make)" \
+        -a:get_toolchain_source_toolchain_latest_version \
+        -o:"$organization" \
+        -p:"$project"
+}
+
+export -f \
+    check_errors \
+    to_system_path \
+    copy_file \
+    get_library_suffix \
+    get_link_library_suffix \
+    get_default_svc \
+    get_default_branch \
+    get_default_version \
+    get_tarball_name \
+    get_tarball_latest_version \
+    get_project_latest_version \
+    get_project_root \
+    get_project_project_type \
+    get_project_version \
+    get_project_naming_convention \
+    get_project_build_config \
+    get_project_build_type \
+    get_project_program \
+    get_project_library \
+    get_project_plugin \
+    get_project_include_dir \
+    get_project_bin_dir \
+    get_project_lib_dir \
+    get_project_link_library \
+    get_toolchain_version \
+    get_toolchain_latest_version \
+    is_installed \
+    get_toolchain_project_type \
+    get_toolchain_naming_convention \
+    get_toolchain_build_config \
+    get_toolchain_build_type \
+    get_toolchain_program \
+    get_toolchain_library \
+    get_toolchain_include_dir \
+    get_toolchain_bin_dir \
+    get_toolchain_lib_dir \
+    get_toolchain_link_library \
+    get_toolchain_source_project_latest_version \
+    get_toolchain_source_toolchain_latest_version

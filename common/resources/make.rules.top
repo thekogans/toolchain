@@ -1,0 +1,99 @@
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# Supported make optional parameters:
+# mode=[Development or Install] (default to Development)
+# hide_commands=[yes or no] (default to yes)
+
+# Supported make optional targets:
+# If no target is provided, make the goal.
+# all - Make the goal.
+# tests - Make and run project tests.
+# clean - Clean the project and it's dependencies.
+# clean_self - Clean the project only.
+# tags - Create ctags for project and it's dependencies.
+
+# VERY IMPORTANT: Put no includes above makefile_path!
+# In order to facilitate running make from any directory
+# (and not just the one containing the Makefile), all targets
+# need to be converted to use absolute paths. Since this file was
+# included from the actual Makefile, take the next to last path
+# (the actual Makefile) and calculate makefile_path and project_root.
+makefile_path := $(lastword $(filter-out $(lastword $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
+
+# Where all intermediate files go.
+build_root := $(patsubst %/,%,$(dir $(makefile_path)))
+
+# Makefile is located at $(project_root)/build/$(TOOLCHAIN_BRANCH)/make/$(config)/$(type).
+# Therefore, in order to locate project_root, walk back seven steps from build_root.
+project_root := $(realpath $(build_root)/../../../../../../..)
+
+# mode = [Development | Install]
+ifeq "$(mode)" ""
+  mode := Development
+endif
+
+# If you want to see the gory details, run make hide_commands=no
+# hide_commands = [yes or no]
+ifeq "$(hide_commands)" "yes"
+  hide := @
+endif
+
+# Include toolchain specific make rules.
+# This file needs to provide definitions for the following:
+#   dependencies_suffix (d)
+#   object_suffix (o/obj)
+#   program_suffix (.exe)
+#   library_suffix (dll/lib/so/dylib/a)
+#   link_library_suffix (lib/so/dylib/a)
+ifneq "$(wildcard $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/make.rules.top)" ""
+  os_make_rules_top := $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/make.rules.top
+  include $(os_make_rules_top)
+endif
+ifneq "$(wildcard $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/$(TOOLCHAIN_ARCH)/make.rules.top)" ""
+  arch_make_rules_top := $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/$(TOOLCHAIN_ARCH)/make.rules.top
+  include $(arch_make_rules_top)
+endif
+ifneq "$(wildcard $(TOOLCHAIN_DIR)/resources/make.rules.top)" ""
+  comp_make_rules_top := $(TOOLCHAIN_DIR)/resources/make.rules.top
+  include $(comp_make_rules_top)
+endif
+
+# goal
+ifeq "$(goal)" ""
+  ifeq "$(naming_convention)" "Flat"
+    ifeq "$(project_type)" "library"
+      goal := $(project_root)/lib/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(major_version).$(minor_version).$(patch_version).$(library_suffix)
+    else
+      ifeq "$(project_type)" "program"
+        goal := $(project_root)/bin/$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(major_version).$(minor_version).$(patch_version)$(program_suffix)
+      else
+        goal := $(project_root)/lib/$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(major_version).$(minor_version).$(patch_version).$(TOOLCHAIN_SHARED_LIBRARY_SUFFIX)
+      endif
+    endif
+  else
+    ifeq "$(project_type)" "library"
+      goal := $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/lib$(organization)_$(project).$(major_version).$(minor_version).$(patch_version).$(library_suffix)
+    else
+      ifeq "$(project_type)" "program"
+        goal := $(project_root)/bin/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/$(organization)_$(project).$(major_version).$(minor_version).$(patch_version)$(program_suffix)
+      else
+        goal := $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/$(organization)_$(project).$(major_version).$(minor_version).$(patch_version).$(TOOLCHAIN_SHARED_LIBRARY_SUFFIX)
+      endif
+    endif
+  endif
+endif

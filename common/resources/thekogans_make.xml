@@ -1,0 +1,365 @@
+<thekogans_make organization = "$(organization)"
+                project = "$(project)"
+                project_type = "$(project_type)"
+                major_version = "$(major_version)"
+                minor_version = "$(minor_version)"
+                patch_version = "$(patch_version)"
+                naming_convention = "$(naming_convention)"
+                build_config = "$(build_config)"
+                build_type = "$(build_type)"
+                guid = "$(guid)"
+                schema_version = "$(schema_version)">
+  <!-- NOTE: When creating $(TOOLCHAIN_DIR)/config/$(organization)_$(project)-$(version).xml
+       the following logic is applied to the nodes:
+
+       features - Merged based on values of config and type.
+       dependencies - During copy, if link = "yes", <project.../> tags are transformed
+                      in to <toolchain.../> tags. If not, they are omitted from the
+                      dependencies.
+
+       If there are any *_headers nodes with install = "yes" the following node will be added
+       and the headers copied to: $(TOOLCHAIN_DIR)/include/$(organization)_$(project)-$(version)
+
+       <include_directories prefix = "include">
+         <include_directory>$(organization)_$(project)-$(version)</include_directory>
+       </include_directories>
+
+       If there are any *_sources nodes, the following node will be added and the
+       libraries copied to:
+
+       if $(naming_convention) == 'Flat'
+         $(TOOLCHAIN_DIR)/lib/$(organization)_$(project)-$(version)/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(version).$(link_library_suffix)
+
+         <link_libraries prefix = "lib/$(organization)_$(project)-$(version)">
+           <link_library>lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(version).$(link_library_suffix)</link_library>
+         </link_libraries>
+       else
+         $(TOOLCHAIN_DIR)/lib/$(organization)_$(project)-$(version)/$(config)/$(type)/lib$(organization)_$(project).$(version).$(link_library_suffix)
+
+         <link_libraries prefix = "lib/$(organization)_$(project)-$(version)/$(config)/$(type)">
+           <link_library>lib$(organization)_$(project).$(version).$(link_library_suffix)</link_library>
+         </link_libraries>
+       endif
+
+       All other nodes are omitted. Those file list nodes, which have install = "yes"
+       attribute, will be copied in to the toolchain with the following destination
+       prefixes:
+
+       *_headers = $(TOOLCHAIN_DIR)/include/$(organization)_$(project)-$(version)
+       *_sources = $(TOOLCHAIN_DIR)/src/$(organization)_$(project)-$(version)
+       *_tests = $(TOOLCHAIN_DIR)/tests/$(organization)_$(project)-$(version)
+       resources = $(TOOLCHAIN_DIR)/resources/$(organization)_$(project)-$(version)
+       docs = $(TOOLCHAIN_DIR)/docs/$(organization)_$(project)-$(version)
+
+       VERY IMPORTANT: All prefixes below are relative to project_root and toolchain_root.
+       project_root = $(DEVELOPMENT_ROOT)/$(organization)/$(project_directory)/$(branch)
+       project_directory = project with '_' replaced by '/'
+       toolchain_root = $(TOOLCHAIN_DIR)
+
+       This design decision is meant to isolate the development environment and protect
+       you from compiling and linking against libraries found on the underlying host.
+
+       The only node that is allowed to break this policy is dependencies::system. It's
+       meant to be used to link to system libraries that are not practical to maintain
+       in the toolchain.
+  -->
+  <!-- List name/value pairs in constants that can then be used in the rest of the file
+       like this: $(name). Keeps the 'magic' number/string polution to a minimum.
+  -->
+  <constants>
+    <constant name = ""
+              value = ""/>
+  </constants>
+  <!-- IMPORTANT: features must come first if you're going to use them
+       in tests below.
+  -->
+  <features>
+    <!-- NOTE: You can use <if> and <choose> to selectively include
+         various features.
+
+         <constants>
+           <constant name = "installed_zlib_version"
+                     value = "$(get_toolchain_version -o:thekogans -p:zlib)"/>
+           <constant name = "required_zlib_version"
+                     value = "1.2.8"/>
+         </constants>
+
+         <choose>
+           <when condition = "$(installed_zlib_version) >= $(required_zlib_version)">
+             <feature>THEKOGANS_UTIL_HAS_ZLIB</feature>
+           </when>
+           <otherwise>
+             <warning>Installed zlib version: $(installed_zlib_version), required: $(required_zlib_version), skipped.</warning>
+           </otherwise>
+         </choose>
+
+         For complete syntax, visit: http://www.thekogans.net/?page_id=445.
+    -->
+    <feature></feature>
+  </features>
+  <dependencies>
+    <!-- NOTE: You can use <if> and <choose> to selectively include
+         various dependencies. This is especially handy when used
+         with features above. Ex:
+
+         <if condition = "$(have_feature -f:THEKOGANS_UTIL_HAS_ZLIB)">
+           <toolchain organization = "thekogans"
+                      name = "zlib"
+         </if>
+
+         For complete syntax, visit: http://www.thekogans.net/?page_id=445.
+    -->
+    <!-- List project dependencies like this. They will expand out to:
+         $(DEVELOPMENT_ROOT)/$(organization)/$(project_directory)/$(branch)/thekogans_make.xml
+
+         organization - Mandatory project organization.
+         name - Mandatory project name.
+         branch - Optional project branch name (default to trunk).
+         config - Optional project build configuration (Release | Debug).
+         type - Optional project type (Static | Shared).
+         version - Optional project version. If omitted use latest.
+         example - Optional project example.
+         link - Optional flag to indicate that this project will
+                link against the library (default to yes).
+
+         thekogans_make will perform the following logic to locate
+         the project dependencies:
+
+         if (!IsInstalled ()) {
+           if (version.empty ()) {
+             version = Sources::Instance ().GetProjectLatestVersion (
+               organization, name, branch);
+             if (IsInstalled ()) {
+               return;
+             }
+           }
+           Sources::Instance ().GetProject (
+             organization, name, branch, version);
+         }
+
+         NOTE: During the build, the same logic will be applied to the
+         project dependencies recursively.
+    -->
+    <project organization = ""
+             name = ""
+             branch = "trunk | branches/branch | tags/tag"
+             config = "Release | Debug"
+             type = "Static | Shared"
+             version = ""
+             example = ""
+             link = "yes | no"/>
+    <!-- List toolchain dependencies like this. They will expand out to:
+         $(TOOLCHAIN_DIR)/config/$(organization)_$(name)-$(version).xml
+
+         organization - Mandatory toolchain organization.
+         name - Mandatory toolchain name.
+         config - Optional toolchain build configuration (Release | Debug).
+         type - Optional toolchain type (Static | Shared).
+         version - Optional toolchain version (empty == latest).
+         link - Optional flag to indicate that this project will
+                link against the library (default to yes).
+
+         thekogans_make will perform the following logic to locate
+         the toolchain dependencies:
+
+         if (version.empty ()) {
+           version = Sources::Instance ().GetToolchainLatestVersion (
+             organization, name);
+         }
+         if (!IsInstalled ()) {
+           Sources::Instance ().GetToolchain (
+             organization, name, version);
+         }
+
+         NOTE: During the build, the same logic will be applied to the
+         toolchain dependencies recursively.
+    -->
+    <toolchain organization = ""
+               name = ""
+               config = "Release | Debug"
+               type = "Static | Shared"
+               version = ""
+               link = "yes | no"/>
+    <!-- Freeform system dependency. The only expansion will be is of
+         environment variables.
+    -->
+    <system></system>
+  </dependencies>
+  <!-- List only private include directories used to build the project
+       and not specified as prefix in any of the *_headers nodes below.
+
+       During installation, if install = "yes", the destination prefix
+       will be: $(TOOLCHAIN_DIR)/include/$(organization)_$(project)-$(version)
+       and all relative paths will be copied to it.
+  -->
+  <include_directories prefix = ""
+                       install = "yes | no">
+    <include_directory>prefix relative path.</include_directory>
+  </include_directories>
+  <!-- The following two are here for completeness only. There should
+       be very little reason to supply your own linker and librarian flags.
+  -->
+  <linker_flags>
+    <linker_flag></linker_flag>
+  </linker_flags>
+  <librarian_flags>
+    <librarian_flag></librarian_flag>
+  </librarian_flags>
+  <!-- List link_libraries only if your project produces non statndard
+       output.
+
+       A standard library project should produce only one artifact, and
+       it's path should look like this:
+
+       if $(naming_convention) == 'Flat'
+         $(project_root)/lib/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(version).$(link_library_suffix)
+       else
+         $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/lib$(organization)_$(project).$(version).$(link_library_suffix)
+       endif
+
+       If your project follows this simple rule, you can (and should)
+       leave out the link_libraries tag. It will be computed via the
+       template above iff any *_sources tags are encountered.
+
+       If your project produces multiple libraries (openssl) you have to
+       forgo the above mechanism and list your libraries manually.
+
+       During installation, if install = "yes", the destination prefix will
+       be: $(TOOLCHAIN_DIR)/lib/$(organization)_$(project)-$(version)
+       and all relative paths will be copied to it.
+  -->
+  <link_libraries prefix = ""
+                  install = "yes | no">
+    <link_library>prefix relative path.</link_library>
+  </link_libraries>
+  <!-- Lists of various supported source types.
+  -->
+  <masm_flags>
+    <masm_flag></masm_flag>
+  </masm_flags>
+  <masm_preprocessor_definitions>
+    <masm_preprocessor_definition></masm_preprocessor_definition>
+  </masm_preprocessor_definitions>
+  <masm_headers prefix = ""
+                install = "yes | no">
+    <masm_header>prefix relative path.</masm_header>
+  </masm_headers>
+  <masm_sources prefix = ""
+                install = "yes | no">
+    <masm_source>prefix relative path.</masm_source>
+  </masm_sources>
+  <masm_tests prefix = ""
+              install = "yes | no">
+    <masm_test>prefix relative path.</masm_test>
+  </masm_tests>
+  <nasm_flags>
+    <nasm_flag></nasm_flag>
+  </nasm_flags>
+  <nasm_preprocessor_definitions>
+    <nasm_preprocessor_definition></nasm_preprocessor_definition>
+  </nasm_preprocessor_definitions>
+  <nasm_headers prefix = ""
+                install = "yes | no">
+    <nasm_header>prefix relative path.</nasm_header>
+  </nasm_headers>
+  <nasm_sources prefix = ""
+                install = "yes | no">
+    <nasm_source>prefix relative path.</nasm_source>
+  </nasm_sources>
+  <nasm_tests prefix = ""
+              install = "yes | no">
+    <nasm_test>prefix relative path.</nasm_test>
+  </nasm_tests>
+  <c_flags>
+    <c_flag></c_flag>
+  </c_flags>
+  <c_preprocessor_definitions>
+    <c_preprocessor_definition></c_preprocessor_definition>
+  </c_preprocessor_definitions>
+  <c_headers prefix = ""
+             install = "yes | no">
+    <c_header>prefix relative path.</c_header>
+  </c_headers>
+  <c_sources prefix = ""
+             install = "yes | no">
+    <c_source>prefix relative path.</c_source>
+  </c_sources>
+  <c_tests prefix = ""
+           install = "yes | no">
+    <c_test>prefix relative path.</c_test>
+  </c_tests>
+  <cpp_flags>
+    <cpp_flag></cpp_flag>
+  </cpp_flags>
+  <cpp_preprocessor_definitions>
+    <cpp_preprocessor_definition></cpp_preprocessor_definition>
+  </cpp_preprocessor_definitions>
+  <cpp_headers prefix = ""
+               install = "yes | no">
+    <cpp_header>prefix relative path.</cpp_header>
+  </cpp_headers>
+  <cpp_sources prefix = ""
+               install = "yes | no">
+    <cpp_source>prefix relative path.</cpp_source>
+  </cpp_sources>
+  <cpp_tests prefix = ""
+             install = "yes | no">
+    <cpp_test>prefix relative path.</cpp_test>
+  </cpp_tests>
+  <objective_c_flags>
+    <objective_c_flag></objective_c_flag>
+  </objective_c_flags>
+  <objective_c_preprocessor_definitions>
+    <objective_c_preprocessor_definition></objective_c_preprocessor_definition>
+  </objective_c_preprocessor_definitions>
+  <objective_c_headers prefix = ""
+                       install = "yes | no">
+    <objective_c_header>prefix relative path.</objective_c_header>
+  </objective_c_headers>
+  <objective_c_sources prefix = ""
+                       install = "yes | no">
+    <objective_c_source>prefix relative path.</objective_c_source>
+  </objective_c_sources>
+  <objective_c_tests prefix = ""
+                     install = "yes | no">
+    <objective_c_test>prefix relative path.</objective_c_test>
+  </objective_c_tests>
+  <objective_cpp_flags>
+    <objective_cpp_flag></objective_cpp_flag>
+  </objective_cpp_flags>
+  <objective_cpp_preprocessor_definitions>
+    <objective_cpp_preprocessor_definition></objective_cpp_preprocessor_definition>
+  </objective_cpp_preprocessor_definitions>
+  <objective_cpp_headers prefix = ""
+                         install = "yes | no">
+    <objective_cpp_header>prefix relative path.</objective_cpp_header>
+  </objective_cpp_headers>
+  <objective_cpp_sources prefix = ""
+                         install = "yes | no">
+    <objective_cpp_source>prefix relative path.</objective_cpp_source>
+  </objective_cpp_sources>
+  <objective_cpp_tests prefix = ""
+                       install = "yes | no">
+    <objective_cpp_test>prefix relative path.</objective_cpp_test>
+  </objective_cpp_tests>
+  <resources prefix = ""
+             install = "yes | no">
+    <resource>prefix relative path.</resource>
+  </resources>
+  <!-- These are Windows specific.
+  -->
+  <if condition = "$(TOOLCHAIN_OS) == 'Windows'">
+    <rc_flags>
+      <rc_flag></rc_flag>
+    </rc_flags>
+    <rc_preprocessor_definitions>
+      <rc_preprocessor_definition></rc_preprocessor_definition>
+    </rc_preprocessor_definitions>
+    <rc_sources prefix = ""
+                install = "yes | no">
+      <rc_source>prefix relative path.</rc_source>
+    </rc_sources>
+    <subsystem>Console | Windows</subsystem>
+    <def_file></def_file>
+  </if>
+</thekogans_make>
