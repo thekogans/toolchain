@@ -197,7 +197,7 @@ windows_link_libraries = $(windowspath $(link_libraries))
 linker = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/link.exe
 linker_flags += -NOLOGO -DYNAMICBASE -NXCOMPAT -MACHINE:X86
 ifeq "$(config)" "Release"
-  linker_flags += -LTCG
+  linker_flags += -LTCG:INCREMENTAL
 endif
 ifneq (,$(filter $(project_type),library plugin))
   ifeq "$(type)" "Shared"

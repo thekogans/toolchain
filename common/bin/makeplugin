@@ -82,7 +82,7 @@ if [ "$svc" == "git" ]; then
     cp -v "$TOOLCHAIN_ROOT"/common/resources/.gitignore .gitignore
     check_errors $?
 fi
-touch README
+touch README ReleaseNotes
 check_errors $?
 
 ORGANIZATION=`echo ${organization} | tr '[:lower:]' '[:upper:]'`

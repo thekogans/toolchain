@@ -15,9 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# Windows/x86_64/gcc
-
-# Various file suffixes.
+# Windows
 dependencies_suffix := d
 object_suffix := obj
 program_suffix := $(TOOLCHAIN_PROGRAM_SUFFIX)

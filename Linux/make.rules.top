@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# Linux/i386/gcc
+# Linux
 dependencies_suffix := d
 object_suffix := o
 program_suffix := $(TOOLCHAIN_PROGRAM_SUFFIX)
