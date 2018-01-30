@@ -1,0 +1,38 @@
+thekogans_toolchain represents the first half of 'thekogans.net
+development environment and build system'. the development environment
+consists of the following components:
+
+  - folder struture - to facilitate integrating the development
+    environment with the build system, the following folder structure
+    is prescribed:
+
+      ~/development/organization1/project1
+                                 ...
+                                 /projectN
+                   ...
+                   /organizationN
+                   /toolchain/Windows
+                             /Linux
+                             /OSX
+                             ...
+                             /common/bin
+                                    /resources
+                             /Sources.xml
+                             /sources
+                   /sources/organization1/Source.xml
+                                         /projects
+                                         /toolchain
+                           ...
+                           /organizationN
+
+  - naming convention - specifies how the various build artifacts are
+    named. for convenience, two naming conventions are supported:
+
+    1. Hierarchical - $TOOLCHAIN_BRANCH/$organization_$project.$version.$extension
+    2. Flat - $organization_$project-$TOOLCHAIN_TRIPLET.$version.$extension
+
+  - environment variables - an extensive set of environment variables
+    are set by $TOOLCHAIN_ROOT/common/bin/setenvironment.
+
+  - toolchain - third party libraries and programs are built and
+    installed in to $TOOLCHAIN_DIR.
