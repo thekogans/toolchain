@@ -82,15 +82,33 @@ fi
 TOOLCHAIN_ROOT="$(dirname $(dirname $(cd $(dirname ${BASH_SOURCE[0]}) && pwd)))"
 
 cat > "$TOOLCHAIN_ROOT"/defaultenvironment << EOF
-operating_system=$operating_system
-architecture=$architecture
-compiler=$compiler
-naming_convention=$naming_convention
-development_root=$development_root
-default_organization=$default_organization
-default_project=$default_project
-default_branch=$default_branch
-default_svc=$default_svc
+if [ "\$operating_system" == "" ]; then
+    operating_system=$operating_system
+fi
+if [ "\$architecture" == "" ]; then
+    architecture=$architecture
+fi
+if [ "\$compiler" == "" ]; then
+    compiler=$compiler
+fi
+if [ "\$naming_convention" == "" ]; then
+    naming_convention=$naming_convention
+fi
+if [ "\$development_root" == "" ]; then
+    development_root=$development_root
+fi
+if [ "\$default_organization" == "" ]; then
+    default_organization=$default_organization
+fi
+if [ "\$default_project" == "" ]; then
+    default_project=$default_project
+fi
+if [ "\$default_branch" == "" ]; then
+    default_branch=$default_branch
+fi
+if [ "\$default_svc" == "" ]; then
+    default_svc=$default_svc
+fi
 EOF
 
 echo "Default thekogans.net build system environment: $operating_system-$architecture-$compiler ($naming_convention)"

@@ -88,7 +88,7 @@ check_errors $?
 ORGANIZATION=`echo ${organization} | tr '[:lower:]' '[:upper:]'`
 PROJECT=`echo ${project} | tr '[:lower:]' '[:upper:]'`
 
-cat > include/"$organization"/"${project//_//}"/Config.h << EOF
+cat > include/"${organization}"/"${project//_//}"/Config.h << EOF
 #if !defined (__${organization}_${project}_Config_h)
 #define __${organization}_${project}_Config_h
 
@@ -131,11 +131,11 @@ private:\\
 EOF
 check_errors $?
 
-cat > include/"$organization"/"${project//_//}"/Version.h << EOF
+cat > include/"${organization}"/"${project//_//}"/Version.h << EOF
 #if !defined (__${organization}_${project}_Version_h)
 #define __${organization}_${project}_Version_h
 
-#include "thekogans/util/Version.h"
+#include <thekogans/util/Version.h>
 #include "${organization}/${project//_//}/Config.h"
 
 namespace ${organization} {
@@ -155,10 +155,10 @@ EOF
 check_errors $?
 
 cat > src/Version.cpp << EOF
-#include "$organization/${project//_//}/Version.h"
+#include "${organization}/${project//_//}/Version.h"
 
-namespace $organization {
-    namespace $project {
+namespace ${organization} {
+    namespace ${project} {
 
         _LIB_${ORGANIZATION}_${PROJECT}_DECL const thekogans::util::Version &
         _LIB_${ORGANIZATION}_${PROJECT}_API GetVersion () {
@@ -169,14 +169,14 @@ namespace $organization {
             return version;
         }
 
-    } // namespace $project
-} // namespace $organization
+    } // namespace ${project}
+} // namespace ${organization}
 EOF
 check_errors $?
 
 cat > thekogans_make.xml << EOF
-<thekogans_make organization = "$organization"
-                project = "$project"
+<thekogans_make organization = "${organization}"
+                project = "${project}"
                 project_type = "library"
                 major_version = "0"
                 minor_version = "1"

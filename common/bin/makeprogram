@@ -79,7 +79,7 @@ if [ "$svc" == "svn" ]; then
     cd trunk
     check_errors $?
 fi
-mkdir -p include/"$organization"/"${project//_//}" src resources doc tests
+mkdir -p include/"${organization}"/"${project//_//}" src resources doc tests
 check_errors $?
 if [ "$svc" == "git" ]; then
     touch resources/.keep doc/.keep tests/.keep
@@ -93,11 +93,11 @@ check_errors $?
 ORGANIZATION=`echo ${organization} | tr '[:lower:]' '[:upper:]'`
 PROJECT=`echo ${project} | tr '[:lower:]' '[:upper:]'`
 
-cat > include/"$organization"/"${project//_//}"/Version.h << EOF
+cat > include/"${organization}"/"${project//_//}"/Version.h << EOF
 #if !defined (__${organization}_${project}_Version_h)
 #define __${organization}_${project}_Version_h
 
-#include "thekogans/util/Version.h"
+#include <thekogans/util/Version.h>
 
 namespace ${organization} {
     namespace ${project} {
@@ -124,10 +124,10 @@ EOF
 check_errors $?
 
 cat > src/Version.cpp << EOF
-#include "$organization/${project//_//}/Version.h"
+#include "${organization}/${project//_//}/Version.h"
 
-namespace $organization {
-    namespace $project {
+namespace ${organization} {
+    namespace ${project} {
 
         const thekogans::util::Version &GetVersion () {
             static const thekogans::util::Version version (
@@ -137,14 +137,14 @@ namespace $organization {
             return version;
         }
 
-    } // namespace $project
-} // namespace $organization
+    } // namespace ${project}
+} // namespace ${organization}
 EOF
 check_errors $?
 
 cat > thekogans_make.xml << EOF
-<thekogans_make organization = "$organization"
-                project = "$project"
+<thekogans_make organization = "${organization}"
+                project = "${project}"
                 project_type = "program"
                 major_version = "0"
                 minor_version = "1"

@@ -31,18 +31,40 @@ else
     exit 1
 fi
 
+# Use environment variables to setup the appropriate toolchain.
+# This is useful if you're using mutiple shells and want to do
+# cross-compiler builds.
+if [ "$operating_system" == "" ]; then
+    operating_system="$DEFAULT_TOOLCHAIN_OS"
+fi
+if [ "$architecture" == "" ]; then
+    architecture="$DEFAULT_TOOLCHAIN_ARCH"
+fi
+if [ "$compiler" == "" ]; then
+    compiler="$DEFAULT_TOOLCHAIN_COMP"
+fi
+if [ "$naming_convention" == "" ]; then
+    naming_convention="$DEFAULT_TOOLCHAIN_NAMING_CONVENTION"
+fi
+if [ "$development_root" == "" ]; then
+    development_root="$DEFAULT_DEVELOPMENT_ROOT"
+fi
+if [ "$default_organization" == "" ]; then
+    default_organization="$DEFAULT_TOOLCHAIN_ORGANIZATION"
+fi
+if [ "$default_project" == "" ]; then
+    default_project="$DEFAULT_TOOLCHAIN_PROJECT"
+fi
+if [ "$default_branch" == "" ]; then
+    default_branch="$DEFAULT_TOOLCHAIN_BRANCH"
+fi
+if [ "$default_svc" == "" ]; then
+    default_svc="$DEFAULT_TOOLCHAIN_SVC"
+fi
+
+# Fill in what's missing from the environmnet with defaults provided during bootstrap.
 if [ -e "$TOOLCHAIN_ROOT"/defaultenvironment ]; then
     . "$TOOLCHAIN_ROOT"/defaultenvironment
-else
-    operating_system=
-    architecture=
-    compiler=
-    naming_convention=Hierarchical
-    development_root=
-    default_organization=
-    default_project=
-    default_branch=
-    default_svc=
 fi
 
 # Parse the command line.
