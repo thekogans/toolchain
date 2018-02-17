@@ -164,7 +164,7 @@ using namespace thekogans;
     #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
 #endif
 
-extern "C"
+extern "C" {
     _LIB_${ORGANIZATION}_${PROJECT}_DECL util::Plugins::Plugin::Interface &
     _LIB_${ORGANIZATION}_${PROJECT}_API GetPluginInterface () {
         struct PluginInterface : public util::Plugins::Plugin::Interface {
