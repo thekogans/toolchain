@@ -1176,6 +1176,103 @@ function get_toolchain_source_toolchain_latest_version () {
         -p:"$project"
 }
 
+function begin_namespace () {
+    local organization=
+    local project=
+    local example=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+        esac
+    done
+    echo "${space}namespace ${organization} {"
+    local space="    "
+    IFS='_' read -ra projects <<< "$project"
+    for project in "${projects[@]}"; do
+        echo "${space}namespace ${project} {"
+        space="${space}    "
+    done
+    IFS='_' read -ra examples <<< "$example"
+    for example in "${examples[@]}"; do
+        echo "${space}namespace ${example} {"
+        space="${space}    "
+    done
+}
+
+function indent_namespace () {
+    local organization=
+    local project=
+    local example=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+        esac
+    done
+    local space="    "
+    IFS='_' read -ra projects <<< "$project"
+    for project in "${projects[@]}"; do
+        space="${space}    "
+    done
+    IFS='_' read -ra examples <<< "$example"
+    for example in "${examples[@]}"; do
+        space="${space}    "
+    done
+    echo -n "${space}"
+}
+
+function end_namespace () {
+    local organization=
+    local project=
+    local example=
+    for i in "$@"; do
+        case $i in
+            -o:*|--organization:*)
+                organization="${i#*:}"
+                ;;
+            -p:*|--project:*)
+                project="${i#*:}"
+                ;;
+            -e:*|--example:*)
+                example="${i#*:}"
+                ;;
+        esac
+    done
+    IFS='_' read -ra examples <<< "$example"
+    IFS='_' read -ra projects <<< "$project"
+    local count=$((${#examples[@]} + ${#projects[@]}))
+    for (( idx=${#examples[@]}-1 ; idx>=0 ; idx-- )); do
+        for (( i=0 ; i<$count ; i++ )); do
+            echo -n "    "
+        done
+        count=$(($count - 1))
+        echo "} // namespace ${examples[idx]}"
+    done
+    for (( idx=${#projects[@]}-1 ; idx>=0 ; idx-- )); do
+        for (( i=0 ; i<$count ; i++ )); do
+            echo -n "    "
+        done
+        count=$(($count - 1))
+        echo "} // namespace ${projects[idx]}"
+    done
+    echo "} // namespace ${organization}"
+}
+
 export -f \
     check_errors \
     to_system_path \

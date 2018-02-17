@@ -152,19 +152,15 @@ EOF
 #include <thekogans/util/Version.h>
 #include "${organization}/${project//_//}/${example//_//}/Config.h"
 
-namespace ${organization} {
-    namespace ${project} {
-        namespace ${example} {
+$(begin_namespace -o:$organization -p:$project -e:$example)
 
-            /// \brief
-            /// Return the compiled ${organization}_${project}_${example} version.
-            /// \return Compiled ${organization}_${project}_${example} version.
-            _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL const thekogans::util::Version &
-                _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API GetVersion ();
+$(indent_namespace -o:$organization -p:$project -e:$example)/// \brief
+$(indent_namespace -o:$organization -p:$project -e:$example)/// Return the compiled ${organization}_${project}_${example} version.
+$(indent_namespace -o:$organization -p:$project -e:$example)/// \return Compiled ${organization}_${project}_${example} version.
+$(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL const thekogans::util::Version &
+$(indent_namespace -o:$organization -p:$project -e:$example)    _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API GetVersion ();
 
-        } // namespace ${example}
-    } // namespace ${project}
-} // namespace ${organization}
+$(end_namespace -o:$organization -p:$project -e:$example)
 
 #endif // !defined (__${organization}_${project}_${example}_Version_h)
 EOF
@@ -175,22 +171,18 @@ EOF
 
 using namespace thekogans;
 
-namespace ${organization} {
-    namespace ${project} {
-        namespace ${example} {
+$(begin_namespace -o:$organization -p:$project -e:$example)
 
-            _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL const util::Version &
-            _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API GetVersion () {
-                static const util::Version version (
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
-                return version;
-            }
+$(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL const util::Version &
+$(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API GetVersion () {
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
+$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
+$(indent_namespace -o:$organization -p:$project -e:$example)}
 
-        } // namespace ${example}
-    } // namespace ${project}
-} // namespace ${organization}
+$(end_namespace -o:$organization -p:$project -e:$example)
 EOF
     check_errors $?
 
@@ -224,18 +216,14 @@ elif [ "$project_type" == "program" ]; then
 
 #include <thekogans/util/Version.h>
 
-namespace ${organization} {
-    namespace ${project} {
-        namespace ${example} {
+$(begin_namespace -o:$organization -p:$project -e:$example)
 
-            /// \brief
-            /// Return the compiled ${organization}_${project}_${example} version.
-            /// \return Compiled ${organization}_${project}_${example} version.
-            const thekogans::util::Version &GetVersion ();
+$(indent_namespace -o:$organization -p:$project -e:$example)/// \brief
+$(indent_namespace -o:$organization -p:$project -e:$example)/// Return the compiled ${organization}_${project}_${example} version.
+$(indent_namespace -o:$organization -p:$project -e:$example)/// \return Compiled ${organization}_${project}_${example} version.
+$(indent_namespace -o:$organization -p:$project -e:$example)const thekogans::util::Version &GetVersion ();
 
-        } // namespace ${example}
-    } // namespace ${project}
-} // namespace ${organization}
+$(end_namespace -o:$organization -p:$project -e:$example)
 
 #endif // !defined (__${organization}_${project}_${example}_Version_h)
 EOF
@@ -255,21 +243,17 @@ EOF
 
 using namespace thekogans;
 
-namespace ${organization} {
-    namespace ${project} {
-        namespace ${example} {
+$(begin_namespace -o:$organization -p:$project -e:$example)
 
-            const util::Version &GetVersion () {
-                static const util::Version version (
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
-                return version;
-            }
+$(indent_namespace -o:$organization -p:$project -e:$example)const util::Version &GetVersion () {
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
+$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
+$(indent_namespace -o:$organization -p:$project -e:$example)}
 
-        } // namespace ${example}
-    } // namespace ${project}
-} // namespace ${organization}
+$(end_namespace -o:$organization -p:$project -e:$example)
 EOF
 check_errors $?
 
@@ -349,18 +333,14 @@ EOF
 
 #include <thekogans/util/Version.h>
 
-namespace ${organization} {
-    namespace ${project} {
-        namespace ${example} {
+$(begin_namespace -o:$organization -p:$project -e:$example)
 
-            /// \brief
-            /// Return the compiled ${organization}_${project}_${example} version.
-            /// \return Compiled ${organization}_${project}_${example} version.
-            const thekogans::util::Version &GetVersion ();
+$(indent_namespace -o:$organization -p:$project -e:$example)/// \brief
+$(indent_namespace -o:$organization -p:$project -e:$example)/// Return the compiled ${organization}_${project}_${example} version.
+$(indent_namespace -o:$organization -p:$project -e:$example)/// \return Compiled ${organization}_${project}_${example} version.
+$(indent_namespace -o:$organization -p:$project -e:$example)const thekogans::util::Version &GetVersion ();
 
-        } // namespace ${example}
-    } // namespace ${project}
-} // namespace ${organization}
+$(end_namespace -o:$organization -p:$project -e:$example)
 
 #endif // !defined (__${organization}_${project}_${example}_Version_h)
 EOF
@@ -407,21 +387,17 @@ EOF
 
 using namespace thekogans;
 
-namespace ${organization} {
-    namespace ${project} {
-        namespace ${example} {
+$(begin_namespace -o:$organization -p:$project -e:$example)
 
-            const util::Version &GetVersion () {
-                static const util::Version version (
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
-                    ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
-                return version;
-            }
+$(indent_namespace -o:$organization -p:$project -e:$example)const util::Version &GetVersion () {
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
+$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
+$(indent_namespace -o:$organization -p:$project -e:$example)}
 
-        } // namespace ${example}
-    } // namespace ${project}
-} // namespace ${organization}
+$(end_namespace -o:$organization -p:$project -e:$example)
 EOF
     check_errors $?
 

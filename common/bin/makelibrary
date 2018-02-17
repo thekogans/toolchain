@@ -138,17 +138,15 @@ cat > include/"${organization}"/"${project//_//}"/Version.h << EOF
 #include <thekogans/util/Version.h>
 #include "${organization}/${project//_//}/Config.h"
 
-namespace ${organization} {
-    namespace ${project} {
+$(begin_namespace -o:$organization -p:$project)
 
-        /// \brief
-        /// Return the compiled ${organization}_${project} version.
-        /// \return Compiled ${organization}_${project} version.
-        _LIB_${ORGANIZATION}_${PROJECT}_DECL const thekogans::util::Version &
-            _LIB_${ORGANIZATION}_${PROJECT}_API GetVersion ();
+$(indent_namespace -o:$organization -p:$project -e:$example)/// \brief
+$(indent_namespace -o:$organization -p:$project -e:$example)/// Return the compiled ${organization}_${project} version.
+$(indent_namespace -o:$organization -p:$project -e:$example)/// \return Compiled ${organization}_${project} version.
+$(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_DECL const thekogans::util::Version &
+$(indent_namespace -o:$organization -p:$project -e:$example)    _LIB_${ORGANIZATION}_${PROJECT}_API GetVersion ();
 
-    } // namespace ${project}
-} // namespace ${organization}
+$(end_namespace -o:$organization -p:$project)
 
 #endif // !defined (__${organization}_${project}_Version_h)
 EOF
@@ -159,20 +157,18 @@ cat > src/Version.cpp << EOF
 
 using namespace thekogans;
 
-namespace ${organization} {
-    namespace ${project} {
+$(begin_namespace -o:$organization -p:$project)
 
-        _LIB_${ORGANIZATION}_${PROJECT}_DECL const util::Version &
-        _LIB_${ORGANIZATION}_${PROJECT}_API GetVersion () {
-            static const util::Version version (
-                ${ORGANIZATION}_${PROJECT}_MAJOR_VERSION,
-                ${ORGANIZATION}_${PROJECT}_MINOR_VERSION,
-                ${ORGANIZATION}_${PROJECT}_PATCH_VERSION);
-            return version;
-        }
+$(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_DECL const util::Version &
+$(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_API GetVersion () {
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_MAJOR_VERSION,
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_MINOR_VERSION,
+$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_PATCH_VERSION);
+$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
+$(indent_namespace -o:$organization -p:$project -e:$example)}
 
-    } // namespace ${project}
-} // namespace ${organization}
+$(end_namespace -o:$organization -p:$project)
 EOF
 check_errors $?
 
