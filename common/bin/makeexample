@@ -173,13 +173,15 @@ EOF
     cat > src/Version.cpp << EOF
 #include "${organization}/${project//_//}/${example//_//}/Version.h"
 
+using namespace thekogans;
+
 namespace ${organization} {
     namespace ${project} {
         namespace ${example} {
 
-            _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL const thekogans::util::Version &
+            _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL const util::Version &
             _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API GetVersion () {
-                static const thekogans::util::Version version (
+                static const util::Version version (
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
@@ -251,12 +253,14 @@ EOF
     cat > src/Version.cpp << EOF
 #include "${organization}/${project//_//}/${example//_//}/Version.h"
 
+using namespace thekogans;
+
 namespace ${organization} {
     namespace ${project} {
         namespace ${example} {
 
-            const thekogans::util::Version &GetVersion () {
-                static const thekogans::util::Version version (
+            const util::Version &GetVersion () {
+                static const util::Version version (
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
@@ -375,11 +379,11 @@ using namespace thekogans;
 #endif
 
 extern "C"
-    _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL thekogans::util::Plugins::Plugin::Interface &
+    _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL util::Plugins::Plugin::Interface &
     _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API GetPluginInterface () {
-        struct PluginInterface : public thekogans::util::Plugins::Plugin::Interface {
-            virtual const thekogans::util::Version &GetVersion () const throw () {
-                return ${project}::GetVersion ();
+        struct PluginInterface : public util::Plugins::Plugin::Interface {
+            virtual const util::Version &GetVersion () const throw () {
+                return ${project//_/::}::${example//_/::}::GetVersion ();
             }
             virtual void Initialize () throw () {
                 // FIXME: implement
@@ -401,12 +405,14 @@ EOF
     cat > src/Version.cpp << EOF
 #include "${organization}/${project//_//}/${example//_//}/Version.h"
 
+using namespace thekogans;
+
 namespace ${organization} {
     namespace ${project} {
         namespace ${example} {
 
-            const thekogans::util::Version &GetVersion () {
-                static const thekogans::util::Version version (
+            const util::Version &GetVersion () {
+                static const util::Version version (
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
                     ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);

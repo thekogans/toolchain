@@ -126,11 +126,13 @@ check_errors $?
 cat > src/Version.cpp << EOF
 #include "${organization}/${project//_//}/Version.h"
 
+using namespace thekogans;
+
 namespace ${organization} {
     namespace ${project} {
 
-        const thekogans::util::Version &GetVersion () {
-            static const thekogans::util::Version version (
+        const util::Version &GetVersion () {
+            static const util::Version version (
                 ${ORGANIZATION}_${PROJECT}_MAJOR_VERSION,
                 ${ORGANIZATION}_${PROJECT}_MINOR_VERSION,
                 ${ORGANIZATION}_${PROJECT}_PATCH_VERSION);
