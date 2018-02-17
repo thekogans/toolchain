@@ -194,7 +194,7 @@ EOF
 
     cat > thekogans_make.xml << EOF
 <thekogans_make organization = "${organization}"
-                project = "${project}"
+                project = "${project}_${example}"
                 project_type = "library"
                 major_version = "0"
                 minor_version = "1"
@@ -271,7 +271,7 @@ check_errors $?
 
     cat > thekogans_make.xml << EOF
 <thekogans_make organization = "${organization}"
-                project = "${project}"
+                project = "${project}_${example}"
                 project_type = "program"
                 major_version = "0"
                 minor_version = "1"
@@ -421,7 +421,7 @@ EOF
 
     cat > thekogans_make.xml << EOF
 <thekogans_make organization = "${organization}"
-                project = "${project}"
+                project = "${project}_${example}"
                 project_type = "plugin"
                 major_version = "0"
                 minor_version = "1"

@@ -33,7 +33,7 @@ To build the toolchain for your particular os-arch-compiler
 (cygwin bash on Windows). This will take some time. When finished,
 check $TOOLCHAIN_DIR to make sure everything is there. If the build
 fails mid-stream, you will need to fix whatever's broken on your
-system and re-run buildtoolchain. It will pick up where it left off.
+system and re-run bootstrap. It will pick up where it left off.
 
 IMPORTANT: On Windows the only thing you should need to install is
 Cygwin (select GNU make and gcc during install). On Linux and OS X

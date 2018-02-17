@@ -28,8 +28,8 @@ consists of the following components:
   - naming convention - specifies how the various build artifacts are
     named. for convenience, two naming conventions are supported:
 
-    1. Hierarchical - $TOOLCHAIN_BRANCH/$organization_$project.$version.$extension
-    2. Flat - $organization_$project-$TOOLCHAIN_TRIPLET.$version.$extension
+    1. Hierarchical - $TOOLCHAIN_BRANCH/$organization_$project.$version$extension
+    2. Flat - $organization_$project-$TOOLCHAIN_TRIPLET.$version$extension
 
   - environment variables - an extensive set of environment variables
     are set by $TOOLCHAIN_ROOT/common/bin/setenvironment.

@@ -32,7 +32,8 @@
 # (and not just the one containing the Makefile), all targets
 # need to be converted to use absolute paths. Since this file was
 # included from the actual Makefile, take the next to last path
-# (the actual Makefile) and calculate makefile_path and project_root.
+# (the actual Makefile) and calculate makefile_path, build_root
+# and project_root.
 makefile_path := $(lastword $(filter-out $(lastword $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 
 # Where all intermediate files go.
