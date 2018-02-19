@@ -100,9 +100,9 @@ fi
 
 project_file="$organization"_"$project"
 if [ "$branch" != "" ]; then
-    project_file="$project_file-${branch////_}"
+    project_file+="-${branch////_}"
 fi
-project_file="$project_file-$version.tar.gz"
+project_file+="-$version.tar.gz"
 
 to="$TOOLCHAIN_ROOT/sources/$project_file"
 
@@ -138,9 +138,9 @@ fi
 
 project_dir="$DEVELOPMENT_ROOT/$organization/${project//_//}"
 if [ "$branch" != "" ]; then
-    project_dir="$project_dir/$branch"
+    project_dir+="/$branch"
 fi
-project_dir="$project_dir-$version"
+project_dir+="-$version"
 if [ -d "$project_dir" ]; then
     rm -rf "$project_dir"
     check_errors $?

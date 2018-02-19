@@ -1198,12 +1198,12 @@ function begin_namespace () {
     IFS='_' read -ra projects <<< "$project"
     for project in "${projects[@]}"; do
         echo "${space}namespace ${project} {"
-        space="${space}    "
+        space+="    "
     done
     IFS='_' read -ra examples <<< "$example"
     for example in "${examples[@]}"; do
         echo "${space}namespace ${example} {"
-        space="${space}    "
+        space+="    "
     done
 }
 
@@ -1227,11 +1227,11 @@ function indent_namespace () {
     local space="    "
     IFS='_' read -ra projects <<< "$project"
     for project in "${projects[@]}"; do
-        space="${space}    "
+        space+="    "
     done
     IFS='_' read -ra examples <<< "$example"
     for example in "${examples[@]}"; do
-        space="${space}    "
+        space+="    "
     done
     echo -n "${space}"
 }
@@ -1257,14 +1257,14 @@ function end_namespace () {
     IFS='_' read -ra projects <<< "$project"
     local count=$((${#examples[@]} + ${#projects[@]}))
     for ((idx = ${#examples[@]}; idx--;)); do
-        for ((i = 0; i < $count; i++)); do
+        for ((i = 0; i < count; i++)); do
             echo -n "    "
         done
         ((count--))
         echo "} // namespace ${examples[idx]}"
     done
     for ((idx = ${#projects[@]}; idx--;)); do
-        for ((i = 0; i < $count; i++)); do
+        for ((i = 0; i < count; i++)); do
             echo -n "    "
         done
         ((count--))
