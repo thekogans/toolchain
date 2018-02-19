@@ -1256,14 +1256,14 @@ function end_namespace () {
     IFS='_' read -ra examples <<< "$example"
     IFS='_' read -ra projects <<< "$project"
     local count=$((${#examples[@]} + ${#projects[@]}))
-    for ((idx = ${#examples[@]} - 1; idx >= 0; idx--)); do
+    for ((idx = ${#examples[@]}; idx--;)); do
         for ((i = 0; i < $count; i++)); do
             echo -n "    "
         done
         ((count--))
         echo "} // namespace ${examples[idx]}"
     done
-    for ((idx = ${#projects[@]} - 1; idx >= 0; idx--)); do
+    for ((idx = ${#projects[@]}; idx--;)); do
         for ((i = 0; i < $count; i++)); do
             echo -n "    "
         done
