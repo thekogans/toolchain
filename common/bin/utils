@@ -1193,7 +1193,7 @@ function begin_namespace () {
                 ;;
         esac
     done
-    echo "${space}namespace ${organization} {"
+    echo "namespace ${organization} {"
     local space="    "
     IFS='_' read -ra projects <<< "$project"
     for project in "${projects[@]}"; do
@@ -1256,18 +1256,18 @@ function end_namespace () {
     IFS='_' read -ra examples <<< "$example"
     IFS='_' read -ra projects <<< "$project"
     local count=$((${#examples[@]} + ${#projects[@]}))
-    for (( idx=${#examples[@]}-1 ; idx>=0 ; idx-- )); do
-        for (( i=0 ; i<$count ; i++ )); do
+    for ((idx = ${#examples[@]} - 1; idx >= 0; idx--)); do
+        for ((i = 0; i < $count; i++)); do
             echo -n "    "
         done
-        count=$(($count - 1))
+        ((count--))
         echo "} // namespace ${examples[idx]}"
     done
-    for (( idx=${#projects[@]}-1 ; idx>=0 ; idx-- )); do
-        for (( i=0 ; i<$count ; i++ )); do
+    for ((idx = ${#projects[@]} - 1; idx >= 0; idx--)); do
+        for ((i = 0; i < $count; i++)); do
             echo -n "    "
         done
-        count=$(($count - 1))
+        ((count--))
         echo "} // namespace ${projects[idx]}"
     done
     echo "} // namespace ${organization}"
