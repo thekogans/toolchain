@@ -110,7 +110,7 @@ if [ ! -f "$(get_toolchain_program -o:thekogans -p:make -v:$thekogans_make_versi
     check_errors $?
     ./bootstrap -uv:"$thekogans_util_version" -mcv:"$thekogans_make_core_version" -mv:"$thekogans_make_version"
     check_errors $?
-    cd ../../..
+    cd ../..
     rm -rf thekogans
     check_errors $?
 fi
@@ -327,7 +327,7 @@ if [ ! -f .thekogans_make-"$thekogans_make_version"_done ]; then
     check_errors $?
     "$TOOLCHAIN_ROOT"/common/bin/installprogram -pr:. -c:Release -t:Static
     check_errors $?
-    cd ../../../../make-"$thekogans_make_version"
+    cd ../../../make-"$thekogans_make_version"
     check_errors $?
     # On Windows thekogans_make can't overwrite itself while running.
     # We resort to this trickery to get around this problem.
@@ -337,7 +337,7 @@ if [ ! -f .thekogans_make-"$thekogans_make_version"_done ]; then
     check_errors $?
     ./thekogans_make -a:install_program -c:Release -t:Shared `cd .; pwd`
     check_errors $?
-    cd ../../..
+    cd ../..
     check_errors $?
     rm -rf thekogans
     check_errors $?
