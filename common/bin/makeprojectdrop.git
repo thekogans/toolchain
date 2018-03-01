@@ -34,6 +34,7 @@ fi
 organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 url=
 project="$TOOLCHAIN_DEFAULT_PROJECT"
+version=
 gitschema="$DEVELOPMENT_GITSCHEMA"
 host="$DEVELOPMENT_HOST"
 user="$DEVELOPMENT_USER"
@@ -49,6 +50,9 @@ for i in "$@"; do
             ;;
         -p:*|--project:*)
             project="${i#*:}"
+            ;;
+        -v:*|--version:*)
+            version="${i#*:}"
             ;;
         -s:*|--gitschema:*)
             gitschema="${i#*:}"
@@ -86,7 +90,7 @@ if [ ! -d "$project_drops" ]; then
 fi
 cd "$project_drops"
 
-project_root="$organization/$project"
+project_root="$organization/${project//_//}"
 
 if [ -d foo ]; then
     rm -rf foo
@@ -108,15 +112,15 @@ find . -name "*.cpp" -print0 | xargs -0 chmod 664
 check_errors $?
 
 # Package the source tree.
-version="$(get_project_version -pr:$project_root)"
-check_errors $?
+if [ "$version" == "" ]; then
+    version="$(get_project_version -pr:$project_root)"
+    check_errors $?
+fi
 mv "$project_root" "$project_root-$version"
 check_errors $?
 tarball="$organization"_"$project-$version.tar.gz"
 tar zcvf "../$tarball" "$organization"
 check_errors $?
-
-SHA2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n ../$tarball`
 
 if [ "$add_source" == "yes" ]; then
     "$(get_toolchain_program -o:thekogans -p:make)"\
@@ -132,6 +136,7 @@ if [ "$add_source" == "yes" ]; then
     cp -v "../$tarball" "$source/projects"
     check_errors $?
     git add "$source/projects/$tarball"
+    SHA2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n ../$tarball`
     "$(get_toolchain_program -o:thekogans -p:make)"\
         -a:add_source_project\
         -o:"$organization"\
@@ -141,8 +146,8 @@ if [ "$add_source" == "yes" ]; then
     check_errors $?
     git commit -m'Added $source.' "$source"
     check_errors $?
-else
-    echo "$SHA2_256"
+    git push
+    check_errors $?
 fi
 
 # Clean up.
