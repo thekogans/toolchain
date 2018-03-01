@@ -1,0 +1,236 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN/setenvironment" ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN/setenvironment" "$@"
+fi
+
+organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+url=
+project="$TOOLCHAIN_DEFAULT_PROJECT"
+config=
+type=
+gitschema="$DEVELOPMENT_GITSCHEMA"
+host="$DEVELOPMENT_HOST"
+user="$DEVELOPMENT_USER"
+add_source=yes
+
+for i in "$@"; do
+    case $i in
+        -o:*|--organization:*)
+            organization="${i#*:}"
+            ;;
+        -u:*|--url:*)
+            url="${i#*:}"
+            ;;
+        -p:*|--project:*)
+            project="${i#*:}"
+            ;;
+        -c:*|--config:*)
+            config="${i#*:}"
+            ;;
+        -t:*|--type:*)
+            type="${i#*:}"
+            ;;
+        -s:*|--gitschema:*)
+            gitschema="${i#*:}"
+            ;;
+        -h:*|--host:*)
+            host="${i#*:}"
+            ;;
+        -u:*|--user:*)
+            user="${i#*:}"
+            ;;
+        -a:*|--add-source:*)
+            add_source="${i#*:}"
+            ;;
+    esac
+done
+
+# Verify arguments.
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[[-u | --url]:url] \
+[[-p | --project]:project] \
+[[-c | --config]:[Debug | Release]] \
+[[-t | --type]:[Static | Shared]] \
+[[-s | --gitschema]:gitschema] \
+[[-h | --host]:host] \
+[[-u | --user]:user] \
+[[-a | --add_source]:[yes | no]]"
+    exit 1
+fi
+
+if [ "$config" != "" ] && [ "$config" != "Debug" ] && [ "$config" != "Release" ]; then
+    echo "Unsupported config [-c | --config]: $config [Debug | Release]."
+    exit 1
+fi
+
+if [ "$type" != "" ] && [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
+    echo "Unsupported type [-t | --type]: $type [Static | Shared]."
+    exit 1
+fi
+
+project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
+if [ ! -d "$project_drops" ]; then
+    mkdir "$project_drops"
+    check_errors $?
+fi
+cd "$project_drops"
+
+if [ -d foo ]; then
+    rm -rf foo
+    check_errors $?
+fi
+
+# Check out the source tree.
+git clone "$gitschema://$host/$user/$project.git" foo
+check_errors $?
+
+# Clean up the source tree.
+cd foo
+check_errors $?
+find . -name ".git" -print0 | xargs -0 rm -rf
+check_errors $?
+find . -name "*.h" -print0 | xargs -0 chmod 664
+check_errors $?
+find . -name "*.cpp" -print0 | xargs -0 chmod 664
+check_errors $?
+cd ..
+check_errors $?
+
+cat > foo/install << EOF
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+config=
+type=
+
+for i in "\$@"; do
+    case \$i in
+        -c:*|--config:*)
+            config="\${i#*:}"
+            ;;
+        -t:*|--type:*)
+            type="\${i#*:}"
+            ;;
+    esac
+done
+
+if [ "\$config" != "" ] && [ "\$config" != "Debug" ] && [ "\$config" != "Release" ]; then
+    echo "Unsupported config [-c | --config]: \$config [Debug | Release]."
+    exit 1
+fi
+
+if [ "\$type" != "" ] && [ "\$type" != "Static" ] && [ "\$type" != "Shared" ]; then
+    echo "Unsupported type [-t | --type]: \$type [Static | Shared]."
+    exit 1
+fi
+
+project_type="\$(get_project_project_type -pr:.)"
+
+if [ "\$project_type" == library ]; then
+    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_ROOT"/common/bin/installlibrary -pr:. -c:"\$config" -t:"\$type"
+    check_errors \$?
+elif [ "\$project_type" == program ]; then
+    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_ROOT"/common/bin/installprogram -pr:. -c:"\$config" -t:"\$type"
+    check_errors \$?
+elif [ "\$project_type" == plugin ]; then
+    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_ROOT"/common/bin/installplugin -pr:. -c:"\$config" -t:"\$type"
+    check_errors \$?
+else
+    echo "Unknown project type: \$project_type [library | program | plugin]"
+    exit 1
+fi
+
+exit 0
+EOF
+check_errors $?
+
+chmod +x foo/install
+check_errors $?
+
+# Package the source tree.
+version="$(get_project_version -pr:foo)"
+check_errors $?
+directory="$organization"_"$project-$version"
+mv foo "$directory"
+check_errors $?
+tarball="$directory".tar.gz
+tar zcvf "$tarball" "$directory"
+check_errors $?
+
+SHA2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n $tarball`
+
+if [ "$add_source" == "yes" ]; then
+    "$(get_toolchain_program -o:thekogans -p:make)"\
+        -a:create_source\
+        -o:"$organization"\
+        -u:"$url"
+    check_errors $?
+    source="$DEVELOPMENT_ROOT/sources/$organization"
+    if [ ! -d "$source/toolchain" ]; then
+        mkdir -p "$source/toolchain"
+        check_errors $?
+    fi
+    cp -v "$tarball" "$source/toolchain"
+    check_errors $?
+    git add "$source/toolchain/$tarball"
+    "$(get_toolchain_program -o:thekogans -p:make)"\
+        -a:add_source_toolchain\
+        -o:"$organization"\
+        -p:"$project"\
+        -v:"$version"\
+        -s:"$SHA2_256"
+    check_errors $?
+    git commit -m'Added $source' "$source"
+    check_errors $?
+else
+    echo "$SHA2_256"
+fi
+
+# Clean up.
+rm -rf "$directory"
+check_errors $?
+
+exit 0

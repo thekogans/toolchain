@@ -38,11 +38,11 @@ for i in "$@"; do
         -s:*|--gitschema:*)
             gitschema="${i#*:}"
             ;;
-        -u:*|--user:*)
-            user="${i#*:}"
-            ;;
         -h:*|--host:*)
             host="${i#*:}"
+            ;;
+        -u:*|--user:*)
+            user="${i#*:}"
             ;;
     esac
 done
@@ -61,7 +61,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the toolchain tree.
-git clone "$gitschema://$host/$user/$TOOLCHAIN_NAME" "foo/$TOOLCHAIN_NAME"
+git clone "$gitschema://$host/$user/$TOOLCHAIN_NAME.git" "foo/$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up the toolchain_name tree.
