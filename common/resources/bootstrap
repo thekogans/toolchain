@@ -65,7 +65,7 @@ if [ "$thekogans_source" == "yes" ]; then
     "$TOOLCHAIN_SHELL" \
         "$TOOLCHAIN_ROOT"/common/bin/addsource \
         -o:thekogans \
-        -u:https://www.thekogans.net
+        -u:https://raw.github.com/ch00ch00man/sources/master
 fi
 
 # Copy the new build system to the real toolchain.
