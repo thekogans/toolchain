@@ -19,12 +19,10 @@
 
 # Create a local sandbox.
 export DEVELOPMENT_ROOT=`pwd`
-export TOOLCHAIN_DEFAULT_BRANCH=trunk
 
 function get_tarball_version () {
     local organization=
     local project=
-    local branch=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -33,19 +31,12 @@ function get_tarball_version () {
             -p:*|--project:*)
                 project="${i#*:}"
                 ;;
-            -b:*|--branch:*)
-                branch="${i#*:}"
-                ;;
         esac
     done
     local latest_major_version=0
     local latest_minor_version=0
     local latest_patch_version=0
-    local template="$organization"_"$project"
-    if [ "$branch" != "" ]; then
-        template="$template-${branch////_}"
-    fi
-    template="$template-"
+    local template="$organization"_"$project-"
     local file=
     for file in "$template"*; do
         # Trim off everything but the version.
@@ -95,27 +86,27 @@ if [ ! -f .gnu_make-"$gnu_make_version"_done ]; then
     check_errors $?
 fi
 
-# thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"
+# thekogans_make
 # In order to bootstrap the build system, we create a
 # temporary toolchain to build thekogans_make. After
 # that we use it to build XcodeEditor, zlib, openssl,
 # pugixml and curl. Once that's done we build it one
 # more time using the newly built libraries.
-thekogans_util_version="$(get_tarball_version -o:thekogans -p:util -b:$TOOLCHAIN_DEFAULT_BRANCH)"
-thekogans_make_core_version="$(get_tarball_version -o:thekogans -p:make_core -b:$TOOLCHAIN_DEFAULT_BRANCH)"
-thekogans_make_version="$(get_tarball_version -o:thekogans -p:make -b:$TOOLCHAIN_DEFAULT_BRANCH)"
+thekogans_util_version="$(get_tarball_version -o:thekogans -p:util)"
+thekogans_make_core_version="$(get_tarball_version -o:thekogans -p:make_core)"
+thekogans_make_version="$(get_tarball_version -o:thekogans -p:make)"
 if [ ! -f "$(get_toolchain_program -o:thekogans -p:make -v:$thekogans_make_version)" ]; then
     if [ -d thekogans ]; then
         rm -rf thekogans
         check_errors $?
     fi
-    tar zxvf thekogans_util-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_util_version".tar.gz
+    tar zxvf thekogans_util-"$thekogans_util_version".tar.gz
     check_errors $?
-    tar zxvf thekogans_make_core-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_core_version".tar.gz
+    tar zxvf thekogans_make_core-"$thekogans_make_core_version".tar.gz
     check_errors $?
-    tar zxvf thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version".tar.gz
+    tar zxvf thekogans_make-"$thekogans_make_version".tar.gz
     check_errors $?
-    cd thekogans/make/"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"
+    cd thekogans/make-"$thekogans_make_version"
     check_errors $?
     ./bootstrap -uv:"$thekogans_util_version" -mcv:"$thekogans_make_core_version" -mv:"$thekogans_make_version"
     check_errors $?
@@ -315,20 +306,20 @@ if [ ! -f .thekogans_curl-"$thekogans_curl_version"_done ]; then
     check_errors $?
 fi
 
-# thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"
+# thekogans_make
 # Now build the real thing.
-if [ ! -f .thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"_done ]; then
+if [ ! -f .thekogans_make-"$thekogans_make_version"_done ]; then
     if [ -d thekogans ]; then
         rm -rf thekogans
         check_errors $?
     fi
-    tar zxvf thekogans_util-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_util_version".tar.gz
+    tar zxvf thekogans_util-"$thekogans_util_version".tar.gz
     check_errors $?
-    tar zxvf thekogans_make_core-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_core_version".tar.gz
+    tar zxvf thekogans_make_core-"$thekogans_make_core_version".tar.gz
     check_errors $?
-    tar zxvf thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version".tar.gz
+    tar zxvf thekogans_make-"$thekogans_make_version".tar.gz
     check_errors $?
-    cd thekogans/util/"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_util_version"/examples/genguid
+    cd thekogans/util-"$thekogans_util_version"/examples/genguid
     check_errors $?
     "$TOOLCHAIN_ROOT"/common/bin/installprogram -pr:. -c:Release -t:Static
     check_errors $?
@@ -336,7 +327,7 @@ if [ ! -f .thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"_
     check_errors $?
     "$TOOLCHAIN_ROOT"/common/bin/installprogram -pr:. -c:Release -t:Static
     check_errors $?
-    cd ../../../../make/"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"
+    cd ../../../../make-"$thekogans_make_version"
     check_errors $?
     # On Windows thekogans_make can't overwrite itself while running.
     # We resort to this trickery to get around this problem.
@@ -350,7 +341,7 @@ if [ ! -f .thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"_
     check_errors $?
     rm -rf thekogans
     check_errors $?
-    touch .thekogans_make-"$TOOLCHAIN_DEFAULT_BRANCH"-"$thekogans_make_version"_done
+    touch .thekogans_make-"$thekogans_make_version"_done
     check_errors $?
 fi
 

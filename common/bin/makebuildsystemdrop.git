@@ -87,9 +87,9 @@ cp -v \
     "$toolchain_sources"/thekogans_pugixml-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:pugixml)".tar.gz \
     "$toolchain_sources"/thekogans_xerces-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:xerces)".tar.gz \
     "$toolchain_sources"/thekogans_zlib-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:zlib)".tar.gz \
-    "$projects_sources"/thekogans_util-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:util -b:trunk)".tar.gz \
-    "$projects_sources"/thekogans_make_core-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:make_core -b:trunk)".tar.gz \
-    "$projects_sources"/thekogans_make-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:make -b:trunk)".tar.gz \
+    "$projects_sources"/thekogans_util-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:util)".tar.gz \
+    "$projects_sources"/thekogans_make_core-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:make_core)".tar.gz \
+    "$projects_sources"/thekogans_make-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:make)".tar.gz \
     "$TOOLCHAIN_ROOT/common/resources/install" "$thekogans_build_system"
 check_errors $?
 cp -v "$TOOLCHAIN_ROOT/common/resources/bootstrap" "$TOOLCHAIN_NAME"
