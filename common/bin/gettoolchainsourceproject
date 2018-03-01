@@ -128,7 +128,7 @@ if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
     fi
     from="$url/$organization/projects/$project_file"
     echo "Downloading $from -> $to"
-    "$(get_toolchain_program -o:thekogans -p:curl)" -# -k "$from" -o "$(to_system_path -p:$to)"
+    "$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$(to_system_path -p:$to)"
     check_errors $?
     if [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
         echo "$to failed integrity check."

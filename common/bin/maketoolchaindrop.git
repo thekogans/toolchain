@@ -30,6 +30,7 @@ fi
 organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 url=
 project="$TOOLCHAIN_DEFAULT_PROJECT"
+version=
 config=
 type=
 gitschema="$DEVELOPMENT_GITSCHEMA"
@@ -47,6 +48,9 @@ for i in "$@"; do
             ;;
         -p:*|--project:*)
             project="${i#*:}"
+            ;;
+        -v:*|--version:*)
+            version="${i#*:}"
             ;;
         -c:*|--config:*)
             config="${i#*:}"
@@ -76,6 +80,7 @@ $environment_options \
 [[-o | --organization]:organization] \
 [[-u | --url]:url] \
 [[-p | --project]:project] \
+[[-v | --version]:version] \
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Static | Shared]] \
 [[-s | --gitschema]:gitschema] \
@@ -191,16 +196,16 @@ chmod +x foo/install
 check_errors $?
 
 # Package the source tree.
-version="$(get_project_version -pr:foo)"
-check_errors $?
+if [ "$version" == "" ]; then
+    version="$(get_project_version -pr:foo)"
+    check_errors $?
+fi
 directory="$organization"_"$project-$version"
 mv foo "$directory"
 check_errors $?
 tarball="$directory".tar.gz
 tar zcvf "$tarball" "$directory"
 check_errors $?
-
-SHA2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n $tarball`
 
 if [ "$add_source" == "yes" ]; then
     "$(get_toolchain_program -o:thekogans -p:make)"\
@@ -215,7 +220,10 @@ if [ "$add_source" == "yes" ]; then
     fi
     cp -v "$tarball" "$source/toolchain"
     check_errors $?
-    git add "$source/toolchain/$tarball"
+    pushd "$source"
+    check_errors $?
+    git add "toolchain/$tarball"
+    SHA2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n toolchain/$tarball`
     "$(get_toolchain_program -o:thekogans -p:make)"\
         -a:add_source_toolchain\
         -o:"$organization"\
@@ -223,10 +231,9 @@ if [ "$add_source" == "yes" ]; then
         -v:"$version"\
         -s:"$SHA2_256"
     check_errors $?
-    git commit -m'Added $source' "$source"
+    git commit -m'Added toolchain/$tarball.' Source.xml "toolchain/$tarball"
     check_errors $?
-else
-    echo "$SHA2_256"
+    popd
 fi
 
 # Clean up.
