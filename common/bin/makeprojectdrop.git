@@ -81,7 +81,7 @@ fi
 
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
 if [ ! -d "$project_drops" ]; then
-    mkdir "$project_drops"
+    mkdir -p "$project_drops"
     check_errors $?
 fi
 cd "$project_drops"
