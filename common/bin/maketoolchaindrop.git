@@ -231,7 +231,7 @@ if [ "$add_source" == "yes" ]; then
         -v:"$version"\
         -s:"$SHA2_256"
     check_errors $?
-    git commit -m'Added toolchain/$tarball.' Source.xml "toolchain/$tarball"
+    git commit -m "Added toolchain/$tarball." Source.xml "toolchain/$tarball"
     check_errors $?
     popd
 fi

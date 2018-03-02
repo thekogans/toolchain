@@ -147,7 +147,7 @@ if [ "$add_source" == "yes" ]; then
         -v:"$version"\
         -s:"$SHA2_256"
     check_errors $?
-    git commit -m'Added projects/$tarball.' Source.xml "projects/$tarball"
+    git commit -m "Added projects/$tarball." Source.xml "projects/$tarball"
     check_errors $?
     git push
     check_errors $?
