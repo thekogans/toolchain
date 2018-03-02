@@ -71,7 +71,7 @@ check_errors $?
 # Clean up the toolchain_name tree.
 cd foo
 check_errors $?
-find . -name ".svn" -print0 | xargs -0 rm -rf
+rm -rf "$TOOLCHAIN_NAME"/.svn
 check_errors $?
 
 # Collect dependencies for thekogans_build_system

@@ -67,7 +67,7 @@ check_errors $?
 # Clean up the toolchain_name tree.
 cd foo
 check_errors $?
-rm -rf "$TOOLCHAIN_NAME"/.git
+find . -name ".git" -print0 | xargs -0 rm -rf
 check_errors $?
 
 # Collect dependencies for thekogans_build_system
