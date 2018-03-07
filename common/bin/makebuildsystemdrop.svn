@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+# This script will create a thekogans.net build system and toolchain tarball.
+
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN/setenvironment" ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN/setenvironment" "$@"
+fi
+
+svnschema="$DEVELOPMENT_SVNSCHEMA"
+user="$DEVELOPMENT_USER"
+host="$DEVELOPMENT_HOST"
+svndepot="$DEVELOPMENT_SVNDEPOT"
+
+for i in "$@"; do
+    case $i in
+        -s:*|--svnschema:*)
+            svnschema="${i#*:}"
+            ;;
+        -u:*|--user:*)
+            user="${i#*:}"
+            ;;
+        -h:*|--host:*)
+            host="${i#*:}"
+            ;;
+        -d:*|--svndepot:*)
+            svndepot="${i#*:}"
+            ;;
+    esac
+done
+
+toolchain_drops="$TOOLCHAIN_ROOT/drops"
+if [ ! -d "$toolchain_drops" ]; then
+    mkdir -p "$toolchain_drops"
+    check_errors $?
+fi
+cd "$toolchain_drops"
+check_errors $?
+
+if [ -d foo ]; then
+    rm -rf foo
+    check_errors $?
+fi
+
+# Check out the toolchain tree.
+svn co "$svnschema://$user@$host/$svndepot/$TOOLCHAIN_NAME" "foo/$TOOLCHAIN_NAME"
+check_errors $?
+
+# Clean up the toolchain_name tree.
+cd foo
+check_errors $?
+rm -rf "$TOOLCHAIN_NAME"/.svn
+check_errors $?
+
+# Collect dependencies for thekogans_build_system
+thekogans_build_system="$TOOLCHAIN_NAME/thekogans_build_system"
+mkdir -p "$thekogans_build_system"
+check_errors $?
+toolchain_sources="$DEVELOPMENT_ROOT/sources/thekogans/toolchain"
+projects_sources="$DEVELOPMENT_ROOT/sources/thekogans/projects"
+cp -v \
+    "$toolchain_sources"/gnu_make-"$(get_tarball_latest_version -d:$toolchain_sources -o:gnu -p:make)".tar.gz \
+    "$toolchain_sources"/thekogans_CppUnitXLite-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:CppUnitXLite)".tar.gz \
+    "$toolchain_sources"/thekogans_XcodeEditor-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:XcodeEditor)".tar.gz \
+    "$toolchain_sources"/thekogans_curl-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:curl)".tar.gz \
+    "$toolchain_sources"/thekogans_curllib-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:curllib)".tar.gz \
+    "$toolchain_sources"/thekogans_nasm-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:nasm)".tar.gz \
+    "$toolchain_sources"/thekogans_openssl-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:openssl)".tar.gz \
+    "$toolchain_sources"/thekogans_pugixml-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:pugixml)".tar.gz \
+    "$toolchain_sources"/thekogans_xerces-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:xerces)".tar.gz \
+    "$toolchain_sources"/thekogans_zlib-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:zlib)".tar.gz \
+    "$projects_sources"/thekogans_util-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:util -b:trunk)".tar.gz \
+    "$projects_sources"/thekogans_make_core-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:make_core -b:trunk)".tar.gz \
+    "$projects_sources"/thekogans_make-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:make -b:trunk)".tar.gz \
+    "$TOOLCHAIN_ROOT/common/resources/install" "$thekogans_build_system"
+check_errors $?
+cp -v "$TOOLCHAIN_ROOT/common/resources/bootstrap" "$TOOLCHAIN_NAME"
+check_errors $?
+
+# Package the toolchain tree.
+tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
+check_errors $?
+
+toolchain_hash="$(get_toolchain_program -o:thekogans -p:hash)"
+if [ -e "$toolchain_hash" ]; then
+    "$toolchain_hash" -h:MD5 -h:SHA2 -d:256 ../thekogans_"$TOOLCHAIN_NAME"-"$(get_toolchain_version)".tar.gz
+    check_errors $?
+fi
+
+# Clean up.
+cd ..
+check_errors $?
+rm -rf foo
+check_errors $?
+cd ..
+check_errors $?
+
+exit 0
