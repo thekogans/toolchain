@@ -33,6 +33,7 @@ svnschema="$DEVELOPMENT_SVNSCHEMA"
 user="$DEVELOPMENT_USER"
 host="$DEVELOPMENT_HOST"
 svndepot="$DEVELOPMENT_SVNDEPOT"
+url=
 
 for i in "$@"; do
     case $i in
@@ -48,8 +49,27 @@ for i in "$@"; do
         -d:*|--svndepot:*)
             svndepot="${i#*:}"
             ;;
+        --url:*)
+            url="${i#*:}"
+            ;;
     esac
 done
+
+if [ "$url" == "" ]; then
+    if [ "$svnschema" == "" ] || [ "$user" == "" ] || [ "$host" == "" ] || [ "$svndepot" == "" ]; then
+        echo "usage: $0 \
+$environment_options \
+[-s | --svnschema]:[https | svn+ssh | ...] \
+[-u | --user]:user \
+[-h | --host]:host \
+[-d | --svndepot]:svndepot or"
+        echo "       $0 \
+$environment_options \
+[--url]:url"
+        exit 1
+    fi
+    url="$svnschema://$user@$host/$svndepot/"
+fi
 
 toolchain_drops="$TOOLCHAIN_ROOT/drops"
 if [ ! -d "$toolchain_drops" ]; then
@@ -65,7 +85,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the toolchain tree.
-svn co "$svnschema://$user@$host/$svndepot/$TOOLCHAIN_NAME" "foo/$TOOLCHAIN_NAME"
+svn co "$url$TOOLCHAIN_NAME" "foo/$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up the toolchain_name tree.

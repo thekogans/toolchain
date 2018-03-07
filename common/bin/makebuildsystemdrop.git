@@ -32,6 +32,7 @@ fi
 gitschema="$DEVELOPMENT_GITSCHEMA"
 host="$DEVELOPMENT_HOST"
 user="$DEVELOPMENT_USER"
+url=
 
 for i in "$@"; do
     case $i in
@@ -44,8 +45,26 @@ for i in "$@"; do
         -u:*|--user:*)
             user="${i#*:}"
             ;;
+        --url:*)
+            url="${i#*:}"
+            ;;
     esac
 done
+
+if [ "$url" == "" ]; then
+    if [ "$gitschema" == "" ] || [ "$host" == "" ] || [ "$user" == "" ]; then
+        echo "usage: $0 \
+$environment_options \
+[-s | --gitschema]:[https | git | ssh | ...] \
+[-h | --host]:[github.com | ...] \
+[-u | --user]:user or"
+        echo "       $0 \
+$environment_options \
+[--url]:url"
+        exit 1
+    fi
+    url="$gitschema://$host/$user/"
+fi
 
 toolchain_drops="$TOOLCHAIN_ROOT/drops"
 if [ ! -d "$toolchain_drops" ]; then
@@ -61,7 +80,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the toolchain tree.
-git clone "$gitschema://$host/$user/$TOOLCHAIN_NAME.git" "foo/$TOOLCHAIN_NAME"
+git clone "$url$TOOLCHAIN_NAME.git" "foo/$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up the toolchain_name tree.
