@@ -20,20 +20,14 @@
 # This script is used internally by "$TOOLCHAIN_ROOT"/bootstrap to
 # write the default environment to a file (defaultenvironment).
 
-TOOLCHAIN_ROOT="$(dirname $(dirname $(cd $(dirname ${BASH_SOURCE[0]}) && pwd)))"
-
-if [ -e "$TOOLCHAIN_ROOT"/defaultenvironment ]; then
-    . "$TOOLCHAIN_ROOT"/defaultenvironment
-else
-    operating_system=
-    architecture=
-    compiler=
-    naming_convention=Hierarchical
-    development_root=
-    default_organization=
-    default_project=
-    default_branch=
-    default_svc=
+# Create the environment.
+if [ "$TOOLCHAIN_ROOT" == "" ]; then
+    TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+    if [ ! -e "$TOOLCHAIN_COMMON_BIN"/setenvironment ]; then
+        echo "$TOOLCHAIN_COMMON_BIN/setenvironment not found."
+        exit 1
+    fi
+    . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
 fi
 
 # Parse the command line.
