@@ -35,7 +35,7 @@ url=
 project=
 version=
 file=
-source_sha2_256=
+sha2_256=
 config=
 type=
 rm_source=no
@@ -58,7 +58,7 @@ for i in "$@"; do
             file="${i#*:}"
             ;;
         -s:*|--sha2_256:*)
-            source_sha2_256="${i#*:}"
+            sha2_256="${i#*:}"
             ;;
         -c:*|--config:*)
             config="${i#*:}"
@@ -126,8 +126,8 @@ if [ "$file" == "" ]; then
     fi
 fi
 
-if [ "$source_sha2_256" == "" ]; then
-    source_sha2_256=`"$(get_toolchain_program -o:thekogans -p:make)" \
+if [ "$sha2_256" == "" ]; then
+    sha2_256=`"$(get_toolchain_program -o:thekogans -p:make)" \
         -a:get_toolchain_source_toolchain_sha2_256 \
         -o:"$organization" \
         -p:"$project" \
@@ -152,7 +152,7 @@ if [ ! -e "$TOOLCHAIN_ROOT/sources" ]; then
     check_errors $?
 fi
 
-if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
+if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$sha2_256" ]; then
     if [ "$url" == "" ]; then
         url=`"$(get_toolchain_program -o:thekogans -p:make)" -a:get_toolchain_source_url -o:"$organization"`
         check_errors $?
@@ -165,7 +165,7 @@ if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
     echo "Downloading $from -> $to"
     "$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$(to_system_path -p:$to)"
     check_errors $?
-    if [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
+    if [ "$(get_file_sha2_256)" != "$sha2_256" ]; then
         echo "$to failed integrity check."
         exit 1
     fi
