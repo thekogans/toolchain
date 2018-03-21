@@ -40,6 +40,7 @@ project_root=
 config=Release
 type=Shared
 dependencies=yes
+force=no
 
 for i in "$@"; do
     case $i in
@@ -73,6 +74,9 @@ for i in "$@"; do
         -d:*|--dependencies:*)
             dependencies="${i#*:}"
             ;;
+        -f:*|--force:*)
+            force="${i#*:}"
+            ;;
     esac
 done
 
@@ -81,7 +85,8 @@ if [ "$project_root" == "" ]; then
         common_options="\
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Shared | Static]] \
-[[-d | --dependencies]:[yes | no]]"
+[[-d | --dependencies]:[yes | no]] \
+[[-f | --force]:[yes | no]]"
         echo "usage: $0 \
 $environment_options \
 [-g | --generator]:'build system generator' \
@@ -125,8 +130,16 @@ if [ "$dependencies" != "yes" ] && [ "$dependencies" != "no" ]; then
     exit 1
 fi
 
+if [ "$force" != "yes" ] && [ "$force" != "no" ]; then
+    echo "Unsupported force [-f | --force]: $force [yes | no]."
+    exit 1
+fi
+
 if [ "$dependencies" == "yes" ]; then
     dependencies_flag=-d
+fi
+if [ "$force" == "yes" ]; then
+    force_flag=-f
 fi
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:create_build_system \
@@ -134,6 +147,7 @@ fi
     -c:"$config" \
     -t:"$type" \
     "$dependencies_flag" \
+    "$force_flag" \
     "$project_root"
 check_errors $?
 
