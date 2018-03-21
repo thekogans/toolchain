@@ -34,7 +34,7 @@ url=
 project=
 branch=
 version=
-source_sha2_256=
+sha2_256=
 
 for i in "$@"; do
     case $i in
@@ -54,7 +54,7 @@ for i in "$@"; do
             version="${i#*:}"
             ;;
         -s:*|--sha2_256:*)
-            source_sha2_256="${i#*:}"
+            sha2_256="${i#*:}"
             ;;
     esac
 done
@@ -88,8 +88,8 @@ if [ "$version" == "" ]; then
     fi
 fi
 
-if [ "$source_sha2_256" == "" ]; then
-    source_sha2_256=`"$(get_toolchain_program -o:thekogans -p:make)" \
+if [ "$sha2_256" == "" ]; then
+    sha2_256=`"$(get_toolchain_program -o:thekogans -p:make)" \
         -a:get_toolchain_source_project_sha2_256 \
         -o:"$organization" \
         -p:"$project" \
@@ -107,7 +107,11 @@ project_file+="-$version.tar.gz"
 to="$TOOLCHAIN_ROOT/sources/$project_file"
 
 function get_file_sha2_256 () {
-    local sha2_256=`"$(get_toolchain_program -o:thekogans -p:hash)" -h:SHA2 -d:256 -n "$(to_system_path -p:$to)"`
+    local sha2_256=`"$(get_toolchain_program -o:thekogans -p:hash)" \
+        -h:SHA2 \
+        -d:256 \
+        -n \
+        "$(to_system_path -p:$to)"`
     check_errors $?
     echo "$sha2_256"
 }
@@ -117,7 +121,7 @@ if [ ! -e "$TOOLCHAIN_ROOT/sources" ]; then
     check_errors $?
 fi
 
-if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
+if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$sha2_256" ]; then
     if [ "$url" == "" ]; then
         url=`"$(get_toolchain_program -o:thekogans -p:make)" -a:get_toolchain_source_url -o:"$organization"`
         check_errors $?
@@ -130,7 +134,7 @@ if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
     echo "Downloading $from -> $to"
     "$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$(to_system_path -p:$to)"
     check_errors $?
-    if [ "$(get_file_sha2_256)" != "$source_sha2_256" ]; then
+    if [ "$(get_file_sha2_256)" != "$sha2_256" ]; then
         echo "$to failed integrity check."
         exit 1
     fi

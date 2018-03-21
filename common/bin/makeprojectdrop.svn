@@ -129,7 +129,7 @@ tarball="$organization"_"$project-${branch////_}-$version.tar.gz"
 tar zcvf "../$tarball" "$organization"
 check_errors $?
 
-SHA2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n ../$tarball`
+sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n ../$tarball`
 
 if [ "$add_source" == "yes" ]; then
     "$(get_toolchain_program -o:thekogans -p:make)"\
@@ -151,12 +151,12 @@ if [ "$add_source" == "yes" ]; then
         -p:"$project"\
         -b:"$branch"\
         -v:"$version"\
-        -s:"$SHA2_256"
+        -s:"$sha2_256"
     check_errors $?
     svn commit -m'Added $source.' "$source"
     check_errors $?
 else
-    echo "$SHA2_256"
+    echo "$sha2_256"
 fi
 
 # Clean up.

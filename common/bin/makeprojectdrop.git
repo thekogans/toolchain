@@ -139,13 +139,13 @@ if [ "$add_source" == "yes" ]; then
     pushd "$source"
     check_errors $?
     git add "projects/$tarball"
-    SHA2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n projects/$tarball`
+    sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n projects/$tarball`
     "$(get_toolchain_program -o:thekogans -p:make)"\
         -a:add_source_project\
         -o:"$organization"\
         -p:"$project"\
         -v:"$version"\
-        -s:"$SHA2_256"
+        -s:"$sha2_256"
     check_errors $?
     git commit -m "Added projects/$tarball." Source.xml "projects/$tarball"
     check_errors $?
