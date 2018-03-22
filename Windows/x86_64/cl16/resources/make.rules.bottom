@@ -138,7 +138,8 @@ else
       endif
     endif
   endif
-  cl_flags += -GL -Gy -O2 -Oi
+#  cl_flags += -GL -Gy -O2 -Oi
+  cl_flags += -Gy -O2 -Oi
 endif
 cl_dependencies_flags =\
   -E -showIncludes 1>$(addsuffix .i,$(basename $@))\
@@ -190,7 +191,7 @@ rc_compile_it =\
 windows_goal = $(windowspath $(goal))
 # Convert the object files from Cygwin path to Windows path.
 windows_objects = $(windowspath $(objects))
-# Convert the toolchain link libraries from Cygwin path to Windows path.
+# Convert the link libraries from Cygwin path to Windows path.
 windows_link_libraries = $(windowspath $(link_libraries))
 
 # linker

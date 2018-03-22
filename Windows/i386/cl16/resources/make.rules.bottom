@@ -20,7 +20,7 @@
 # IMPORTANT: To avoid conflicts with Cygwin, all Visual Studio tools
 # are accessed through absolute paths. These paths are built using
 # TOOLCHAIN_VISUAL_STUDIO_DIR/TOOLCHAIN_WINDOWS_SDK_DIR environment
-# variables set in $TOOLCHAIN_ROOT/Windows/i368/setenvironment. If you're
+# variables set in $TOOLCHAIN_ROOT/Windows/i386/setenvironment. If you're
 # getting 'unable to locate...' errors from make, make sure those paths
 # are set correctly.
 
@@ -65,7 +65,8 @@ windows_include_directories = $(windowspath $(include_directories))
 
 # masm
 masm = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/$(TOOLCHAIN_MASM)
-masm_flags += -nologo -c -Cx -W3
+#masm_flags += -nologo -c -Cx -W3
+masm_flags += -nologo -c -Cx
 ifeq "$(config)" "Debug"
   masm_flags += -Zi -Zd
 endif
@@ -138,7 +139,8 @@ else
       endif
     endif
   endif
-  cl_flags += -GL -Gy -O2 -Oi
+#  cl_flags += -GL -Gy -O2 -Oi
+  cl_flags += -Gy -O2 -Oi
 endif
 cl_dependencies_flags =\
   -E -showIncludes 1>$(addsuffix .i,$(basename $@))\
@@ -190,7 +192,7 @@ rc_compile_it =\
 windows_goal = $(windowspath $(goal))
 # Convert the object files from Cygwin path to Windows path.
 windows_objects = $(windowspath $(objects))
-# Convert the toolchain link libraries from Cygwin path to Windows path.
+# Convert the link libraries from Cygwin path to Windows path.
 windows_link_libraries = $(windowspath $(link_libraries))
 
 # linker
