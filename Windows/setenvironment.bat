@@ -25,7 +25,7 @@ rem out all together and let the system position and size the window.
 
 rem 'path to cygwin bin'\mintty.exe -i /Cygwin-Terminal.ico -p X,Y -s WIDTH,HEIGHT \
 rem -e %comspec% /k 'path to toolchain root'\Windows\setenvironment.bat \
-rem "path to visual studio root" [x86 | amd64 | ...] [bash]
+rem "path to vcvarsall.bat" [x86 | amd64 | ...] [bash]
 
 if Not Exist ""%1"" (
     echo %1 not found.
@@ -37,7 +37,7 @@ if "%2" == "" (
     goto usage
 )
 
-call %1\VC\vcvarsall.bat %2
+call %1\vcvarsall.bat %2
 
 if "%3" == "bash" (
     %3 --login

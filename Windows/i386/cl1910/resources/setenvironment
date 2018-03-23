@@ -22,7 +22,7 @@ if [ "$TOOLCHAIN_WINDOWS_SDK_DIR" == "" ]; then
 fi
 
 if [ "$TOOLCHAIN_VISUAL_STUDIO_DIR" == "" ]; then
-    export TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCINSTALLDIR"bin`
+    export TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCToolsInstallDir"bin\\\Hostx86\\\x86`
 fi
 
 if [ "$TOOLCHAIN_MASM" == "" ]; then

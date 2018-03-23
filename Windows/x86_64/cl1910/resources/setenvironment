@@ -18,13 +18,13 @@
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
 if [ "$TOOLCHAIN_WINDOWS_SDK_DIR" == "" ]; then
-    export TOOLCHAIN_WINDOWS_SDK_DIR=`cygpath -au "$WindowsSdkDir"bin`
+    export TOOLCHAIN_WINDOWS_SDK_DIR=`cygpath -au "$WindowsSdkDir"bin\\\x64`
 fi
 
 if [ "$TOOLCHAIN_VISUAL_STUDIO_DIR" == "" ]; then
-    export TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCINSTALLDIR"bin`
+    export TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCToolsInstallDir"bin\\\Hostx64\\\x64`
 fi
 
 if [ "$TOOLCHAIN_MASM" == "" ]; then
-    export TOOLCHAIN_MASM=ml.exe
+    export TOOLCHAIN_MASM=ml64.exe
 fi
