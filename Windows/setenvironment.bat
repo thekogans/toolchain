@@ -39,14 +39,16 @@ if "%2" == "" (
 
 call %1\vcvarsall.bat %2
 
-if "%3" == "bash" (
-    %3 --login
+@set DEFAULT_TOOLCHAIN_COMP=%3
+
+if "%4" == "bash" (
+    %4 --login
 )
 
 goto done
 
 :usage
 
-echo usage: %0 "Path to Visual Studio" [x86 | amd64 | ...] [bash]
+echo usage: %0 "Path to Visual Studio" [x86 | amd64 | ...] [cl18 | cl19 | cl1910 | ...] [bash]
 
 :done
