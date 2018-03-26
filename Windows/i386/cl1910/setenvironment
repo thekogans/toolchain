@@ -17,14 +17,4 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-if [ "$TOOLCHAIN_WINDOWS_SDK_DIR" == "" ]; then
-    export TOOLCHAIN_WINDOWS_SDK_DIR=`cygpath -au "$WindowsSdkDir"bin`
-fi
-
-if [ "$TOOLCHAIN_VISUAL_STUDIO_DIR" == "" ]; then
-    export TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCToolsInstallDir"bin\\\Hostx86\\\x86`
-fi
-
-if [ "$TOOLCHAIN_MASM" == "" ]; then
-    export TOOLCHAIN_MASM=ml.exe
-fi
+export TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCToolsInstallDir"bin\\\Hostx86\\\x86`
