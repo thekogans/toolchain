@@ -31,37 +31,6 @@ else
     exit 1
 fi
 
-# Use environment variables to setup the appropriate toolchain.
-# This is useful if you're using mutiple shells and want to do
-# cross-compiler builds.
-if [ "$operating_system" == "" ]; then
-    operating_system="$DEFAULT_TOOLCHAIN_OS"
-fi
-if [ "$architecture" == "" ]; then
-    architecture="$DEFAULT_TOOLCHAIN_ARCH"
-fi
-if [ "$compiler" == "" ]; then
-    compiler="$DEFAULT_TOOLCHAIN_COMP"
-fi
-if [ "$naming_convention" == "" ]; then
-    naming_convention="$DEFAULT_TOOLCHAIN_NAMING_CONVENTION"
-fi
-if [ "$development_root" == "" ]; then
-    development_root="$DEFAULT_DEVELOPMENT_ROOT"
-fi
-if [ "$default_organization" == "" ]; then
-    default_organization="$DEFAULT_TOOLCHAIN_ORGANIZATION"
-fi
-if [ "$default_project" == "" ]; then
-    default_project="$DEFAULT_TOOLCHAIN_PROJECT"
-fi
-if [ "$default_branch" == "" ]; then
-    default_branch="$DEFAULT_TOOLCHAIN_BRANCH"
-fi
-if [ "$default_svc" == "" ]; then
-    default_svc="$DEFAULT_TOOLCHAIN_SVC"
-fi
-
 # Fill in what's missing from the environmnet with defaults provided during bootstrap.
 if [ -e "$TOOLCHAIN_ROOT"/defaultenvironment ]; then
     . "$TOOLCHAIN_ROOT"/defaultenvironment
@@ -76,39 +45,39 @@ $TOOLCHAIN_MAJOR_VERSION"."$TOOLCHAIN_MINOR_VERSION"."$TOOLCHAIN_PATCH_VERSION"
             exit 0
             ;;
         -os:*|--operating-system:*)
-            operating_system="${i#*:}"
+            TOOLCHAIN_OS="${i#*:}"
             ;;
         -arch:*|--architecture:*)
-            architecture="${i#*:}"
+            TOOLCHAIN_ARCH="${i#*:}"
             ;;
         -comp:*|--compiler:*)
-            compiler="${i#*:}"
+            TOOLCHAIN_COMPILER="${i#*:}"
             ;;
         -nc:*|--naming-convention:*)
-            naming_convention="${i#*:}"
+            TOOLCHAIN_NAMING_CONVENTION="${i#*:}"
             ;;
         -dr:*|--development-root:*)
-            development_root="${i#*:}"
+            DEVELOPMENT_ROOT="${i#*:}"
             ;;
         -do:*|--default-organization:*)
-            default_organization="${i#*:}"
+            TOOLCHAIN_DEFAULT_ORGANIZATION="${i#*:}"
             ;;
         -dp:*|--default-project:*)
-            default_project="${i#*:}"
+            TOOLCHAIN_DEFAULT_PROJECT="${i#*:}"
             ;;
         -db:*|--default-branch:*)
-            default_branch="${i#*:}"
+            TOOLCHAIN_DEFAULT_BRANCH="${i#*:}"
             ;;
         -ds:*|--default-svc:*)
-            default_svc="${i#*:}"
+            TOOLCHAIN_DEFAULT_SVC="${i#*:}"
             ;;
     esac
 done
 
 environment_options="\
 [-tv | --toolchain-version] \
-[[-os | --operating-system]:[Windows | OSX | Linux]] \
-[[-arch | --architecture]:[i386 | x86_64]] \
+[[-os | --operating-system]:[Windows | OSX | Linux | ...]] \
+[[-arch | --architecture]:[i386 | x86_64 | ...]] \
 [[-comp | --compiler]:compiler] \
 [[-nc | --naming-convention]:[Flat | Hierarchical]] \
 [[-dr | --development-root]:development_root] \
@@ -118,40 +87,24 @@ environment_options="\
 [[-ds | --default-svc]:[svn | git]]"
 
 # Check if the TOOLCHAIN_TRIPLET was specified.
-if [ "$operating_system" == "" ] || [ "$architecture" == "" ] || [ "$compiler" == "" ]; then
+if [ "$TOOLCHAIN_OS" == "" ] || [ "$TOOLCHAIN_ARCH" == "" ] || [ "$TOOLCHAIN_COMPILER" == "" ]; then
     echo "usage: $0 $environment_options"
     exit 1
 fi
 
 # Validate naming_convention.
-if [ "$naming_convention" != "Flat" ] && [ "$naming_convention" != "Hierarchical" ]; then
-    echo "Unknown naming convention [-nc | --naming-convention]: $naming_convention [Flat | Hierarchical]"
+if [ "$TOOLCHAIN_NAMING_CONVENTION" != "Flat" ] && [ "$TOOLCHAIN_NAMING_CONVENTION" != "Hierarchical" ]; then
+    echo "Unknown naming convention [-nc | --naming-convention]: $TOOLCHAIN_NAMING_CONVENTION [Flat | Hierarchical]"
     exit 1
 fi
 
 # Discover the environment...
-if [ "$development_root" != "" ]; then
-    DEVELOPMENT_ROOT="$(cd $development_root && pwd)"
+if [ "$DEVELOPMENT_ROOT" != "" ]; then
+    DEVELOPMENT_ROOT="$(cd $DEVELOPMENT_ROOT && pwd)"
 else
     DEVELOPMENT_ROOT="$(dirname $TOOLCHAIN_ROOT)"
 fi
 TOOLCHAIN_NAME="$(basename $TOOLCHAIN_ROOT)"
-TOOLCHAIN_OS="$operating_system"
-TOOLCHAIN_ARCH="$architecture"
-TOOLCHAIN_COMPILER="$compiler"
-if [ "$default_organization" != "" ]; then
-    export TOOLCHAIN_DEFAULT_ORGANIZATION="$default_organization"
-fi
-if [ "$default_project" != "" ]; then
-    export TOOLCHAIN_DEFAULT_PROJECT="$default_project"
-fi
-if [ "$default_branch" != "" ]; then
-    export TOOLCHAIN_DEFAULT_BRANCH="$default_branch"
-fi
-if [ "$default_svc" != "" ]; then
-    export TOOLCHAIN_DEFAULT_SVC="$default_svc"
-fi
-TOOLCHAIN_NAMING_CONVENTION="$naming_convention"
 endian=`echo -n I | od -to2 | awk '{print substr($2,6,1); exit}'`
 if [ "$endian" == 1 ]; then
     TOOLCHAIN_ENDIAN=Little
@@ -172,18 +125,22 @@ if [ ! -e "$TOOLCHAIN_SHELL" ]; then
 fi
 
 # ...and export it.
-export DEVELOPMENT_ROOT \
-    TOOLCHAIN_NAME \
-    TOOLCHAIN_ROOT \
-    TOOLCHAIN_OS \
+export TOOLCHAIN_OS \
     TOOLCHAIN_ARCH \
     TOOLCHAIN_COMPILER \
     TOOLCHAIN_NAMING_CONVENTION \
+    DEVELOPMENT_ROOT \
+    TOOLCHAIN_NAME \
+    TOOLCHAIN_ROOT \
     TOOLCHAIN_ENDIAN \
     TOOLCHAIN_BRANCH \
     TOOLCHAIN_DIR \
     TOOLCHAIN_TRIPLET \
-    TOOLCHAIN_SHELL
+    TOOLCHAIN_SHELL \
+    TOOLCHAIN_DEFAULT_ORGANIZATION \
+    TOOLCHAIN_DEFAULT_PROJECT \
+    TOOLCHAIN_DEFAULT_BRANCH \
+    TOOLCHAIN_DEFAULT_SVC
 
 # Pull in toolchain specific environment (if specified).
 toolchain_common_setenvironment="$TOOLCHAIN_ROOT"/common/setenvironment

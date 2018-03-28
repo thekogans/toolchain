@@ -40,12 +40,12 @@ if "%2" == "" (
 call %1\vcvarsall.bat %2
 
 if "%2" == "x86" (
-   @set DEFAULT_TOOLCHAIN_ARCH=i386
+    @set TOOLCHAIN_ARCH=i386
 ) else (
-   @set DEFAULT_TOOLCHAIN_ARCH=x86_64
+    @set TOOLCHAIN_ARCH=x86_64
 )
 
-@set DEFAULT_TOOLCHAIN_COMP=%3
+@set TOOLCHAIN_COMPILER=%3
 
 if "%4" == "bash" (
     %4 --login

@@ -138,8 +138,8 @@ else
       endif
     endif
   endif
-#  cl_flags += -GL -Gy -O2 -Oi
-  cl_flags += -Gy -O2 -Oi
+  cl_flags += -GL -Gy -O2 -Oi
+#  cl_flags += -Gy -O2 -Oi
 endif
 cl_dependencies_flags =\
   -E -showIncludes 1>$(addsuffix .i,$(basename $@))\
@@ -228,7 +228,7 @@ linker_command_file = $(addsuffix .linker,$(basename $@))
 librarian = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/lib.exe
 librarian_flags += -NOLOGO
 ifeq "$(config)" "Release"
-  librarian_flags += -LTCG
+#  librarian_flags += -LTCG
 endif
 librarian_command_file = $(addsuffix .librarian,$(basename $@))
 

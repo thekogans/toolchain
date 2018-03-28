@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCToolsInstallDir"bin\\\Hostx64\\\x64`
-TOOLCHAIN_DEFAULT_GENERATOR=vs2017
+TOOLCHAIN_DEFAULT_GENERATOR=vs2013
 
-export TOOLCHAIN_VISUAL_STUDIO_DIR \
-       TOOLCHAIN_DEFAULT_GENERATOR
+export TOOLCHAIN_DEFAULT_GENERATOR

@@ -34,77 +34,77 @@ fi
 for i in "$@"; do
     case $i in
         -os:*|--operating-system:*)
-            operating_system="${i#*:}"
+            TOOLCHAIN_OS="${i#*:}"
             ;;
         -arch:*|--architecture:*)
-            architecture="${i#*:}"
+            TOOLCHAIN_ARCH="${i#*:}"
             ;;
         -comp:*|--compiler:*)
-            compiler="${i#*:}"
+            TOOLCHAIN_COMPILER="${i#*:}"
             ;;
         -nc:*|--naming-convention:*)
-            naming_convention="${i#*:}"
+            TOOLCHAIN_NAMING_CONVENTION="${i#*:}"
             ;;
         -dr:*|--development-root:*)
-            development_root="${i#*:}"
+            DEVELOPMENT_ROOT="${i#*:}"
             ;;
         -do:*|--default-organization:*)
-            default_organization="${i#*:}"
+            TOOLCHAIN_DEFAULT_ORGANIZATION="${i#*:}"
             ;;
         -dp:*|--default-project:*)
-            default_project="${i#*:}"
+            TOOLCHAIN_DEFAULT_PROJECT="${i#*:}"
             ;;
         -db:*|--default-branch:*)
-            default_branch="${i#*:}"
+            TOOLCHAIN_DEFAULT_BRANCH="${i#*:}"
             ;;
         -ds:*|--default-svc:*)
-            default_svc="${i#*:}"
+            TOOLCHAIN_DEFAULT_SVC="${i#*:}"
             ;;
     esac
 done
 
-if [ "$operating_system" == "" ] || [ "$architecture" == "" ] || [ "$compiler" == "" ]; then
+if [ "$TOOLCHAIN_OS" == "" ] || [ "$TOOLCHAIN_ARCH" == "" ] || [ "$TOOLCHAIN_COMPILER" == "" ]; then
     echo "usage: $0 $environment_options"
     exit 1
 fi
 
-if [ "$naming_convention" != "Flat" ] && [ "$naming_convention" != "Hierarchical" ]; then
-    echo "Unknown naming convention [-nc | --naming-convention]: $naming_convention [Flat | Hierarchical]"
+if [ "$TOOLCHAIN_NAMING_CONVENTION" != "Flat" ] && [ "$TOOLCHAIN_NAMING_CONVENTION" != "Hierarchical" ]; then
+    echo "Unknown naming convention [-nc | --naming-convention]: $TOOLCHAIN_NAMING_CONVENTION [Flat | Hierarchical]"
     exit 1
 fi
 
 TOOLCHAIN_ROOT="$(dirname $(dirname $(cd $(dirname ${BASH_SOURCE[0]}) && pwd)))"
 
 cat > "$TOOLCHAIN_ROOT"/defaultenvironment << EOF
-if [ "\$operating_system" == "" ]; then
-    operating_system=$operating_system
+if [ "\$TOOLCHAIN_OS" == "" ]; then
+    TOOLCHAIN_OS=$TOOLCHAIN_OS
 fi
-if [ "\$architecture" == "" ]; then
-    architecture=$architecture
+if [ "\$TOOLCHAIN_ARCH" == "" ]; then
+    TOOLCHAIN_ARCH=$TOOLCHAIN_ARCH
 fi
-if [ "\$compiler" == "" ]; then
-    compiler=$compiler
+if [ "\$TOOLCHAIN_COMPILER" == "" ]; then
+    TOOLCHAIN_COMPILER=$TOOLCHAIN_COMPILER
 fi
-if [ "\$naming_convention" == "" ]; then
-    naming_convention=$naming_convention
+if [ "\$TOOLCHAIN_NAMING_CONVENTION" == "" ]; then
+    TOOLCHAIN_NAMING_CONVENTION=$TOOLCHAIN_NAMING_CONVENTION
 fi
-if [ "\$development_root" == "" ]; then
-    development_root=$development_root
+if [ "\$DEVELOPMENT_ROOT" == "" ]; then
+    DEVELOPMENT_ROOT=$DEVELOPMENT_ROOT
 fi
-if [ "\$default_organization" == "" ]; then
-    default_organization=$default_organization
+if [ "\$TOOLCHAIN_DEFAULT_ORGANIZATION" == "" ]; then
+    TOOLCHAIN_DEFAULT_ORGANIZATION=$TOOLCHAIN_DEFAULT_ORGANIZATION
 fi
-if [ "\$default_project" == "" ]; then
-    default_project=$default_project
+if [ "\$TOOLCHAIN_DEFAULT_PROJECT" == "" ]; then
+    TOOLCHAIN_DEFAULT_PROJECT=$TOOLCHAIN_DEFAULT_PROJECT
 fi
-if [ "\$default_branch" == "" ]; then
-    default_branch=$default_branch
+if [ "\$TOOLCHAIN_DEFAULT_BRANCH" == "" ]; then
+    TOOLCHAIN_DEFAULT_BRANCH=$TOOLCHAIN_DEFAULT_BRANCH
 fi
-if [ "\$default_svc" == "" ]; then
-    default_svc=$default_svc
+if [ "\$TOOLCHAIN_DEFAULT_SVC" == "" ]; then
+    TOOLCHAIN_DEFAULT_SVC=$TOOLCHAIN_DEFAULT_SVC
 fi
 EOF
 
-echo "Default thekogans.net build system environment: $operating_system-$architecture-$compiler ($naming_convention)"
+echo "Default thekogans.net build system environment: $TOOLCHAIN_OS-$TOOLCHAIN_ARCH-$TOOLCHAIN_COMPILER ($TOOLCHAIN_NAMING_CONVENTION)"
 
 exit 0
