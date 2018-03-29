@@ -227,7 +227,7 @@ linker_command_file = $(addsuffix .linker,$(basename $@))
 librarian = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/lib.exe
 librarian_flags += -NOLOGO
 ifeq "$(config)" "Release"
-  librarian_flags += -LTCG
+  librarian_flags += -LTCG:INCREMENTAL
 endif
 librarian_command_file = $(addsuffix .librarian,$(basename $@))
 

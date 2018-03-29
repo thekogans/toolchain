@@ -39,12 +39,12 @@ if "%2" == "" (
 
 call %1\vcvarsall.bat %2
 
+@set TOOLCHAIN_OS=Windows
 if "%2" == "x86" (
     @set TOOLCHAIN_ARCH=i386
 ) else (
     @set TOOLCHAIN_ARCH=x86_64
 )
-
 @set TOOLCHAIN_COMPILER=%3
 
 if "%4" == "bash" (
