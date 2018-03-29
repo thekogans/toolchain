@@ -22,12 +22,10 @@
 
 TOOLCHAIN_ROOT="$(dirname $(dirname $(cd $(dirname ${BASH_SOURCE[0]}) && pwd)))"
 
-toolchain_version="$TOOLCHAIN_ROOT"/common/bin/version
-
-if [ -e "$toolchain_version" ]; then
-    . "$toolchain_version"
+if [ -e "$TOOLCHAIN_ROOT"/common/bin/version ]; then
+    . "$TOOLCHAIN_ROOT"/common/bin/version
 else
-    echo "Unable to find $toolchain_version."
+    echo "Unable to find $TOOLCHAIN_ROOT/common/bin/version."
     exit 1
 fi
 
@@ -143,21 +141,17 @@ export TOOLCHAIN_OS \
     TOOLCHAIN_DEFAULT_SVC
 
 # Pull in toolchain specific environment (if specified).
-toolchain_common_setenvironment="$TOOLCHAIN_ROOT"/common/setenvironment
-if [ -e "$toolchain_common_setenvironment" ]; then
-    . "$toolchain_common_setenvironment" "$@"
+if [ -e "$TOOLCHAIN_ROOT"/common/setenvironment ]; then
+    . "$TOOLCHAIN_ROOT"/common/setenvironment "$@"
 fi
-toolchain_os_setenvironment="$TOOLCHAIN_ROOT"/"$TOOLCHAIN_OS"/setenvironment
-if [ -e "$toolchain_os_setenvironment" ]; then
-    . "$toolchain_os_setenvironment" "$@"
+if [ -e "$TOOLCHAIN_ROOT"/"$TOOLCHAIN_OS"/setenvironment ]; then
+    . "$TOOLCHAIN_ROOT"/"$TOOLCHAIN_OS"/setenvironment "$@"
 fi
-toolchain_arch_setenvironment="$TOOLCHAIN_ROOT"/"$TOOLCHAIN_OS"/"$TOOLCHAIN_ARCH"/setenvironment
-if [ -e "$toolchain_arch_setenvironment" ]; then
-    . "$toolchain_arch_setenvironment" "$@"
+if [ -e "$TOOLCHAIN_ROOT"/"$TOOLCHAIN_OS"/"$TOOLCHAIN_ARCH"/setenvironment ]; then
+    . "$TOOLCHAIN_ROOT"/"$TOOLCHAIN_OS"/"$TOOLCHAIN_ARCH"/setenvironment "$@"
 fi
-toolchain_dir_setenvironment="$TOOLCHAIN_DIR"/setenvironment
-if [ -e "$toolchain_dir_setenvironment" ]; then
-    . "$toolchain_dir_setenvironment" "$@"
+if [ -e "$TOOLCHAIN_DIR"/setenvironment ]; then
+    . "$TOOLCHAIN_DIR"/setenvironment "$@"
 fi
 
 # Pull in a bunch of useful utility functions.
