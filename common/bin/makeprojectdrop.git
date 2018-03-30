@@ -58,16 +58,16 @@ for i in "$@"; do
         -a:*|--add-source:*)
             add_source="${i#*:}"
             ;;
-        -gs:*|--git_schema:*)
+        -gs:*|--git-schema:*)
             git_schema="${i#*:}"
             ;;
-        -gh:*|--git_host:*)
+        -gh:*|--git-host:*)
             git_host="${i#*:}"
             ;;
-        -gu:*|--git_user:*)
+        -gu:*|--git-user:*)
             git_user="${i#*:}"
             ;;
-        --git_url:*)
+        --git-url:*)
             git_url="${i#*:}"
             ;;
     esac

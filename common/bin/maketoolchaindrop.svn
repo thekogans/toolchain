@@ -63,19 +63,19 @@ for i in "$@"; do
         -a:*|--add-source:*)
             add_source="${i#*:}"
             ;;
-        -ss:*|--svn_schema:*)
+        -ss:*|--svn-schema:*)
             svn_schema="${i#*:}"
             ;;
-        -su:*|--svn_user:*)
+        -su:*|--svn-user:*)
             svn_user="${i#*:}"
             ;;
-        -sh:*|--svn_host:*)
+        -sh:*|--svn-host:*)
             svn_host="${i#*:}"
             ;;
-        -sd:*|--svn_depot:*)
+        -sd:*|--svn-depot:*)
             svn_depot="${i#*:}"
             ;;
-        --svn_url:*)
+        --svn-url:*)
             svn_url="${i#*:}"
             ;;
     esac
