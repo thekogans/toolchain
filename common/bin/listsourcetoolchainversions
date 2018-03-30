@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# Show all source toolchain versions found in "$DEVELOPMENT_ROOT"/"$organization"/Source.xml.
+# Show all source toolchain versions found in "$DEVELOPMENT_ROOT"/sources/"$organization"/Source.xml.
 
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then

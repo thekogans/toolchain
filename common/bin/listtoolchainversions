@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# Show all source project versions found in "$DEVELOPMENT_ROOT"/sources/"$organization"/Source.xml.
+# Show all source project versions found in "$TOOLCHAIN_ROOT"/Sources.xml.
 
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
@@ -31,7 +31,6 @@ fi
 
 organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 project=
-branch=
 
 for i in "$@"; do
     case $i in
@@ -41,9 +40,6 @@ for i in "$@"; do
         -p:*|--project:*)
             project="${i#*:}"
             ;;
-        -b:*|--branch:*)
-            branch="${i#*:}"
-            ;;
     esac
 done
 
@@ -51,16 +47,14 @@ if [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "usage: $0 \
 $environment_options \
 [[-o | --organization]:organization] \
-[-p | --project]:project \
-[[-b | --branch]:[trunk | branches/branch | tags/tag]]"
+[-p | --project]:project"
     exit 1
 fi
 
 "$(get_toolchain_program -o:thekogans -p:make)" \
-    -a:get_source_project_versions \
+    -a:get_toolchain_versions \
     -o:"$organization" \
-    -p:"$project" \
-    -b:"$branch"
+    -p:"$project"
 check_errors $?
 
 exit 0
