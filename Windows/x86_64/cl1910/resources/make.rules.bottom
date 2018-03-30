@@ -141,7 +141,8 @@ else
   cl_flags += -GL -Gy -O2 -Oi
 endif
 cl_dependencies_flags =\
-  -E -showIncludes 1>$(addsuffix .i,$(basename $@)) 2>$(subst .$(object_suffix),.$(dependencies_suffix),$@)
+  -E -showIncludes 1>$(addsuffix .i,$(basename $@))\
+  2>$(subst .$(object_suffix),.$(dependencies_suffix),$@)
 
 # c_compiler
 make_c_dependencies =\
