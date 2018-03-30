@@ -35,11 +35,12 @@ organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 url=
 project="$TOOLCHAIN_DEFAULT_PROJECT"
 branch=
-svnschema="$DEVELOPMENT_SVNSCHEMA"
-user="$DEVELOPMENT_USER"
-host="$DEVELOPMENT_HOST"
-svndepot="$DEVELOPMENT_SVNDEPOT"
 add_source=yes
+svn_schema="$DEVELOPMENT_SVN_SCHEMA"
+svn_user="$DEVELOPMENT_SVN_USER"
+svn_host="$DEVELOPMENT_SVN_HOST"
+svn_depot="$DEVELOPMENT_SVN_DEPOT"
+svn_url=
 
 for i in "$@"; do
     case $i in
@@ -55,38 +56,66 @@ for i in "$@"; do
         -b:*|--branch:*)
             branch="${i#*:}"
             ;;
-        -s:*|--svnschema:*)
-            svnschema="${i#*:}"
-            ;;
-        -u:*|--user:*)
-            user="${i#*:}"
-            ;;
-        -h:*|--host:*)
-            host="${i#*:}"
-            ;;
-        -d:*|--svndepot:*)
-            svndepot="${i#*:}"
-            ;;
         -a:*|--add-source:*)
             add_source="${i#*:}"
+            ;;
+        -ss:*|--svn_schema:*)
+            svn_schema="${i#*:}"
+            ;;
+        -su:*|--svn_user:*)
+            svn_user="${i#*:}"
+            ;;
+        -sh:*|--svn_host:*)
+            svn_host="${i#*:}"
+            ;;
+        -sd:*|--svn_depot:*)
+            svn_depot="${i#*:}"
+            ;;
+        --svn_url:*)
+            svn_url="${i#*:}"
             ;;
     esac
 done
 
 # Verify arguments.
-if [ "$organization" == "" ] || [ "$project" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
+common_options="\
 [[-o | --organization]:organization] \
 [[-u | --url]:url] \
 [[-p | --project]:project] \
 [[-b | --branch]:[trunk | branches/branch | tags/tag]] \
-[[-s | --svnschema]:svnschema] \
-[[-u | --user]:user] \
-[[-h | --host]:host] \
-[[-d | --svndepot]:svndepot] \
 [[-a | --add_source]:[yes | no]]"
+
+svn_options="\
+[[-ss | --svn_schema]:schema] \
+[[-su | --svn_user]:user] \
+[[-sh | --svn_host]:host] \
+[[-sd | --svn_depot]:depot]"
+
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "usage: $0 \
+$environment_options \
+$common_options \
+$svn_options or"
+        echo "       $0 \
+$environment_options \
+$common_options \
+[[--svn_url]:url]"
     exit 1
+fi
+
+if [ "$svn_url" == "" ]; then
+    if [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
+        echo "usage: $0 \
+$environment_options \
+$common_options \
+$svn_options or"
+        echo "       $0 \
+$environment_options \
+$common_options \
+[[--svn_url]:url]"
+        exit 1
+    fi
+    url="$svn_schema://$svn_user@$svn_host/$svn_depot/"
 fi
 
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
@@ -107,7 +136,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the source tree.
-svn co "$svnschema://$user@$host/$svndepot/$organization/${project//_//}/$branch" "foo/$project_root"
+svn co "$svn_url$organization/${project//_//}/$branch" "foo/$project_root"
 check_errors $?
 
 # Clean up the source tree.

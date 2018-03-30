@@ -29,46 +29,46 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN/setenvironment" "$@"
 fi
 
-svnschema="$DEVELOPMENT_SVNSCHEMA"
-user="$DEVELOPMENT_USER"
-host="$DEVELOPMENT_HOST"
-svndepot="$DEVELOPMENT_SVNDEPOT"
-url=
+svn_schema="$TOOLCHAIN_SVN_SCHEMA"
+svn_user="$TOOLCHAIN_SVN_USER"
+svn_host="$TOOLCHAIN_SVN_HOST"
+svn_depot="$TOOLCHAIN_SVN_DEPOT"
+svn_url=
 
 for i in "$@"; do
     case $i in
-        -s:*|--svnschema:*)
-            svnschema="${i#*:}"
+        -ss:*|--svn_schema:*)
+            svn_schema="${i#*:}"
             ;;
-        -u:*|--user:*)
-            user="${i#*:}"
+        -su:*|--svn_user:*)
+            svn_user="${i#*:}"
             ;;
-        -h:*|--host:*)
-            host="${i#*:}"
+        -sh:*|--svn_host:*)
+            svn_host="${i#*:}"
             ;;
-        -d:*|--svndepot:*)
-            svndepot="${i#*:}"
+        -sd:*|--svn_depot:*)
+            svn_depot="${i#*:}"
             ;;
-        --url:*)
-            url="${i#*:}"
+        --svn_url:*)
+            svn_url="${i#*:}"
             ;;
     esac
 done
 
-if [ "$url" == "" ]; then
-    if [ "$svnschema" == "" ] || [ "$user" == "" ] || [ "$host" == "" ] || [ "$svndepot" == "" ]; then
+if [ "$svn_url" == "" ]; then
+    if [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
         echo "usage: $0 \
 $environment_options \
-[-s | --svnschema]:[https | svn+ssh | ...] \
-[-u | --user]:user \
-[-h | --host]:host \
-[-d | --svndepot]:svndepot or"
+[[-ss | --svn_schema]:[https | svn+ssh | ...]] \
+[[-su | --svn_user]:user] \
+[[-sh | --svn_host]:host] \
+[[-sd | --svn_depot]:depot] or"
         echo "       $0 \
 $environment_options \
-[--url]:url"
+[[--svn_url]:url]"
         exit 1
     fi
-    url="$svnschema://$user@$host/$svndepot/"
+    url="$svn_schema://$svn_user@$svn_host/$svn_depot/"
 fi
 
 toolchain_drops="$TOOLCHAIN_ROOT/drops"
@@ -85,7 +85,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the toolchain tree.
-svn co "$url$TOOLCHAIN_NAME" "foo/$TOOLCHAIN_NAME"
+svn co "$svn_url$TOOLCHAIN_NAME" "foo/$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up the toolchain_name tree.

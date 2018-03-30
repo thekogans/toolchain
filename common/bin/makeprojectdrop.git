@@ -35,10 +35,11 @@ organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 url=
 project="$TOOLCHAIN_DEFAULT_PROJECT"
 version=
-gitschema="$DEVELOPMENT_GITSCHEMA"
-host="$DEVELOPMENT_HOST"
-user="$DEVELOPMENT_USER"
 add_source=yes
+git_schema="$TOOLCHAIN_GIT_SCHEMA"
+git_host="$TOOLCHAIN_GIT_HOST"
+git_user="$TOOLCHAIN_GIT_USER"
+git_url=
 
 for i in "$@"; do
     case $i in
@@ -54,34 +55,62 @@ for i in "$@"; do
         -v:*|--version:*)
             version="${i#*:}"
             ;;
-        -s:*|--gitschema:*)
-            gitschema="${i#*:}"
-            ;;
-        -h:*|--host:*)
-            host="${i#*:}"
-            ;;
-        -u:*|--user:*)
-            user="${i#*:}"
-            ;;
         -a:*|--add-source:*)
             add_source="${i#*:}"
+            ;;
+        -gs:*|--git_schema:*)
+            git_schema="${i#*:}"
+            ;;
+        -gh:*|--git_host:*)
+            git_host="${i#*:}"
+            ;;
+        -gu:*|--git_user:*)
+            git_user="${i#*:}"
+            ;;
+        --git_url:*)
+            git_url="${i#*:}"
             ;;
     esac
 done
 
 # Verify arguments.
-if [ "$organization" == "" ] || [ "$project" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
+common_options="\
 [[-o | --organization]:organization] \
 [[-u | --url]:url] \
 [[-p | --project]:project] \
 [[-v | --version]:version] \
-[[-s | --gitschema]:gitschema] \
-[[-h | --host]:host] \
-[[-u | --user]:user] \
 [[-a | --add_source]:[yes | no]]"
+
+git_options="\
+[[-gs | --git_schema]:[https | git | ssh | ...]] \
+[[-gh | --git_host]:[github.com | ...]] \
+[[-gu | --git_user]:user]"
+
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "usage: $0 \
+$environment_options \
+$common_options \
+$git_options or"
+        echo "       $0 \
+$environment_options \
+$common_options \
+[[--git_url]:url]"
     exit 1
+fi
+
+if [ "$git_url" == "" ]; then
+    if [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
+        echo "usage: $0 \
+$environment_options \
+$common_options \
+$git_options or"
+        echo "       $0 \
+$environment_options \
+$common_options \
+[[--git_url]:url]"
+        exit 1
+    fi
+    git_url="$git_schema://$git_host/$git_user/"
 fi
 
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
@@ -99,7 +128,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the source tree.
-git clone "$gitschema://$host/$user/$project.git" "foo/$project_root"
+git clone "$git_url$project.git" "foo/$project_root"
 check_errors $?
 
 # Clean up the source tree.

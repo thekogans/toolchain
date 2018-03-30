@@ -29,41 +29,41 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN/setenvironment" "$@"
 fi
 
-gitschema="$DEVELOPMENT_GITSCHEMA"
-host="$DEVELOPMENT_HOST"
-user="$DEVELOPMENT_USER"
-url=
+git_schema="$TOOLCHAIN_GIT_SCHEMA"
+git_host="$TOOLCHAIN_GIT_HOST"
+git_user="$TOOLCHAIN_GIT_USER"
+git_url=
 
 for i in "$@"; do
     case $i in
-        -s:*|--gitschema:*)
-            gitschema="${i#*:}"
+        -gs:*|--git_schema:*)
+            git_schema="${i#*:}"
             ;;
-        -h:*|--host:*)
-            host="${i#*:}"
+        -gh:*|--git_host:*)
+            git_host="${i#*:}"
             ;;
-        -u:*|--user:*)
-            user="${i#*:}"
+        -gu:*|--git_user:*)
+            git_user="${i#*:}"
             ;;
-        --url:*)
-            url="${i#*:}"
+        --git_url:*)
+            git_url="${i#*:}"
             ;;
     esac
 done
 
-if [ "$url" == "" ]; then
-    if [ "$gitschema" == "" ] || [ "$host" == "" ] || [ "$user" == "" ]; then
+if [ "$git_url" == "" ]; then
+    if [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
         echo "usage: $0 \
 $environment_options \
-[-s | --gitschema]:[https | git | ssh | ...] \
-[-h | --host]:[github.com | ...] \
-[-u | --user]:user or"
+[[-gs | --git_schema]:[https | git | ssh | ...]] \
+[[-gh | --git_host]:[github.com | ...]] \
+[[-gu | --git_user]:user] or"
         echo "       $0 \
 $environment_options \
-[--url]:url"
+[[--git_url]:url]"
         exit 1
     fi
-    url="$gitschema://$host/$user/"
+    git_url="$git_schema://$git_host/$git_user/"
 fi
 
 toolchain_drops="$TOOLCHAIN_ROOT/drops"
@@ -80,7 +80,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the toolchain tree.
-git clone "$url$TOOLCHAIN_NAME.git" "foo/$TOOLCHAIN_NAME"
+git clone "$git_url$TOOLCHAIN_NAME.git" "foo/$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up the toolchain_name tree.
