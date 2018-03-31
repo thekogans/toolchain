@@ -17,6 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
+# Visual Studio 2017 changes the directory structure supported by it's
+# predecessors. This script will correctly point to the right bin directory.
+# NOTE: If you want to do cross compilation (i386 -> x86_64 or x86_64 -> i386)
+# you will need to change the TOOLCHAIN_VISUAL_STUDIO_DIR.
+
 TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCToolsInstallDir"bin\\\Hostx86\\\x86`
 TOOLCHAIN_DEFAULT_GENERATOR=vs2017
 

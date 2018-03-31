@@ -17,7 +17,7 @@ rem
 rem You should have received a copy of the GNU General Public License
 rem along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-rem This scripts prepares a cygwin bash shell to be used with thekogans.net
+rem This script prepares a cygwin bash shell to be used with thekogans.net
 rem development environment and build system using Visual Studio as the compiler.
 
 rem Use this line in mintty.exe Properties dialog box. You'll need to
