@@ -10,7 +10,9 @@ consists of the following components:
                                  ...
                                  /projectN
                    ...
-                   /organizationN
+                   /organizationN/project1
+                                 ...
+                                 /projectN
                    /toolchain/Windows
                              /Linux
                              /OSX
@@ -23,7 +25,9 @@ consists of the following components:
                                          /projects
                                          /toolchain
                            ...
-                           /organizationN
+                           /organizationN/Source.xml
+                                         /projects
+                                         /toolchain
 
   - naming convention - specifies how the various build artifacts are
     named. for convenience, two naming conventions are supported:
@@ -33,6 +37,7 @@ consists of the following components:
 
   - environment variables - an extensive set of environment variables
     are set by $TOOLCHAIN_ROOT/common/bin/setenvironment.
+    PRO TIP: use showenvironment command to list the available environment variables.
 
   - toolchain - third party libraries and programs are built and
     installed in to $TOOLCHAIN_DIR.
