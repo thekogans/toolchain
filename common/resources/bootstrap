@@ -38,10 +38,6 @@ done
 
 TOOLCHAIN_ROOT="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 
-if [ "$default_environment" == "yes" ]; then
-    "$TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment "$@"
-fi
-
 . "$TOOLCHAIN_ROOT"/common/bin/setenvironment "$@"
 
 cd "$TOOLCHAIN_ROOT"
@@ -61,13 +57,6 @@ if [ -d thekogans_build_system ]; then
     check_errors $?
 fi
 
-if [ "$thekogans_source" == "yes" ]; then
-    "$TOOLCHAIN_SHELL" \
-        "$TOOLCHAIN_ROOT"/common/bin/addsource \
-        -o:thekogans \
-        -u:https://raw.github.com/ch00ch00man/sources/master
-fi
-
 # Copy the new build system to the real toolchain.
 if [ "$setenvironment" != "" ]; then
     REAL_TOOLCHAIN_ROOT="$(dirname $(dirname $(dirname $setenvironment)))"
@@ -76,13 +65,32 @@ if [ "$setenvironment" != "" ]; then
         check_errors $?
     fi
     for file in "$TOOLCHAIN_ROOT"/*; do
-        if [ "$file" != "$TOOLCHAIN_ROOT"/README ] && \
-                [ "$file" != "$TOOLCHAIN_ROOT"/bootstrap ] && \
+        if [ "$file" != "$TOOLCHAIN_ROOT"/bootstrap ] && \
+                [ "$file" != "$TOOLCHAIN_ROOT"/drops ] && \
+                [ "$file" != "$TOOLCHAIN_ROOT"/defaultenvironment ] && \
+	        [ "$file" != "$TOOLCHAIN_ROOT"/sources ] && \
+                [ "$file" != "$TOOLCHAIN_ROOT"/Sources.xml ] && \
                 [ "$file" != "$TOOLCHAIN_ROOT"/thekogans_build_system ]; then
             cp -v -r "$file" "$REAL_TOOLCHAIN_ROOT"
             check_errors $?
         fi
     done
+    if [ "$default_environment" == "yes" ] && \
+	    [ "$DEVELOPMENT_ROOT/$TOOLCHAIN_NAME" == "$TOOLCHAIN_ROOT" ]; then
+	DEVELOPMENT_ROOT="$(dirname $REAL_TOOLCHAIN_ROOT)"
+    fi
+    TOOLCHAIN_ROOT="$REAL_TOOLCHAIN_ROOT"
+fi
+
+if [ "$default_environment" == "yes" ]; then
+    "$TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
+fi
+
+if [ "$thekogans_source" == "yes" ]; then
+    "$TOOLCHAIN_SHELL" \
+        "$TOOLCHAIN_ROOT"/common/bin/addsource \
+        -o:thekogans \
+        -u:https://raw.github.com/ch00ch00man/sources/master
 fi
 
 exit 0
