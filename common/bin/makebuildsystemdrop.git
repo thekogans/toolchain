@@ -74,18 +74,20 @@ fi
 cd "$toolchain_drops"
 check_errors $?
 
-if [ -d foo ]; then
-    rm -rf foo
+if [ -d temp ]; then
+    rm -rf temp
     check_errors $?
 fi
+mkdir -p temp
+check_errors $?
+cd temp
+check_errors $?
 
 # Check out the toolchain tree.
-git clone "$git_url/$TOOLCHAIN_NAME.git" "foo/$TOOLCHAIN_NAME"
+git clone "$git_url/$TOOLCHAIN_NAME.git" "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up the toolchain_name tree.
-cd foo
-check_errors $?
 rm -rf "$TOOLCHAIN_NAME"/.git "$TOOLCHAIN_NAME"/.gitignore
 check_errors $?
 
@@ -110,7 +112,7 @@ check_errors $?
 # Clean up.
 cd ..
 check_errors $?
-rm -rf foo
+rm -rf temp
 check_errors $?
 cd ..
 check_errors $?
