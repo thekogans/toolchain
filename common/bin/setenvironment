@@ -73,7 +73,7 @@ $TOOLCHAIN_MAJOR_VERSION"."$TOOLCHAIN_MINOR_VERSION"."$TOOLCHAIN_PATCH_VERSION"
 done
 
 # Default the naming convention to Hierarchical if none is given.
-if [ "$TOOLCHAIN_NAMING_CONVENTION" != "" ]; then
+if [ "$TOOLCHAIN_NAMING_CONVENTION" == "" ]; then
     TOOLCHAIN_NAMING_CONVENTION=Hierarchical
 fi
 
