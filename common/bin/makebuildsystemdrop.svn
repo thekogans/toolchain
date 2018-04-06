@@ -109,6 +109,11 @@ cp -v "$TOOLCHAIN_ROOT/common/resources/install" "$thekogans_build_system"
 check_errors $?
 cp -v "$TOOLCHAIN_ROOT/common/resources/bootstrap" "$TOOLCHAIN_NAME"
 check_errors $?
+# Write defaultenvironment
+setdefaultenvironment="$TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
+TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
+DEVELOPMENT_ROOT=
+"$setdefaultenvironment"
 
 # Package the toolchain tree.
 tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
