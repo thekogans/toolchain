@@ -55,12 +55,12 @@ if [ "$git_url" == "" ]; then
     if [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
         echo "usage: $0 \
 $environment_options \
-[[-gs | --git_schema]:[https | git | ssh | ...]] \
-[[-gh | --git_host]:[github.com | ...]] \
-[[-gu | --git_user]:user] or"
+[[-gs | --git-schema]:[https | git | ssh | ...]] \
+[[-gh | --git-host]:[github.com | ...]] \
+[[-gu | --git-user]:user] or"
         echo "       $0 \
 $environment_options \
-[[--git_url]:url]"
+[[--git-url]:url]"
         exit 1
     fi
     git_url="$git_schema://$git_host/$git_user"

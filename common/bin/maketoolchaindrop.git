@@ -88,9 +88,9 @@ common_options="\
 [[-a | --add_source]:[yes | no]]"
 
 git_options="\
-[[-gs | --git_schema]:[https | git | ssh | ...]] \
-[[-gh | --git_host]:[github.com | ...]] \
-[[-gu | --git_user]:user]"
+[[-gs | --git-schema]:[https | git | ssh | ...]] \
+[[-gh | --git-host]:[github.com | ...]] \
+[[-gu | --git-user]:user]"
 
 if [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "usage: $0 \
@@ -100,7 +100,7 @@ $git_options or"
         echo "       $0 \
 $environment_options \
 $common_options \
-[[--git_url]:url]"
+[[--git-url]:url]"
     exit 1
 fi
 
@@ -113,7 +113,7 @@ $git_options or"
         echo "       $0 \
 $environment_options \
 $common_options \
-[[--git_url]:url]"
+[[--git-url]:url]"
         exit 1
     fi
     git_url="$git_schema://$git_host/$git_user"

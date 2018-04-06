@@ -92,10 +92,10 @@ common_options="\
 [[-a | --add_source]:[yes | no]]"
 
 svn_options="\
-[[-ss | --svn_schema]:schema] \
-[[-su | --svn_user]:user] \
-[[-sh | --svn_host]:host] \
-[[-sd | --svn_depot]:depot]"
+[[-ss | --svn-schema]:schema] \
+[[-su | --svn-user]:user] \
+[[-sh | --svn-host]:host] \
+[[-sd | --svn-depot]:depot]"
 
 if [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "usage: $0 \
@@ -105,7 +105,7 @@ $svn_options or"
         echo "       $0 \
 $environment_options \
 $common_options \
-[[--svn_url]:url]"
+[[--svn-url]:url]"
     exit 1
 fi
 
@@ -118,7 +118,7 @@ $svn_options or"
         echo "       $0 \
 $environment_options \
 $common_options \
-[[--svn_url]:url]"
+[[--svn-url]:url]"
         exit 1
     fi
     svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"
