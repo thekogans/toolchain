@@ -32,7 +32,7 @@ fi
 git_schema="$TOOLCHAIN_GIT_SCHEMA"
 git_host="$TOOLCHAIN_GIT_HOST"
 git_user="$TOOLCHAIN_GIT_USER"
-git_url=
+git_url="$TOOLCHAIN_GIT_URL"
 
 for i in "$@"; do
     case $i in
@@ -86,7 +86,7 @@ check_errors $?
 # Clean up the toolchain_name tree.
 cd foo
 check_errors $?
-rm -rf "$TOOLCHAIN_NAME"/.git
+rm -rf "$TOOLCHAIN_NAME"/.git "$TOOLCHAIN_NAME"/.gitignore
 check_errors $?
 
 # Check out the build system sources.

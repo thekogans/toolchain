@@ -33,7 +33,7 @@ svn_schema="$TOOLCHAIN_SVN_SCHEMA"
 svn_user="$TOOLCHAIN_SVN_USER"
 svn_host="$TOOLCHAIN_SVN_HOST"
 svn_depot="$TOOLCHAIN_SVN_DEPOT"
-svn_url=
+svn_url="$TOOLCHAIN_SVN_URL"
 
 for i in "$@"; do
     case $i in
@@ -98,7 +98,7 @@ check_errors $?
 thekogans_build_system="$TOOLCHAIN_NAME/thekogans_build_system"
 mkdir -p "$thekogans_build_system"
 check_errors $?
-svn co "$git_url/build_system" "$thekogans_build_system"
+svn co "$svn_url/build_system" "$thekogans_build_system"
 check_errors $?
 rm -rf "$thekogans_build_system"/.svn
 check_errors $?

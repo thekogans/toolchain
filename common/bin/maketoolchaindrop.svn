@@ -38,7 +38,7 @@ svn_schema="$TOOLCHAIN_SVN_SCHEMA"
 svn_user="$TOOLCHAIN_SVN_USER"
 svn_host="$TOOLCHAIN_SVN_HOST"
 svn_depot="$TOOLCHAIN_SVN_DEPOT"
-svn_url=
+svn_url="$TOOLCHAIN_SVN_URL"
 
 for i in "$@"; do
     case $i in
