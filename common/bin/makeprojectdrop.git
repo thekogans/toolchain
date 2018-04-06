@@ -110,7 +110,7 @@ $common_options \
 [[--git_url]:url]"
         exit 1
     fi
-    git_url="$git_schema://$git_host/$git_user/"
+    git_url="$git_schema://$git_host/$git_user"
 fi
 
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
@@ -128,7 +128,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the source tree.
-git clone "$git_url$project.git" "foo/$project_root"
+git clone "$git_url/$project.git" "foo/$project_root"
 check_errors $?
 
 # Clean up the source tree.

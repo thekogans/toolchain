@@ -46,23 +46,23 @@
 #   make_nasm_dependencies
 #   nasm_it
 #
-#   c_compiler_flags
-#   c_compiler_preprocessor_definitions
+#   c_flags
+#   c_preprocessor_definitions
 #   make_c_dependencies
 #   c_compile_it
 #
-#   cpp_compiler_flags
-#   cpp_compiler_preprocessor_definitions
+#   cpp_flags
+#   cpp_preprocessor_definitions
 #   make_cpp_dependencies
 #   cpp_compile_it
 #
-#   objective_c_compiler_flags
-#   objective_c_compiler_preprocessor_definitions
+#   objective_c_flags
+#   objective_c_preprocessor_definitions
 #   make_objective_c_dependencies
 #   objective_c_compile_it
 #
-#   objective_cpp_compiler_flags
-#   objective_cpp_compiler_preprocessor_definitions
+#   objective_cpp_flags
+#   objective_cpp_preprocessor_definitions
 #   make_objective_cpp_dependencies
 #   objective_cpp_compile_it
 #
@@ -74,8 +74,8 @@
 #
 # On Windows the following are also available:
 #   subsystem
-#   rc_compiler_flags
-#   rc_compiler_preprocessor_definitions
+#   rc_flags
+#   rc_preprocessor_definitions
 #
 # If you need to, you can provide overrides for all of them.
 ifneq "$(wildcard $(TOOLCHAIN_ROOT)/$(TOOLCHAIN_OS)/make.rules.bottom)" ""

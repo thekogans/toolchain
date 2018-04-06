@@ -68,7 +68,7 @@ $environment_options \
 [[--svn_url]:url]"
         exit 1
     fi
-    url="$svn_schema://$svn_user@$svn_host/$svn_depot/"
+    svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"
 fi
 
 toolchain_drops="$TOOLCHAIN_ROOT/drops"
@@ -85,7 +85,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the toolchain tree.
-svn co "$svn_url$TOOLCHAIN_NAME" "foo/$TOOLCHAIN_NAME"
+svn co "$svn_url/$TOOLCHAIN_NAME" "foo/$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up the toolchain_name tree.
@@ -98,23 +98,12 @@ check_errors $?
 thekogans_build_system="$TOOLCHAIN_NAME/thekogans_build_system"
 mkdir -p "$thekogans_build_system"
 check_errors $?
-toolchain_sources="$DEVELOPMENT_ROOT/sources/thekogans/toolchain"
-projects_sources="$DEVELOPMENT_ROOT/sources/thekogans/projects"
-cp -v \
-    "$toolchain_sources"/gnu_make-"$(get_tarball_latest_version -d:$toolchain_sources -o:gnu -p:make)".tar.gz \
-    "$toolchain_sources"/thekogans_CppUnitXLite-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:CppUnitXLite)".tar.gz \
-    "$toolchain_sources"/thekogans_XcodeEditor-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:XcodeEditor)".tar.gz \
-    "$toolchain_sources"/thekogans_curl-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:curl)".tar.gz \
-    "$toolchain_sources"/thekogans_curllib-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:curllib)".tar.gz \
-    "$toolchain_sources"/thekogans_nasm-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:nasm)".tar.gz \
-    "$toolchain_sources"/thekogans_openssl-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:openssl)".tar.gz \
-    "$toolchain_sources"/thekogans_pugixml-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:pugixml)".tar.gz \
-    "$toolchain_sources"/thekogans_xerces-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:xerces)".tar.gz \
-    "$toolchain_sources"/thekogans_zlib-"$(get_tarball_latest_version -d:$toolchain_sources -o:thekogans -p:zlib)".tar.gz \
-    "$projects_sources"/thekogans_util-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:util -b:trunk)".tar.gz \
-    "$projects_sources"/thekogans_make_core-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:make_core -b:trunk)".tar.gz \
-    "$projects_sources"/thekogans_make-trunk-"$(get_tarball_latest_version -d:$projects_sources -o:thekogans -p:make -b:trunk)".tar.gz \
-    "$TOOLCHAIN_ROOT/common/resources/install" "$thekogans_build_system"
+svn co "$git_url/build_system" "$thekogans_build_system"
+check_errors $?
+rm -rf "$thekogans_build_system"/.svn
+check_errors $?
+# Add install and bootstrap scripts from the toolchain.
+cp -v "$TOOLCHAIN_ROOT/common/resources/install" "$thekogans_build_system"
 check_errors $?
 cp -v "$TOOLCHAIN_ROOT/common/resources/bootstrap" "$TOOLCHAIN_NAME"
 check_errors $?

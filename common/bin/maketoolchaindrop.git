@@ -116,7 +116,7 @@ $common_options \
 [[--git_url]:url]"
         exit 1
     fi
-    git_url="$git_schema://$git_host/$git_user/"
+    git_url="$git_schema://$git_host/$git_user"
 fi
 
 if [ "$config" != "" ] && [ "$config" != "Debug" ] && [ "$config" != "Release" ]; then
@@ -142,7 +142,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the source tree.
-git clone "$git_url$project.git" foo
+git clone "$git_url/$project.git" foo
 check_errors $?
 
 # Clean up the source tree.

@@ -115,7 +115,7 @@ $common_options \
 [[--svn_url]:url]"
         exit 1
     fi
-    url="$svn_schema://$svn_user@$svn_host/$svn_depot/"
+    svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"
 fi
 
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
@@ -136,7 +136,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the source tree.
-svn co "$svn_url$organization/${project//_//}/$branch" "foo/$project_root"
+svn co "$svn_url/$organization/${project//_//}/$branch" "foo/$project_root"
 check_errors $?
 
 # Clean up the source tree.

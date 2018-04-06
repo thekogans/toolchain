@@ -121,7 +121,7 @@ $common_options \
 [[--svn_url]:url]"
         exit 1
     fi
-    url="$svn_schema://$svn_user@$svn_host/$svn_depot/"
+    svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"
 fi
 
 if [ "$config" != "" ] && [ "$config" != "Debug" ] && [ "$config" != "Release" ]; then
@@ -151,7 +151,7 @@ if [ -d foo ]; then
 fi
 
 # Check out the source tree.
-svn co "$svn_url$organization/${project//_//}/$branch" foo
+svn co "$svn_url/$organization/${project//_//}/$branch" foo
 check_errors $?
 
 # Clean up the source tree.
