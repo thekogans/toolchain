@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# This script will create a thekogans.net build system and toolchain tarball.
+# This script will create a thekogans.net toolchain and build system tarball.
 
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
@@ -87,7 +87,7 @@ check_errors $?
 git clone "$git_url/$TOOLCHAIN_NAME.git" "$TOOLCHAIN_NAME"
 check_errors $?
 
-# Clean up the toolchain_name tree.
+# Clean up the toolchain tree.
 rm -rf "$TOOLCHAIN_NAME"/.git "$TOOLCHAIN_NAME"/.gitignore
 check_errors $?
 
@@ -104,22 +104,20 @@ cp -v "$TOOLCHAIN_ROOT/common/resources/install" "$thekogans_build_system"
 check_errors $?
 cp -v "$TOOLCHAIN_ROOT/common/resources/bootstrap" "$TOOLCHAIN_NAME"
 check_errors $?
-# Write defaultenvironment
+# Write defaultenvironment.
 setdefaultenvironment="$TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
 DEVELOPMENT_ROOT=
 "$setdefaultenvironment"
 
 # Package the toolchain tree.
-tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
+tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.
 cd ..
 check_errors $?
 rm -rf temp
-check_errors $?
-cd ..
 check_errors $?
 
 exit 0
