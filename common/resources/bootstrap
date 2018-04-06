@@ -40,6 +40,9 @@ TOOLCHAIN_ROOT="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 
 . "$TOOLCHAIN_ROOT"/common/bin/setenvironment "$@"
 
+mkdir -p "$TOOLCHAIN_DIR"/bin "$TOOLCHAIN_DIR"/config
+check_errors $?
+
 cd "$TOOLCHAIN_ROOT"
 check_errors $?
 

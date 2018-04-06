@@ -108,8 +108,7 @@ else
     DEVELOPMENT_ROOT="$(dirname $TOOLCHAIN_ROOT)"
 fi
 TOOLCHAIN_NAME="$(basename $TOOLCHAIN_ROOT)"
-endian=`echo -n I | od -to2 | awk '{print substr($2,6,1); exit}'`
-if [ "$endian" == 1 ]; then
+if [ `echo -n I | od -to2 | awk '{print substr($2,6,1); exit}'` == 1 ]; then
     TOOLCHAIN_ENDIAN=Little
 else
     TOOLCHAIN_ENDIAN=Big
@@ -133,17 +132,17 @@ export TOOLCHAIN_OS \
     TOOLCHAIN_COMPILER \
     TOOLCHAIN_NAMING_CONVENTION \
     DEVELOPMENT_ROOT \
+    TOOLCHAIN_DEFAULT_ORGANIZATION \
+    TOOLCHAIN_DEFAULT_PROJECT \
+    TOOLCHAIN_DEFAULT_BRANCH \
+    TOOLCHAIN_DEFAULT_SVC \
     TOOLCHAIN_NAME \
     TOOLCHAIN_ROOT \
     TOOLCHAIN_ENDIAN \
     TOOLCHAIN_BRANCH \
     TOOLCHAIN_DIR \
     TOOLCHAIN_TRIPLET \
-    TOOLCHAIN_SHELL \
-    TOOLCHAIN_DEFAULT_ORGANIZATION \
-    TOOLCHAIN_DEFAULT_PROJECT \
-    TOOLCHAIN_DEFAULT_BRANCH \
-    TOOLCHAIN_DEFAULT_SVC
+    TOOLCHAIN_SHELL
 
 # Pull in toolchain specific environment (if specified).
 if [ -e "$TOOLCHAIN_ROOT"/common/setenvironment ]; then
