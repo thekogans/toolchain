@@ -17,16 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-prefix=
 default_environment=yes
 thekogans_source=no
 
 # Parse the command line.
 for i in "$@"; do
     case $i in
-        -p:*|--prefix:*)
-            prefix="${i#*:}"
-            ;;
         -de:*|--default-environment:*)
             default_environment="${i#*:}"
             ;;
@@ -36,24 +32,8 @@ for i in "$@"; do
     esac
 done
 
-if [ "$prefix" == "" ]; then
-    echo "usage: $0 \
-[-p | --prefix]:path \
-[[-de | --default-environment]:[yes | no]] \
-[[-ts | --thekogans-source]:[yes | no]]"
-    exit 1
-else
-    prefix="$(cd $prefix && pwd)"
-fi
-
 TOOLCHAIN_ROOT="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 . "$TOOLCHAIN_ROOT"/common/bin/setenvironment "$@"
-
-REAL_TOOLCHAIN_ROOT="$prefix/$TOOLCHAIN_NAME"
-if [ ! -d "$REAL_TOOLCHAIN_ROOT" ]; then
-    mkdir -p "$REAL_TOOLCHAIN_ROOT"
-    check_errors $?
-fi
 
 mkdir -p "$TOOLCHAIN_DIR"/bin "$TOOLCHAIN_DIR"/config
 check_errors $?
@@ -76,6 +56,7 @@ if [ -d thekogans_build_system ]; then
 fi
 
 # Copy the new build system to the real toolchain.
+REAL_TOOLCHAIN_ROOT="$(cd $(dirname $(dirname $TOOLCHAIN_ROOT)) && pwd)"
 for file in "$TOOLCHAIN_ROOT"/*; do
     if [ "$file" != "$TOOLCHAIN_ROOT"/bootstrap ] && \
             [ "$file" != "$TOOLCHAIN_ROOT"/drops ] && \
@@ -89,7 +70,7 @@ for file in "$TOOLCHAIN_ROOT"/*; do
 done
 
 if [ "$default_environment" == "yes" ]; then
-    DEVELOPMENT_ROOT="$prefix"
+    DEVELOPMENT_ROOT="$(cd $(dirname $REAL_TOOLCHAIN_ROOT) && pwd)"
     TOOLCHAIN_ROOT="$REAL_TOOLCHAIN_ROOT"
     "$TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
 fi
