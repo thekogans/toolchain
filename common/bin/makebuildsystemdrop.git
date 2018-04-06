@@ -107,16 +107,6 @@ check_errors $?
 tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
 check_errors $?
 
-toolchain_hash="$(get_toolchain_program -o:thekogans -p:hash)"
-if [ -e "$toolchain_hash" ]; then
-    "$toolchain_hash" \
-        -h:MD5 \
-        -h:SHA2 \
-        -d:256 \
-        ../thekogans_"$TOOLCHAIN_NAME"-"$(get_toolchain_version)".tar.gz
-    check_errors $?
-fi
-
 # Clean up.
 cd ..
 check_errors $?
