@@ -22,17 +22,19 @@
 # Supported make optional targets:
 # If no target is provided, make the goal.
 # all - Make the goal.
-# tests - Make and run regression tests.
+# tests - Make and run regression tests for the project and it's dependencies.
+# tests_self - Make and run regression tests only for the project.
 # clean - Clean the project and it's dependencies.
 # clean_self - Clean only the project.
 # tags - Create etags for project and it's dependencies.
+# tags_self - Create etags for project only.
 
 # Empty the default suffix rules. This is done so that there
 # are no surprises. If something fails to build, we'll analyze
 # it carefully and create our own rule for it.
 .SUFFIXES:
 
-.PHONY: all tests clean clean_self tags
+.PHONY: all tests tests_self clean clean_self tags tags_self
 
 # Include toolchain specific make rules.
 # This file needs to provide definitions for the following:
@@ -224,7 +226,7 @@ else
 endif
 
 # Build and run the tests.
-tests: $(tests_goals)
+tests tests_self: $(tests_goals)
 	$(foreach tests_goal,$(tests_goals),$(tests_goal);)
 
 # Clean project.
@@ -233,7 +235,7 @@ clean clean_self:
 	$(hide)rm -f $(dependencies) $(objects) $(goal) $(tests_dependencies) $(tests_objects) $(tests_goals) $(extra_clean)
 
 # Generate etags style tags.
-tags:
+tags tags_self:
 	$(hide)echo Generating TAGS in $(project_root)
 	$(hide)cd $(project_root)
 	$(hide)etags $(c_sources) $(cpp_sources) $(objective_c_sources) $(objective_cpp_sources)
@@ -305,12 +307,8 @@ ifeq "$(mode)" "Development"
 
   # If we're building the goal, include the various dependecies files.
   # This will regenerate them if missing or stale.
-  ifneq "$(MAKECMDGOALS)" "clean"
-    ifneq "$(MAKECMDGOALS)" "clean_self"
-      ifneq "$(MAKECMDGOALS)" "tags"
-        -include $(dependencies)
-      endif
-    endif
+  ifeq (,$(filter clean clean_self tags tags_self,$(MAKECMDGOALS)))
+    -include $(dependencies)
   endif
 else
   define masm_it_rule
@@ -370,7 +368,7 @@ $$(subst $$(project_root),$$(build_root),$$(basename $1)).res: $1
 endef
 $(foreach rc_source,$(rc_sources),$(eval $(call rc_compile_it_rule,$(rc_source))))
 
-ifeq "$(MAKECMDGOALS)" "tests"
+ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
   $(foreach masm_test,$(masm_tests),$(eval $(call masm_it_rule,$(masm_test))))
   $(foreach nasm_test,$(nasm_tests),$(eval $(call nasm_it_rule,$(nasm_test))))
   $(foreach c_test,$(c_tests),$(eval $(call c_compile_it_rule,$(c_test))))

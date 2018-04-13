@@ -113,7 +113,7 @@ ifeq "$(config)" "Debug"
   ifeq "$(type)" "Shared"
     cl_flags += -MDd
   else
-    ifeq "$(MAKECMDGOALS)" "tests"
+    ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
       cl_flags += -MTd
     else
       ifeq "$(project_type)" "library"
@@ -128,7 +128,7 @@ else
   ifeq "$(type)" "Shared"
     cl_flags += -MD
   else
-    ifeq "$(MAKECMDGOALS)" "tests"
+    ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
       cl_flags += -MT
     else
       ifeq "$(project_type)" "library"
@@ -254,7 +254,7 @@ else
     rm $(linker_command_file)
 endif
 
-ifeq "$(MAKECMDGOALS)" "tests"
+ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
   test_link_it =\
     echo $(linker_flags)\
        $(windowspath $<) $(windows_goal) $(windows_link_libraries)\

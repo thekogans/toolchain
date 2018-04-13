@@ -94,7 +94,7 @@ if [ "$project_root" == "" ]; then
 [[-m | --mode]:[Development | Install]] \
 [[-hc | --hide-commands]:[yes | no]] \
 [[-pb | --parallel-build]:[yes | no]] \
-[[-ta | --target]:[all | clean | clean_self | tags | tests]]"
+[[-ta | --target]:[all | tests | tests_self | clean | clean_self | tags | tags_self]]"
         echo "usage: $0 \
 $environment_options \
 [[-o | --organization]:organization] \
@@ -147,8 +147,11 @@ if [ "$parallel_build" != "yes" ] && [ "$parallel_build" != "no" ]; then
     exit 1
 fi
 
-if [ "$target" != "all" ] && [ "$target" != "clean" ] && [ "$target" != "clean_self" ] && [ "$target" != "tags" ] && [ "$target" != "tests" ]; then
-    echo "Unsupported target [-ta | --target]: $target [all | clean | clean_self | tags | tests]."
+if [ "$target" != "all" ] && \
+        [ "$target" != "tests" ] && [ "$target" != "tests_self" ] && \
+        [ "$target" != "clean" ] && [ "$target" != "clean_self" ] && \
+        [ "$target" != "tags" ] && [ "$target" != "tags_self" ]; then
+    echo "Unsupported target [-ta | --target]: $target [all | tests | tests_self | clean | clean_self | tags | tags_self]."
     exit 1
 fi
 

@@ -196,8 +196,8 @@ EOF
                 guid = "`$(get_toolchain_program -o:thekogans -p:genguid)`"
                 schema_version = "`$(get_toolchain_program -o:thekogans -p:make) -a:get_schema_version`">
   <dependencies>
-    <project organization = "thekogans"
-             name = "util"/>
+    <dependency organization = "thekogans"
+                 name = "util"/>
   </dependencies>
   <cpp_headers prefix = "include">
     <cpp_header>\$(organization)/\$(project_directory)/Config.h</cpp_header>
@@ -267,8 +267,8 @@ check_errors $?
                 guid = "`$(get_toolchain_program -o:thekogans -p:genguid)`"
                 schema_version = "`$(get_toolchain_program -o:thekogans -p:make) -a:get_schema_version`">
   <dependencies>
-    <project organization = "thekogans"
-             name = "util"/>
+    <dependency organization = "thekogans"
+                name = "util"/>
   </dependencies>
   <cpp_headers prefix = "include">
     <cpp_header>\$(organization)/\$(project_directory)/Version.h</cpp_header>
@@ -414,8 +414,8 @@ EOF
   <plugin_hosts>
   </plugin_hosts>
   <dependencies>
-    <project organization = "thekogans"
-             name = "util"/>
+    <dependency organization = "thekogans"
+                name = "util"/>
   </dependencies>
   <cpp_headers prefix = "include">
     <cpp_header>\$(organization)/\$(project_directory)/Config.h</cpp_header>

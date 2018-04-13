@@ -22,10 +22,12 @@
 # Supported make optional targets:
 # If no target is provided, make the goal.
 # all - Make the goal.
-# tests - Make and run project tests.
+# tests - Make and run regression tests for the project and it's dependencies.
+# tests_self - Make and run regression tests only for the project.
 # clean - Clean the project and it's dependencies.
 # clean_self - Clean the project only.
 # tags - Create ctags for project and it's dependencies.
+# tags_self - Create ctags for project only.
 
 # VERY IMPORTANT: Put no includes above makefile_path!
 # In order to facilitate running make from any directory

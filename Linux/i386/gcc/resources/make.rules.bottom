@@ -140,7 +140,7 @@ else
   endif
 endif
 
-ifeq "$(MAKECMDGOALS)" "tests"
+ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
   test_link_it =\
     $(gpp) $(gpp_linker_flags) $(linker_flags) -o $@ $< $(goal) $(link_libraries);
   ifeq "$(config)" "Release"
