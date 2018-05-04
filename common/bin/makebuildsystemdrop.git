@@ -99,19 +99,22 @@ git clone "$git_url/build_system.git" "$thekogans_build_system"
 check_errors $?
 rm -rf "$thekogans_build_system"/.git
 check_errors $?
+. "$thekogans_build_system"/version
+check_errors $?
+BUILD_SYSTEM_VERSION="$BUILD_SYSTEM_MAJOR_VERSION.$BUILD_SYSTEM_MINOR_VERSION.$BUILD_SYSTEM_PATCH_VERSION"
 # Add install and bootstrap scripts from the toolchain.
 cp -v "$TOOLCHAIN_ROOT/common/resources/install" "$thekogans_build_system"
 check_errors $?
 cp -v "$TOOLCHAIN_ROOT/common/resources/bootstrap" "$TOOLCHAIN_NAME"
 check_errors $?
 # Write defaultenvironment.
-setdefaultenvironment="$TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
+setdefaultenvironment="$TOOLCHAIN_COMMON_BIN"/setdefaultenvironment
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
 DEVELOPMENT_ROOT=
 "$setdefaultenvironment"
 
 # Package the toolchain tree.
-tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
+tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.

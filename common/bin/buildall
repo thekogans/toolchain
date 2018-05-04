@@ -131,7 +131,7 @@ fi
 # Build everything.
 for config in Debug Release; do
     for type in Static Shared; do
-        "$TOOLCHAIN_ROOT"/common/bin/build \
+        "$TOOLCHAIN_COMMON_BIN"/build \
             -pr:"$project_root" \
             -c:"$config" \
             -t:"$type" \

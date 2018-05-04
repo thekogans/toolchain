@@ -204,13 +204,13 @@ fi
 project_type="\$(get_project_project_type -pr:.)"
 
 if [ "\$project_type" == library ]; then
-    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_ROOT"/common/bin/installlibrary -pr:. -c:"\$config" -t:"\$type"
+    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_COMMON_BIN"/installlibrary -pr:. -c:"\$config" -t:"\$type"
     check_errors \$?
 elif [ "\$project_type" == program ]; then
-    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_ROOT"/common/bin/installprogram -pr:. -c:"\$config" -t:"\$type"
+    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_COMMON_BIN"/installprogram -pr:. -c:"\$config" -t:"\$type"
     check_errors \$?
 elif [ "\$project_type" == plugin ]; then
-    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_ROOT"/common/bin/installplugin -pr:. -c:"\$config" -t:"\$type"
+    "\$TOOLCHAIN_SHELL" "\$TOOLCHAIN_COMMON_BIN"/installplugin -pr:. -c:"\$config" -t:"\$type"
     check_errors \$?
 else
     echo "Unknown project type: \$project_type [library | program | plugin]"

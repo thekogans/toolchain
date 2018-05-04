@@ -21,11 +21,12 @@
 # thekogans.net development environment and toolchain.
 
 TOOLCHAIN_ROOT="$(dirname $(dirname $(cd $(dirname ${BASH_SOURCE[0]}) && pwd)))"
+TOOLCHAIN_COMMON_BIN="$TOOLCHAIN_ROOT"/common/bin
 
-if [ -e "$TOOLCHAIN_ROOT"/common/bin/version ]; then
-    . "$TOOLCHAIN_ROOT"/common/bin/version
+if [ -e "$TOOLCHAIN_COMMON_BIN"/version ]; then
+    . "$TOOLCHAIN_COMMON_BIN"/version
 else
-    echo "Unable to find $TOOLCHAIN_ROOT/common/bin/version."
+    echo "Unable to find $TOOLCHAIN_COMMON_BIN/version."
     exit 1
 fi
 
@@ -138,6 +139,7 @@ export TOOLCHAIN_OS \
     TOOLCHAIN_DEFAULT_SVC \
     TOOLCHAIN_NAME \
     TOOLCHAIN_ROOT \
+    TOOLCHAIN_COMMON_BIN \
     TOOLCHAIN_ENDIAN \
     TOOLCHAIN_BRANCH \
     TOOLCHAIN_DIR \
@@ -159,4 +161,4 @@ if [ -e "$TOOLCHAIN_DIR"/setenvironment ]; then
 fi
 
 # Pull in a bunch of useful utility functions.
-. "$TOOLCHAIN_ROOT"/common/bin/utils
+. "$TOOLCHAIN_COMMON_BIN"/utils

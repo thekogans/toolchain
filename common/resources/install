@@ -345,6 +345,10 @@ if [ ! -f .thekogans_make-"$thekogans_make_version"_done ]; then
     check_errors $?
 fi
 
+# Copy the build system version so that checkforupdates can do it's job.
+cp -v version "$TOOLCHAIN_DIR"/bin/version
+check_errors $?
+
 # cleanup
 rm -rf "$TOOLCHAIN_DIR"/config/thekogans_curllib-"$thekogans_curllib_version".xml\
    "$TOOLCHAIN_DIR"/config/thekogans_openssl_crypto-"$thekogans_openssl_version".xml\
