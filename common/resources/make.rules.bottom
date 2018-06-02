@@ -415,8 +415,8 @@ ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
 	$(hide)echo Linking $@
 	$(hide)$(test_link_it)
 
-  # Special rule to make all tests_goals depend on the goal.
-  $(tests_goals): $(goal)
+  # Special rule to make all tests_objects depend on the goal.
+  $(tests_objects): $(goal)
 endif
 
 # Special rule to make all objects depend on the Makefile chain.
