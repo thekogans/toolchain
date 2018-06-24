@@ -107,11 +107,99 @@ check_errors $?
 . "$thekogans_build_system"/version
 check_errors $?
 BUILD_SYSTEM_VERSION="$BUILD_SYSTEM_MAJOR_VERSION.$BUILD_SYSTEM_MINOR_VERSION.$BUILD_SYSTEM_PATCH_VERSION"
-# Add install and bootstrap scripts from the toolchain.
-cp -v "$TOOLCHAIN_ROOT/common/resources/install" "$thekogans_build_system"
+
+# Add bootstrap script.
+cat > "$TOOLCHAIN_NAME"/bootstrap << EOF
+#!/bin/bash
+
+# Copyright 2011 Boris Kogan (boris@thekogans.net)
+#
+# This file is part of thekogans_toolchain.
+#
+# thekogans_toolchain is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# thekogans_toolchain is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
+
+default_environment=yes
+thekogans_source=no
+
+# Parse the command line.
+for i in "\$@"; do
+    case \$i in
+        -de:*|--default-environment:*)
+            default_environment="\${i#*:}"
+            ;;
+        -ts:*|--thekogans-source:*)
+            thekogans_source="\${i#*:}"
+            ;;
+    esac
+done
+
+TOOLCHAIN_ROOT="\$(cd \$(dirname \${BASH_SOURCE[0]}) && pwd)"
+. "\$TOOLCHAIN_ROOT"/common/bin/setenvironment "\$@"
+
+mkdir -p "\$TOOLCHAIN_DIR"/bin "\$TOOLCHAIN_DIR"/config
+check_errors \$?
+
+cd "\$TOOLCHAIN_ROOT"
+check_errors \$?
+
+# thekogans_build_system
+if [ -d thekogans_build_system ]; then
+    cd thekogans_build_system
+    check_errors \$?
+    if [ ! -f .thekogans_build_system_done ]; then
+        "\$TOOLCHAIN_SHELL" ./install
+        check_errors \$?
+        touch .thekogans_build_system_done
+        check_errors \$?
+    fi
+    cd ..
+    check_errors \$?
+fi
+
+# Copy the new build system to the real toolchain.
+REAL_TOOLCHAIN_ROOT="\$(cd \$(dirname \$(dirname \$TOOLCHAIN_ROOT)) && pwd)"
+for file in "\$TOOLCHAIN_ROOT"/*; do
+    if [ "\$file" != "\$TOOLCHAIN_ROOT"/bootstrap ] && \\
+            [ "\$file" != "\$TOOLCHAIN_ROOT"/drops ] && \\
+            [ "\$file" != "\$TOOLCHAIN_ROOT"/defaultenvironment ] && \\
+            [ "\$file" != "\$TOOLCHAIN_ROOT"/sources ] && \\
+            [ "\$file" != "\$TOOLCHAIN_ROOT"/Sources.xml ] && \\
+            [ "\$file" != "\$TOOLCHAIN_ROOT"/thekogans_build_system ]; then
+        cp -v -r "\$file" "\$REAL_TOOLCHAIN_ROOT"
+        check_errors \$?
+    fi
+done
+
+if [ "\$default_environment" == "yes" ]; then
+    DEVELOPMENT_ROOT="\$(cd \$(dirname \$REAL_TOOLCHAIN_ROOT) && pwd)"
+    TOOLCHAIN_ROOT="\$REAL_TOOLCHAIN_ROOT"
+    "\$TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
+fi
+
+if [ "\$thekogans_source" == "yes" ]; then
+    "\$TOOLCHAIN_SHELL" \\
+        "\$TOOLCHAIN_ROOT"/common/bin/addsource \\
+        -o:thekogans \\
+        -u:https://raw.github.com/ch00ch00man/sources/master
+fi
+
+exit 0
+EOF
 check_errors $?
-cp -v "$TOOLCHAIN_ROOT/common/resources/bootstrap" "$TOOLCHAIN_NAME"
+chmod +x "$TOOLCHAIN_NAME"/bootstrap
 check_errors $?
+
 # Write defaultenvironment.
 setdefaultenvironment="$TOOLCHAIN_COMMON_BIN"/setdefaultenvironment
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
