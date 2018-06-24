@@ -104,7 +104,7 @@ check_errors $?
 BUILD_SYSTEM_VERSION="$BUILD_SYSTEM_MAJOR_VERSION.$BUILD_SYSTEM_MINOR_VERSION.$BUILD_SYSTEM_PATCH_VERSION"
 
 # Add bootstrap script.
-cat > "$TOOLCHAIN_NAME"/bootstrap << EOF
+cat > "$TOOLCHAIN_NAME"/install << EOF
 #!/bin/bash
 
 # Copyright 2011 Boris Kogan (boris@thekogans.net)
@@ -142,24 +142,13 @@ done
 TOOLCHAIN_ROOT="\$(cd \$(dirname \${BASH_SOURCE[0]}) && pwd)"
 . "\$TOOLCHAIN_ROOT"/common/bin/setenvironment "\$@"
 
-mkdir -p "\$TOOLCHAIN_DIR"/bin "\$TOOLCHAIN_DIR"/config
-check_errors \$?
-
 cd "\$TOOLCHAIN_ROOT"
 check_errors \$?
 
 # thekogans_build_system
-if [ -d thekogans_build_system ]; then
-    cd thekogans_build_system
-    check_errors \$?
-    if [ ! -f .thekogans_build_system_done ]; then
-        "\$TOOLCHAIN_SHELL" ./install
-        check_errors \$?
-        touch .thekogans_build_system_done
-        check_errors \$?
-    fi
-    cd ..
-    check_errors \$?
+if [ -e thekogans_build_system/bootstrap ]; then
+    thekogans_build_system/bootstrap
+    check_errors $?
 fi
 
 # Copy the new build system to the real toolchain.
