@@ -103,7 +103,7 @@ check_errors $?
 check_errors $?
 BUILD_SYSTEM_VERSION="$BUILD_SYSTEM_MAJOR_VERSION.$BUILD_SYSTEM_MINOR_VERSION.$BUILD_SYSTEM_PATCH_VERSION"
 
-# Add bootstrap script.
+# Add install script.
 cat > "$TOOLCHAIN_NAME"/install << EOF
 #!/bin/bash
 
@@ -154,7 +154,7 @@ fi
 # Copy the new build system to the real toolchain.
 REAL_TOOLCHAIN_ROOT="\$(cd \$(dirname \$(dirname \$TOOLCHAIN_ROOT)) && pwd)"
 for file in "\$TOOLCHAIN_ROOT"/*; do
-    if [ "\$file" != "\$TOOLCHAIN_ROOT"/bootstrap ] && \\
+    if [ "\$file" != "\$TOOLCHAIN_ROOT"/install ] && \\
             [ "\$file" != "\$TOOLCHAIN_ROOT"/drops ] && \\
             [ "\$file" != "\$TOOLCHAIN_ROOT"/defaultenvironment ] && \\
             [ "\$file" != "\$TOOLCHAIN_ROOT"/sources ] && \\
@@ -181,7 +181,7 @@ fi
 exit 0
 EOF
 check_errors $?
-chmod +x "$TOOLCHAIN_NAME"/bootstrap
+chmod +x "$TOOLCHAIN_NAME"/install
 check_errors $?
 
 # Write defaultenvironment.
