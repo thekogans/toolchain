@@ -33,6 +33,7 @@ git_schema="$TOOLCHAIN_GIT_SCHEMA"
 git_host="$TOOLCHAIN_GIT_HOST"
 git_user="$TOOLCHAIN_GIT_USER"
 git_url="$TOOLCHAIN_GIT_URL"
+quite=no
 
 for i in "$@"; do
     case $i in
@@ -47,6 +48,9 @@ for i in "$@"; do
             ;;
         --git-url:*)
             git_url="${i#*:}"
+            ;;
+        -q:*|--quite:*)
+            quite="${i#*:}"
             ;;
     esac
 done
@@ -188,10 +192,11 @@ check_errors $?
 setdefaultenvironment="$TOOLCHAIN_COMMON_BIN"/setdefaultenvironment
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
 DEVELOPMENT_ROOT=
-"$setdefaultenvironment"
+"$setdefaultenvironment" "$@"
 
 # Package the toolchain tree.
-tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz "$TOOLCHAIN_NAME"
+TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz
+tar zcvf ../"$TARBALL_NAME" "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.
@@ -199,5 +204,7 @@ cd ..
 check_errors $?
 rm -rf temp
 check_errors $?
+
+echo "$TARBALL_NAME"
 
 exit 0

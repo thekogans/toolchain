@@ -180,6 +180,34 @@ function get_default_version () {
     echo "$TOOLCHAIN_DEFAULT_VERSION"
 }
 
+function is_version_less_then () {
+    local version1=
+    local version2=
+    for i in "$@"; do
+        case $i in
+            -v1:*|--version1:*)
+                version1="${i#*:}"
+                ;;
+            -v2:*|--version2:*)
+                version2="${i#*:}"
+                ;;
+        esac
+    done
+    # Break the version string in to (major, minor, patch) int array.
+    local v1=(${version1//./ })
+    local v2=(${version2//./ })
+    if (( ${v1[0]} < ${v2[0]} )) ||\
+         ((( ${v1[0]} == ${v2[0]} )) &&\
+          (( ${v1[1]} < ${v2[1]} ))) ||\
+         ((( ${v1[0]} == ${v2[0]} )) &&\
+          (( ${v1[1]} == ${v2[1]} )) &&\
+          (( ${v1[2]} < ${v2[2]} ))); then
+        echo "yes"
+    else
+        echo "no"
+    fi
+}
+
 function get_tarball_name () {
     local organization=
     local project=
@@ -1282,6 +1310,7 @@ export -f \
     get_default_svc \
     get_default_branch \
     get_default_version \
+    is_version_less_then \
     get_tarball_name \
     get_tarball_latest_version \
     get_project_latest_version \

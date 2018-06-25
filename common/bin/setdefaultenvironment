@@ -20,6 +20,16 @@
 # This script is used internally by "$TOOLCHAIN_ROOT"/common/resources/bootstrap
 # to write the default environment to "$TOOLCHAIN_ROOT"/defaultenvironment.
 
+quite=no
+
+for i in "$@"; do
+    case $i in
+        -q:*|--quite:*)
+            quite="${i#*:}"
+            ;;
+    esac
+done
+
 cat > "$TOOLCHAIN_ROOT"/defaultenvironment << EOF
 if [ "\$TOOLCHAIN_OS" == "" ]; then
     TOOLCHAIN_OS=$TOOLCHAIN_OS
@@ -50,6 +60,8 @@ if [ "\$TOOLCHAIN_DEFAULT_SVC" == "" ]; then
 fi
 EOF
 
-echo "Default thekogans.net build system environment: $TOOLCHAIN_OS-$TOOLCHAIN_ARCH-$TOOLCHAIN_COMPILER ($TOOLCHAIN_NAMING_CONVENTION)"
+if [ "$quite" == "no" ]; then
+    echo "Default thekogans.net build system environment: $TOOLCHAIN_OS-$TOOLCHAIN_ARCH-$TOOLCHAIN_COMPILER ($TOOLCHAIN_NAMING_CONVENTION)"
+fi
 
 exit 0

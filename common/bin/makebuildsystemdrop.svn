@@ -196,7 +196,8 @@ DEVELOPMENT_ROOT=
 "$setdefaultenvironment"
 
 # Package the toolchain tree.
-tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz "$TOOLCHAIN_NAME"
+TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz
+tar zcvf ../"$TARBALL_NAME" "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.
@@ -204,5 +205,7 @@ cd ..
 check_errors $?
 rm -rf temp
 check_errors $?
+
+echo "$TARBALL_NAME"
 
 exit 0
