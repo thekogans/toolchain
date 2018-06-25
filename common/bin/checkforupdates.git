@@ -30,6 +30,7 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
 fi
 
+# Check the build system first.
 CURRENT_BUILD_SYSTEM_VERSION=
 if [ -e "$TOOLCHAIN_DIR"/bin/version ]; then
     . "$TOOLCHAIN_DIR"/bin/version
@@ -55,6 +56,7 @@ fi
 
 if [ "$(is_version_less_then -v1:$CURRENT_BUILD_SYSTEM_VERSION -v2:$AVAILABLE_BUILD_SYSTEM_VERSION)" == "yes" ]; then
     TARBALL_NAME=`"$TOOLCHAIN_ROOT"/common/bin/makebuildsystemdrop.git "$@" -q:yes`
+    check_errors $?
     if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
         rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
         check_errors $?
@@ -63,7 +65,12 @@ if [ "$(is_version_less_then -v1:$CURRENT_BUILD_SYSTEM_VERSION -v2:$AVAILABLE_BU
     check_errors $?
     "$TOOLCHAIN_ROOT"/drops/toolchain/install
     check_errors $?
+    rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
+    check_errors $?
+    rm "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME"
+    check_errors $?
 else
+    # If the build system is up to date, check the toolchain.
     CURRENT_TOOLCHAIN_VERSION=
     if [ -e "$TOOLCHAIN_ROOT"/common/bin/version ]; then
         . "$TOOLCHAIN_ROOT"/common/bin/version
@@ -89,6 +96,19 @@ else
 
     if [ "$(is_version_less_then -v1:$CURRENT_TOOLCHAIN_VERSION -v2:$AVAILABLE_TOOLCHAIN_VERSION)" == "yes" ]; then
         TARBALL_NAME=`"$TOOLCHAIN_ROOT"/common/bin/maketoolchaindrop.git "$@" -q:yes`
+        check_errors $?
+        if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
+            rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
+            check_errors $?
+        fi
+        tar zxvf "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME" -C "$TOOLCHAIN_ROOT"/drops
+        check_errors $?
+        "$TOOLCHAIN_ROOT"/drops/toolchain/install
+        check_errors $?
+        rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
+        check_errors $?
+        rm "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME"
+        check_errors $?
     fi
 fi
 
