@@ -34,6 +34,7 @@ svn_user="$TOOLCHAIN_SVN_USER"
 svn_host="$TOOLCHAIN_SVN_HOST"
 svn_depot="$TOOLCHAIN_SVN_DEPOT"
 svn_url="$TOOLCHAIN_SVN_URL"
+quite=no
 
 for i in "$@"; do
     case $i in
@@ -52,6 +53,9 @@ for i in "$@"; do
         --svn-url:*)
             svn_url="${i#*:}"
             ;;
+        -q:*|--quite:*)
+            quite="${i#*:}"
+            ;;
     esac
 done
 
@@ -62,10 +66,12 @@ $environment_options \
 [[-ss | --svn-schema]:[https | svn+ssh | ...]] \
 [[-su | --svn-user]:user] \
 [[-sh | --svn-host]:host] \
-[[-sd | --svn-depot]:depot] or"
+[[-sd | --svn-depot]:depot]
+[[-q | --quite]:[yes | no]] or"
         echo "       $0 \
 $environment_options \
-[[--svn-url]:url]"
+[[--svn-url]:url]
+[[-q | --quite]:[yes | no]]"
         exit 1
     fi
     svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"
@@ -130,7 +136,6 @@ cat > "$TOOLCHAIN_NAME"/install << EOF
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
 default_environment=yes
-thekogans_source=no
 
 # Parse the command line.
 for i in "\$@"; do
@@ -138,23 +143,15 @@ for i in "\$@"; do
         -de:*|--default-environment:*)
             default_environment="\${i#*:}"
             ;;
-        -ts:*|--thekogans-source:*)
-            thekogans_source="\${i#*:}"
-            ;;
     esac
 done
 
 TOOLCHAIN_ROOT="\$(cd \$(dirname \${BASH_SOURCE[0]}) && pwd)"
 . "\$TOOLCHAIN_ROOT"/common/bin/setenvironment "\$@"
 
-cd "\$TOOLCHAIN_ROOT"
-check_errors \$?
-
 # thekogans_build_system
-if [ -e thekogans_build_system/bootstrap ]; then
-    thekogans_build_system/bootstrap
-    check_errors $?
-fi
+"\$TOOLCHAIN_ROOT"/thekogans_build_system/bootstrap
+check_errors $?
 
 # Copy the new build system to the real toolchain.
 REAL_TOOLCHAIN_ROOT="\$(cd \$(dirname \$(dirname \$TOOLCHAIN_ROOT)) && pwd)"
@@ -173,14 +170,7 @@ done
 if [ "\$default_environment" == "yes" ]; then
     DEVELOPMENT_ROOT="\$(cd \$(dirname \$REAL_TOOLCHAIN_ROOT) && pwd)"
     TOOLCHAIN_ROOT="\$REAL_TOOLCHAIN_ROOT"
-    "\$TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
-fi
-
-if [ "\$thekogans_source" == "yes" ]; then
-    "\$TOOLCHAIN_SHELL" \\
-        "\$TOOLCHAIN_ROOT"/common/bin/addsource \\
-        -o:thekogans \\
-        -u:https://raw.github.com/ch00ch00man/sources/master
+    "\$REAL_TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
 fi
 
 exit 0
