@@ -130,17 +130,6 @@ cat > "$TOOLCHAIN_NAME"/install << EOF
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-default_environment=yes
-
-# Parse the command line.
-for i in "\$@"; do
-    case \$i in
-        -de:*|--default-environment:*)
-            default_environment="\${i#*:}"
-            ;;
-    esac
-done
-
 TOOLCHAIN_ROOT="\$(cd \$(dirname \${BASH_SOURCE[0]}) && pwd)"
 . "\$TOOLCHAIN_ROOT"/common/bin/setenvironment "\$@"
 
@@ -152,21 +141,11 @@ check_errors $?
 REAL_TOOLCHAIN_ROOT="\$(cd \$(dirname \$(dirname \$TOOLCHAIN_ROOT)) && pwd)"
 for file in "\$TOOLCHAIN_ROOT"/*; do
     if [ "\$file" != "\$TOOLCHAIN_ROOT"/install ] && \\
-            [ "\$file" != "\$TOOLCHAIN_ROOT"/drops ] && \\
-            [ "\$file" != "\$TOOLCHAIN_ROOT"/defaultenvironment ] && \\
-            [ "\$file" != "\$TOOLCHAIN_ROOT"/sources ] && \\
-            [ "\$file" != "\$TOOLCHAIN_ROOT"/Sources.xml ] && \\
             [ "\$file" != "\$TOOLCHAIN_ROOT"/thekogans_build_system ]; then
         cp -v -r "\$file" "\$REAL_TOOLCHAIN_ROOT"
         check_errors \$?
     fi
 done
-
-if [ "\$default_environment" == "yes" ]; then
-    DEVELOPMENT_ROOT="\$(cd \$(dirname \$REAL_TOOLCHAIN_ROOT) && pwd)"
-    TOOLCHAIN_ROOT="\$REAL_TOOLCHAIN_ROOT"
-    "\$REAL_TOOLCHAIN_ROOT"/common/bin/setdefaultenvironment
-fi
 
 exit 0
 EOF
