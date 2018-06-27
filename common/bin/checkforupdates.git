@@ -30,11 +30,15 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
 fi
 
+branch=master
 install=yes
 
 # Parse the command line.
 for i in "$@"; do
     case $i in
+        -b:*|--branch:*)
+            branch="${i#*:}"
+            ;;
         -i:*|--install:*)
             install="${i#*:}"
             ;;
@@ -45,7 +49,7 @@ done
 CURRENT_BUILD_SYSTEM_VERSION="$(get_build_system_version)"
 echo "Current build system version: $CURRENT_BUILD_SYSTEM_VERSION"
 
-from=https://raw.github.com/thekogans/build_system/master/version
+from=https://raw.github.com/thekogans/build_system/"$branch"/version
 to="$TOOLCHAIN_ROOT"/drops/latest_build_system_version
 "$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$to"
 check_errors $?
@@ -65,7 +69,7 @@ echo "Available build system version: $AVAILABLE_BUILD_SYSTEM_VERSION"
 CURRENT_TOOLCHAIN_VERSION="$(get_toolchain_version)"
 echo "Current toolchain version: $CURRENT_TOOLCHAIN_VERSION"
 
-from=https://raw.github.com/thekogans/toolchain/master/common/bin/version
+from=https://raw.github.com/thekogans/toolchain/"$branch"/common/bin/version
 to="$TOOLCHAIN_ROOT"/drops/latest_toolchain_version
 "$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$to"
 check_errors $?
