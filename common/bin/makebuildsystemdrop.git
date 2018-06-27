@@ -33,7 +33,6 @@ git_schema="$TOOLCHAIN_GIT_SCHEMA"
 git_host="$TOOLCHAIN_GIT_HOST"
 git_user="$TOOLCHAIN_GIT_USER"
 git_url="$TOOLCHAIN_GIT_URL"
-quite=no
 
 for i in "$@"; do
     case $i in
@@ -49,9 +48,6 @@ for i in "$@"; do
         --git-url:*)
             git_url="${i#*:}"
             ;;
-        -q:*|--quite:*)
-            quite="${i#*:}"
-            ;;
     esac
 done
 
@@ -61,18 +57,16 @@ if [ "$git_url" == "" ]; then
 $environment_options \
 [[-gs | --git-schema]:[https | git | ssh | ...]] \
 [[-gh | --git-host]:[github.com | ...]] \
-[[-gu | --git-user]:user]
-[[-q | --quite]:[yes | no]] or"
+[[-gu | --git-user]:user] or"
         echo "       $0 \
 $environment_options \
-[[--git-url]:url]
-[[-q | --quite]:[yes | no]]"
+[[--git-url]:url]"
         exit 1
     fi
     git_url="$git_schema://$git_host/$git_user"
 fi
 
-toolchain_drops="$TOOLCHAIN_ROOT/drops"
+toolchain_drops="$TOOLCHAIN_ROOT"/drops
 if [ ! -d "$toolchain_drops" ]; then
     mkdir -p "$toolchain_drops"
     check_errors $?
@@ -98,7 +92,7 @@ rm -rf "$TOOLCHAIN_NAME"/.git "$TOOLCHAIN_NAME"/.gitignore
 check_errors $?
 
 # Check out the build system sources.
-thekogans_build_system="$TOOLCHAIN_NAME/thekogans_build_system"
+thekogans_build_system="$TOOLCHAIN_NAME"/thekogans_build_system
 mkdir -p "$thekogans_build_system"
 check_errors $?
 git clone "$git_url/build_system.git" "$thekogans_build_system"
@@ -154,14 +148,13 @@ chmod +x "$TOOLCHAIN_NAME"/install
 check_errors $?
 
 # Write defaultenvironment.
-setdefaultenvironment="$TOOLCHAIN_COMMON_BIN"/setdefaultenvironment
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
 DEVELOPMENT_ROOT=
-"$setdefaultenvironment" "$@"
+"$TOOLCHAIN_NAME"/common/bin/setdefaultenvironment
 
 # Package the toolchain tree.
-TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz
-tar zcvf ../"$TARBALL_NAME" "$TOOLCHAIN_NAME"
+. "$TOOLCHAIN_NAME"/common/bin/version
+tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.
@@ -169,7 +162,5 @@ cd ..
 check_errors $?
 rm -rf temp
 check_errors $?
-
-echo "$TARBALL_NAME"
 
 exit 0

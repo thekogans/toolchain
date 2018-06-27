@@ -34,7 +34,6 @@ svn_user="$TOOLCHAIN_SVN_USER"
 svn_host="$TOOLCHAIN_SVN_HOST"
 svn_depot="$TOOLCHAIN_SVN_DEPOT"
 svn_url="$TOOLCHAIN_SVN_URL"
-quite=no
 
 for i in "$@"; do
     case $i in
@@ -53,9 +52,6 @@ for i in "$@"; do
         --svn-url:*)
             svn_url="${i#*:}"
             ;;
-        -q:*|--quite:*)
-            quite="${i#*:}"
-            ;;
     esac
 done
 
@@ -66,18 +62,16 @@ $environment_options \
 [[-ss | --svn-schema]:[https | svn+ssh | ...]] \
 [[-su | --svn-user]:user] \
 [[-sh | --svn-host]:host] \
-[[-sd | --svn-depot]:depot]
-[[-q | --quite]:[yes | no]] or"
+[[-sd | --svn-depot]:depot] or"
         echo "       $0 \
 $environment_options \
-[[--svn-url]:url]
-[[-q | --quite]:[yes | no]]"
+[[--svn-url]:url]"
         exit 1
     fi
     svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"
 fi
 
-toolchain_drops="$TOOLCHAIN_ROOT/drops"
+toolchain_drops="$TOOLCHAIN_ROOT"/drops
 if [ ! -d "$toolchain_drops" ]; then
     mkdir -p "$toolchain_drops"
     check_errors $?
@@ -103,7 +97,7 @@ rm -rf "$TOOLCHAIN_NAME"/.svn
 check_errors $?
 
 # Collect dependencies for thekogans_build_system.
-thekogans_build_system="$TOOLCHAIN_NAME/thekogans_build_system"
+thekogans_build_system="$TOOLCHAIN_NAME"/thekogans_build_system
 mkdir -p "$thekogans_build_system"
 check_errors $?
 svn co "$svn_url/build_system" "$thekogans_build_system"
@@ -159,14 +153,13 @@ chmod +x "$TOOLCHAIN_NAME"/install
 check_errors $?
 
 # Write defaultenvironment.
-setdefaultenvironment="$TOOLCHAIN_COMMON_BIN"/setdefaultenvironment
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
 DEVELOPMENT_ROOT=
-"$setdefaultenvironment"
+"$TOOLCHAIN_NAME"/common/bin/setdefaultenvironment
 
 # Package the toolchain tree.
-TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz
-tar zcvf ../"$TARBALL_NAME" "$TOOLCHAIN_NAME"
+. "$TOOLCHAIN_NAME"/common/bin/version
+tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.
@@ -174,7 +167,5 @@ cd ..
 check_errors $?
 rm -rf temp
 check_errors $?
-
-echo "$TARBALL_NAME"
 
 exit 0

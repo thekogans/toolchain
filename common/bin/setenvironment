@@ -20,9 +20,7 @@
 # This script will setup the environment for building with
 # thekogans.net development environment and toolchain.
 
-TOOLCHAIN_ROOT="$(dirname $(dirname $(cd $(dirname ${BASH_SOURCE[0]}) && pwd)))"
-TOOLCHAIN_COMMON_BIN="$TOOLCHAIN_ROOT"/common/bin
-
+TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 if [ -e "$TOOLCHAIN_COMMON_BIN"/version ]; then
     . "$TOOLCHAIN_COMMON_BIN"/version
 else
@@ -31,17 +29,26 @@ else
 fi
 
 # Fill in what's missing from the environmnet with defaults provided during bootstrap.
+TOOLCHAIN_ROOT="$(dirname $(dirname $TOOLCHAIN_COMMON_BIN))"
 if [ -e "$TOOLCHAIN_ROOT"/defaultenvironment ]; then
     . "$TOOLCHAIN_ROOT"/defaultenvironment
 fi
 
+show_version=no
+show_build_system_version=no
+show_toolchain_version=no
+
 # Parse the command line.
 for i in "$@"; do
     case $i in
+        -v|--version)
+            show_version=yes
+            ;;
+        -bsv|--build-system-version)
+            show_build_system_version=yes
+            ;;
         -tv|--toolchain-version)
-            echo "thekogans.net toolchain and build system version: \
-$TOOLCHAIN_MAJOR_VERSION"."$TOOLCHAIN_MINOR_VERSION"."$TOOLCHAIN_PATCH_VERSION"
-            exit 0
+            show_toolchain_version=yes
             ;;
         -os:*|--operating-system:*)
             TOOLCHAIN_OS="${i#*:}"
@@ -79,6 +86,8 @@ if [ "$TOOLCHAIN_NAMING_CONVENTION" == "" ]; then
 fi
 
 environment_options="\
+[-v | --version] \
+[-bsv | --build-system-version] \
 [-tv | --toolchain-version] \
 [[-os | --operating-system]:[Windows | OSX | Linux | ...]] \
 [[-arch | --architecture]:[i386 | x86_64 | ...]] \
@@ -162,3 +171,23 @@ fi
 
 # Pull in a bunch of useful utility functions.
 . "$TOOLCHAIN_COMMON_BIN"/utils
+
+if [ -e "$TOOLCHAIN_DIR"/bin/version ]; then
+    . "$TOOLCHAIN_DIR"/bin/version
+fi
+
+if [ "$show_version" == "yes" ]; then
+    echo "thekogans.net build system version: $(get_build_system_version)"
+    echo "thekogans.net toolchain version: $(get_toolchain_version)"
+    exit 0
+fi
+
+if [ "$show_build_system_version" == "yes" ]; then
+    echo "thekogans.net build system version: $(get_build_system_version)"
+    exit 0
+fi
+
+if [ "$show_toolchain_version" == "yes" ]; then
+    echo "thekogans.net toolchain version: $(get_toolchain_version)"
+    exit 0
+fi

@@ -42,11 +42,7 @@ for i in "$@"; do
 done
 
 # Check the build system first.
-CURRENT_BUILD_SYSTEM_VERSION="0.0.0"
-if [ -e "$TOOLCHAIN_DIR"/bin/version ]; then
-    . "$TOOLCHAIN_DIR"/bin/version
-    CURRENT_BUILD_SYSTEM_VERSION="$BUILD_SYSTEM_MAJOR_VERSION"."$BUILD_SYSTEM_MINOR_VERSION"."$BUILD_SYSTEM_PATCH_VERSION"
-fi
+CURRENT_BUILD_SYSTEM_VERSION="$(get_build_system_version)"
 echo "Current build system version: $CURRENT_BUILD_SYSTEM_VERSION"
 
 from=https://raw.github.com/thekogans/build_system/master/version
@@ -59,60 +55,58 @@ if [ -e "$to" ]; then
     chmod +x "$to"
     check_errors $?
     . "$to"
-    AVAILABLE_BUILD_SYSTEM_VERSION="$BUILD_SYSTEM_MAJOR_VERSION"."$BUILD_SYSTEM_MINOR_VERSION"."$BUILD_SYSTEM_PATCH_VERSION"
+    AVAILABLE_BUILD_SYSTEM_VERSION="$(get_build_system_version)"
     rm "$to"
     check_errors $?
 fi
 echo "Available build system version: $AVAILABLE_BUILD_SYSTEM_VERSION"
 
-if [ "$(is_version_less_then -v1:$CURRENT_BUILD_SYSTEM_VERSION -v2:$AVAILABLE_BUILD_SYSTEM_VERSION)" == "yes" ] && [ "$install" == "yes" ]; then
-    TARBALL_NAME="$($TOOLCHAIN_ROOT/common/bin/makebuildsystemdrop.git $@ -q:yes)"
-    check_errors $?
-    if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
-        rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
-        check_errors $?
-    fi
-    tar zxvf "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME" -C "$TOOLCHAIN_ROOT"/drops
-    check_errors $?
-    "$TOOLCHAIN_ROOT"/drops/toolchain/install "$@"
-    check_errors $?
-    rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
-    check_errors $?
-else
-    # If the build system is up to date, check the toolchain.
-    CURRENT_TOOLCHAIN_VERSION="0.0.0"
-    if [ -e "$TOOLCHAIN_ROOT"/common/bin/version ]; then
-        . "$TOOLCHAIN_ROOT"/common/bin/version
-        CURRENT_TOOLCHAIN_VERSION="$TOOLCHAIN_MAJOR_VERSION"."$TOOLCHAIN_MINOR_VERSION"."$TOOLCHAIN_PATCH_VERSION"
-    fi
-    echo "Current toolchain version: $CURRENT_TOOLCHAIN_VERSION"
+# If the build system is up to date, check the toolchain.
+CURRENT_TOOLCHAIN_VERSION="$(get_toolchain_version)"
+echo "Current toolchain version: $CURRENT_TOOLCHAIN_VERSION"
 
-    from=https://raw.github.com/thekogans/toolchain/master/common/bin/version
-    to="$TOOLCHAIN_ROOT"/drops/latest_toolchain_version
-    "$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$to"
+from=https://raw.github.com/thekogans/toolchain/master/common/bin/version
+to="$TOOLCHAIN_ROOT"/drops/latest_toolchain_version
+"$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$to"
+check_errors $?
+
+AVAILABLE_TOOLCHAIN_VERSION="0.0.0"
+if [ -e "$to" ]; then
+    chmod +x "$to"
     check_errors $?
+    . "$to"
+    AVAILABLE_TOOLCHAIN_VERSION="$(get_toolchain_version)"
+    rm "$to"
+    check_errors $?
+fi
+echo "Available toolchain version: $AVAILABLE_TOOLCHAIN_VERSION"
 
-    AVAILABLE_TOOLCHAIN_VERSION="0.0.0"
-    if [ -e "$to" ]; then
-        chmod +x "$to"
-        check_errors $?
-        . "$to"
-        AVAILABLE_TOOLCHAIN_VERSION="$TOOLCHAIN_MAJOR_VERSION"."$TOOLCHAIN_MINOR_VERSION"."$TOOLCHAIN_PATCH_VERSION"
-        rm "$to"
-        check_errors $?
-    fi
-    echo "Available toolchain version: $AVAILABLE_TOOLCHAIN_VERSION"
-
-    if [ "$(is_version_less_then -v1:$CURRENT_TOOLCHAIN_VERSION -v2:$AVAILABLE_TOOLCHAIN_VERSION)" == "yes" ] && [ "$install" == "yes" ]; then
-        TARBALL_NAME="$($TOOLCHAIN_ROOT/common/bin/maketoolchaindrop.git $@ -q:yes)"
+if [ "$install" == "yes" ]; then
+    if [ "$(is_version_less_then -v1:$CURRENT_BUILD_SYSTEM_VERSION -v2:$AVAILABLE_BUILD_SYSTEM_VERSION)" == "yes" ]; then
+        "$TOOLCHAIN_ROOT"/common/bin/makebuildsystemdrop.git
         check_errors $?
         if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
             rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
             check_errors $?
         fi
+        TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$AVAILABLE_TOOLCHAIN_VERSION"-"$AVAILABLE_BUILD_SYSTEM_VERSION".tar.gz
         tar zxvf "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME" -C "$TOOLCHAIN_ROOT"/drops
         check_errors $?
-        "$TOOLCHAIN_ROOT"/drops/toolchain/install "$@"
+        "$TOOLCHAIN_ROOT"/drops/toolchain/install
+        check_errors $?
+        rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
+        check_errors $?
+    elif [ "$(is_version_less_then -v1:$CURRENT_TOOLCHAIN_VERSION -v2:$AVAILABLE_TOOLCHAIN_VERSION)" == "yes" ]; then
+        "$TOOLCHAIN_ROOT"/common/bin/maketoolchaindrop.git
+        check_errors $?
+        if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
+            rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
+            check_errors $?
+        fi
+        TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$AVAILABLE_TOOLCHAIN_VERSION".tar.gz
+        tar zxvf "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME" -C "$TOOLCHAIN_ROOT"/drops
+        check_errors $?
+        "$TOOLCHAIN_ROOT"/drops/toolchain/install
         check_errors $?
         rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
         check_errors $?

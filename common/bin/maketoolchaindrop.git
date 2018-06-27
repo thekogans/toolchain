@@ -33,7 +33,6 @@ git_schema="$TOOLCHAIN_GIT_SCHEMA"
 git_host="$TOOLCHAIN_GIT_HOST"
 git_user="$TOOLCHAIN_GIT_USER"
 git_url="$TOOLCHAIN_GIT_URL"
-quite=no
 
 for i in "$@"; do
     case $i in
@@ -48,9 +47,6 @@ for i in "$@"; do
             ;;
         --git-url:*)
             git_url="${i#*:}"
-            ;;
-        -q:*|--quite:*)
-            quite="${i#*:}"
             ;;
     esac
 done
@@ -70,7 +66,7 @@ $environment_options \
     git_url="$git_schema://$git_host/$git_user"
 fi
 
-toolchain_drops="$TOOLCHAIN_ROOT/drops"
+toolchain_drops="$TOOLCHAIN_ROOT"/drops
 if [ ! -d "$toolchain_drops" ]; then
     mkdir -p "$toolchain_drops"
     check_errors $?
@@ -133,14 +129,13 @@ chmod +x "$TOOLCHAIN_NAME"/install
 check_errors $?
 
 # Write defaultenvironment.
-setdefaultenvironment="$TOOLCHAIN_COMMON_BIN"/setdefaultenvironment
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
 DEVELOPMENT_ROOT=
-"$setdefaultenvironment" "$@"
+"$TOOLCHAIN_NAME"/common/bin/setdefaultenvironment
 
 # Package the toolchain tree.
-TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz
-tar zcvf ../"$TARBALL_NAME" "$TOOLCHAIN_NAME"
+. "$TOOLCHAIN_NAME"/common/bin/version
+tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.
@@ -148,7 +143,5 @@ cd ..
 check_errors $?
 rm -rf temp
 check_errors $?
-
-echo "$TARBALL_NAME"
 
 exit 0

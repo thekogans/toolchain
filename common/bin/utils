@@ -800,6 +800,10 @@ function get_project_link_library () {
     echo "$project_link_library"
 }
 
+function get_build_system_version () {
+    echo "$BUILD_SYSTEM_MAJOR_VERSION.$BUILD_SYSTEM_MINOR_VERSION.$BUILD_SYSTEM_PATCH_VERSION"
+}
+
 function get_toolchain_version () {
     echo "$TOOLCHAIN_MAJOR_VERSION.$TOOLCHAIN_MINOR_VERSION.$TOOLCHAIN_PATCH_VERSION"
 }
@@ -1327,6 +1331,7 @@ export -f \
     get_project_bin_dir \
     get_project_lib_dir \
     get_project_link_library \
+    get_build_system_version \
     get_toolchain_version \
     get_toolchain_latest_version \
     is_installed \
