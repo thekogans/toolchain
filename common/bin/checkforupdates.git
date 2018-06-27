@@ -63,14 +63,19 @@ done
 
 if [ "$git_raw_url" == "" ]; then
     if [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
+        common_options="\
+[[-b | --branch]:'branch name'] \
+[[-i | --install]:[yes | no]]"
         echo "usage: $0 \
 $environment_options \
 [[-gs | --git-schema]:[https | git | ssh | ...]] \
 [[-gh | --git-host]:[github.com | ...]] \
-[[-gu | --git-user]:user] or"
+[[-gu | --git-user]:user] \
+$common_options or"
         echo "       $0 \
 $environment_options \
-[[--git-raw-url]:url]"
+[[--git-raw-url]:url] \
+$common_options"
         exit 1
     fi
     git_raw_url="$git_schema"://raw."$git_host"/"$git_user"
