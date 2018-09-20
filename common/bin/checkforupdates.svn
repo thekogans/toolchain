@@ -123,7 +123,7 @@ echo "Available toolchain version: $AVAILABLE_TOOLCHAIN_VERSION"
 
 if [ "$install" == "yes" ]; then
     if [ "$(is_version_less_then -v1:$CURRENT_BUILD_SYSTEM_VERSION -v2:$AVAILABLE_BUILD_SYSTEM_VERSION)" == "yes" ]; then
-        "$TOOLCHAIN_ROOT"/common/bin/makebuildsystemdrop.svn
+        "$TOOLCHAIN_COMMON_BIN"/makebuildsystemdrop.svn
         check_errors $?
         if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
             rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
@@ -137,7 +137,7 @@ if [ "$install" == "yes" ]; then
         rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
         check_errors $?
     elif [ "$(is_version_less_then -v1:$CURRENT_TOOLCHAIN_VERSION -v2:$AVAILABLE_TOOLCHAIN_VERSION)" == "yes" ]; then
-        "$TOOLCHAIN_ROOT"/common/bin/maketoolchaindrop.svn
+        "$TOOLCHAIN_COMMON_BIN"/maketoolchaindrop.svn
         check_errors $?
         if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
             rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain

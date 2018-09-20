@@ -22,8 +22,10 @@
 # NOTE: If you want to do cross compilation (i386 -> x86_64 or x86_64 -> i386)
 # you will need to change the TOOLCHAIN_VISUAL_STUDIO_DIR.
 
+TOOLCHAIN_WINDOWS_SDK_DIR=`cygpath -au "$WindowsSdkVerBinPath"x86`
 TOOLCHAIN_VISUAL_STUDIO_DIR=`cygpath -au "$VCToolsInstallDir"bin\\\Hostx86\\\x86`
 TOOLCHAIN_DEFAULT_GENERATOR=vs2017
 
-export TOOLCHAIN_VISUAL_STUDIO_DIR \
+export TOOLCHAIN_WINDOWS_SDK_DIR \
+       TOOLCHAIN_VISUAL_STUDIO_DIR \
        TOOLCHAIN_DEFAULT_GENERATOR

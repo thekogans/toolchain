@@ -47,7 +47,7 @@ fi
 if [ ! -e "$TOOLCHAIN_CYGWIN_MOUNT_TABLE" ]; then
     mount > "$TOOLCHAIN_CYGWIN_MOUNT_TABLE"
 fi
-# This should be the only non UNIX path in the environment. It's
+# This should be the only non POSIX path in the environment. It's
 # used by thekogans_make to find the cygwin_mount_table.txt used
 # to map paths from Cygwin to Windows and as such has to be in
 # Windows native format.

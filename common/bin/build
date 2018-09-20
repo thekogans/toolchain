@@ -17,9 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# This script will build a specified config/type variant
-# of the given organization/project/branch/example specified
-# in thekogans_make.xml.
+# This script will build a specified config/type variant of the given
+# organization/project[/branch-version/example] specified in thekogans_make.xml.
 
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then

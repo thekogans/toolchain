@@ -18,7 +18,7 @@
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
 # This script will build Debug-Static, Debug-Shared, Release-Static and
-# Release-Shared variants of the given organization/project/branch or
+# Release-Shared variants of the given organization/project[/branch] or
 # thekogans_make.xml.
 # NOTE: This script is meant to be used by installers of libraries as
 # it suppresses dependency generation. It also does not copy shared
