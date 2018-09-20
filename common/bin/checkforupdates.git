@@ -33,6 +33,7 @@ fi
 git_schema="$TOOLCHAIN_GIT_SCHEMA"
 git_host="$TOOLCHAIN_GIT_HOST"
 git_user="$TOOLCHAIN_GIT_USER"
+git_url="$TOOLCHAIN_GIT_URL"
 git_raw_url="$TOOLCHAIN_GIT_RAW_URL"
 branch=master
 install=yes
@@ -49,6 +50,9 @@ for i in "$@"; do
         -gu:*|--git-user:*)
             git_user="${i#*:}"
             ;;
+        --git-url:*)
+            git_url="${i#*:}"
+            ;;
         --git-raw-url:*)
             git_raw_url="${i#*:}"
             ;;
@@ -61,7 +65,7 @@ for i in "$@"; do
     esac
 done
 
-if [ "$git_raw_url" == "" ]; then
+if [ "$git_url" == "" ] && [ "$git_raw_url" == "" ]; then
     if [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
         common_options="\
 [[-b | --branch]:'branch name'] \
@@ -78,6 +82,7 @@ $environment_options \
 $common_options"
         exit 1
     fi
+    git_url="$git_schema"://"$git_host"/"$git_user"
     git_raw_url="$git_schema"://raw."$git_host"/"$git_user"
 fi
 
@@ -123,7 +128,7 @@ echo "Available toolchain version: $AVAILABLE_TOOLCHAIN_VERSION"
 
 if [ "$install" == "yes" ]; then
     if [ "$(is_version_less_then -v1:$CURRENT_BUILD_SYSTEM_VERSION -v2:$AVAILABLE_BUILD_SYSTEM_VERSION)" == "yes" ]; then
-        "$TOOLCHAIN_COMMON_BIN"/makebuildsystemdrop.git
+        "$TOOLCHAIN_COMMON_BIN"/makebuildsystemdrop.git --git-url:"$git_url"
         check_errors $?
         if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
             rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
@@ -137,7 +142,7 @@ if [ "$install" == "yes" ]; then
         rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
         check_errors $?
     elif [ "$(is_version_less_then -v1:$CURRENT_TOOLCHAIN_VERSION -v2:$AVAILABLE_TOOLCHAIN_VERSION)" == "yes" ]; then
-        "$TOOLCHAIN_COMMON_BIN"/maketoolchaindrop.git
+        "$TOOLCHAIN_COMMON_BIN"/maketoolchaindrop.git --git-url:"$git_url"
         check_errors $?
         if [ -d "$TOOLCHAIN_ROOT"/drops/toolchain ]; then
             rm -rf "$TOOLCHAIN_ROOT"/drops/toolchain
