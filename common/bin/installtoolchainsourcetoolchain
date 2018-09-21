@@ -184,7 +184,7 @@ check_errors $?
 cd "$project_root"
 check_errors $?
 
-"$TOOLCHAIN_SHELL" ./install -c:"$config" -t:"$type"
+./install -c:"$config" -t:"$type"
 check_errors $?
 
 cd ..

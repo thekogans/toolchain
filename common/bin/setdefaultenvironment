@@ -21,6 +21,8 @@
 # to write the default environment to "$TOOLCHAIN_ROOT"/defaultenvironment.
 
 cat > "$TOOLCHAIN_ROOT"/defaultenvironment << EOF
+#!/bin/bash
+
 if [ "\$TOOLCHAIN_OS" == "" ]; then
     TOOLCHAIN_OS=$TOOLCHAIN_OS
 fi
