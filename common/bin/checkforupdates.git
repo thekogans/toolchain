@@ -92,7 +92,7 @@ echo "Current build system version: $CURRENT_BUILD_SYSTEM_VERSION"
 
 from="$git_raw_url"/build_system/"$branch"/version
 to="$TOOLCHAIN_ROOT"/drops/latest_build_system_version
-"$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$to"
+"$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$(to_system_path -p:$to)"
 check_errors $?
 
 AVAILABLE_BUILD_SYSTEM_VERSION="0.0.0"
@@ -112,7 +112,7 @@ echo "Current toolchain version: $CURRENT_TOOLCHAIN_VERSION"
 
 from="$git_raw_url"/toolchain/"$branch"/common/bin/version
 to="$TOOLCHAIN_ROOT"/drops/latest_toolchain_version
-"$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$to"
+"$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$(to_system_path -p:$to)"
 check_errors $?
 
 AVAILABLE_TOOLCHAIN_VERSION="0.0.0"
