@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# This script create a new source in $DEVELOPMENT_ROOT/sources.
+# This script create a new source in "$SOURCES_ROOT"/"$organization".
 
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then

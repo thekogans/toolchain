@@ -19,7 +19,7 @@
 
 # This script will create a version stamped *.tar.gz drop of
 # the given organization project and optionally install it in
-# to $DEVELOPMENT_ROOT/sources/$organization/projects.
+# to "$SOURCES_ROOT"/"$organization"/projects.
 
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
@@ -158,16 +158,16 @@ if [ "$add_source" == "yes" ]; then
         -o:"$organization"\
         -u:"$url"
     check_errors $?
-    source="$DEVELOPMENT_ROOT/sources/$organization"
-    if [ ! -d "$source/projects" ]; then
-        mkdir -p "$source/projects"
+    source="$SOURCES_ROOT"/"$organization"
+    if [ ! -d "$source"/projects ]; then
+        mkdir -p "$source"/projects
         check_errors $?
     fi
-    cp -v "../$tarball" "$source/projects"
+    cp -v ../"$tarball" "$source"/projects
     check_errors $?
     pushd "$source"
     check_errors $?
-    git add "projects/$tarball"
+    git add projects/"$tarball"
     sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n projects/$tarball`
     "$(get_toolchain_program -o:thekogans -p:make)"\
         -a:add_source_project\
@@ -176,7 +176,7 @@ if [ "$add_source" == "yes" ]; then
         -v:"$version"\
         -s:"$sha2_256"
     check_errors $?
-    git commit -m "Added projects/$tarball." Source.xml "projects/$tarball"
+    git commit -m "Added projects/$tarball." Source.xml projects/"$tarball"
     check_errors $?
     git push
     check_errors $?

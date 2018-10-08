@@ -65,6 +65,9 @@ for i in "$@"; do
         -dr:*|--development-root:*)
             DEVELOPMENT_ROOT="${i#*:}"
             ;;
+        -sr:*|--sources-root:*)
+            SOURCES_ROOT="${i#*:}"
+            ;;
         -do:*|--default-organization:*)
             TOOLCHAIN_DEFAULT_ORGANIZATION="${i#*:}"
             ;;
@@ -93,7 +96,8 @@ environment_options="\
 [[-arch | --architecture]:[i386 | x86_64 | ...]] \
 [[-comp | --compiler]:compiler] \
 [[-nc | --naming-convention]:[Flat | Hierarchical]] \
-[[-dr | --development-root]:development_root] \
+[[-dr | --development-root]:development_root_path] \
+[[-sr | --sources-root]:sources_root_path] \
 [[-do | --default-organization]:default_organization] \
 [[-dp | --default-project]:default_project] \
 [[-db | --default-branch]:[trunk | branches/branch | tags/tag]] \
@@ -116,6 +120,11 @@ if [ "$DEVELOPMENT_ROOT" != "" ]; then
     DEVELOPMENT_ROOT="$(cd $DEVELOPMENT_ROOT && pwd)"
 else
     DEVELOPMENT_ROOT="$(dirname $TOOLCHAIN_ROOT)"
+fi
+if [ "$SOURCES_ROOT" != "" ]; then
+    SOURCES_ROOT="$(cd $SOURCES_ROOT && pwd)"
+else
+    SOURCES_ROOT="$DEVELOPMENT_ROOT"/sources
 fi
 TOOLCHAIN_NAME="$(basename $TOOLCHAIN_ROOT)"
 if [ `echo -n I | od -to2 | awk '{print substr($2,6,1); exit}'` == 1 ]; then
@@ -142,6 +151,7 @@ export TOOLCHAIN_OS \
     TOOLCHAIN_COMPILER \
     TOOLCHAIN_NAMING_CONVENTION \
     DEVELOPMENT_ROOT \
+    SOURCES_ROOT \
     TOOLCHAIN_DEFAULT_ORGANIZATION \
     TOOLCHAIN_DEFAULT_PROJECT \
     TOOLCHAIN_DEFAULT_BRANCH \

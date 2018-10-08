@@ -251,7 +251,7 @@ if [ "$add_source" == "yes" ]; then
         -o:"$organization"\
         -u:"$url"
     check_errors $?
-    source="$DEVELOPMENT_ROOT/sources/$organization"
+    source="$SOURCES_ROOT/$organization"
     if [ ! -d "$source/toolchain" ]; then
         mkdir -p "$source/toolchain"
         check_errors $?

@@ -31,6 +31,7 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
 fi
 
 echo "DEVELOPMENT_ROOT=$DEVELOPMENT_ROOT"
+echo "SOURCES_ROOT=$SOURCES_ROOT"
 set -o posix
 set | grep TOOLCHAIN_
 

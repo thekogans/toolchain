@@ -19,7 +19,7 @@
 
 # This script will create a version stamped *.tar.gz drop of
 # the given organization project and optionally install it in
-# to $DEVELOPMENT_ROOT/sources/$organization/projects.
+# to "$SOURCES_ROOT"/"$organization"/projects.
 
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
@@ -166,7 +166,7 @@ if [ "$add_source" == "yes" ]; then
         -o:"$organization"\
         -u:"$url"
     check_errors $?
-    source="$DEVELOPMENT_ROOT/sources/$organization"
+    source="$SOURCES_ROOT/$organization"
     if [ ! -d "$source/projects" ]; then
         mkdir -p "$source/projects"
         check_errors $?
