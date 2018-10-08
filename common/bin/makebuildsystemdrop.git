@@ -150,6 +150,7 @@ check_errors $?
 # Write defaultenvironment.
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
 DEVELOPMENT_ROOT=
+SOURCES_ROOT=
 "$TOOLCHAIN_NAME"/common/bin/setdefaultenvironment
 
 # Package the toolchain tree.
