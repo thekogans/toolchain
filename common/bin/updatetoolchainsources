@@ -29,8 +29,20 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
 fi
 
+organization=
+
+# Parse command line options.
+for i in "$@"; do
+    case $i in
+        -o:*|--organization:*)
+            organization="${i#*:}"
+            ;;
+    esac
+done
+
 "$(get_toolchain_program -o:thekogans -p:make)" \
-    -a:update_toolchain_sources
+    -a:update_toolchain_sources \
+    -o:"$organization"
 check_errors $?
 
 exit 0
