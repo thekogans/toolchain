@@ -45,10 +45,10 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitDefaultLibName>true</OmitDefaultLibName>
     </ClCompile>
-    <!-- <PreBuildEvent>
+    <PreBuildEvent>
       <Message>Update build system.</Message>
-      <Command>$(TOOLCHAIN_SHELL) $(TOOLCHAIN_ROOT)/common/bin/makebuild -g:$(generator) -pr:$(project_root) -c:$(config) -t:$(type)</Command>
-    </PreBuildEvent> -->
+      <Command>"$(TOOLCHAIN_SHELL)" "$(TOOLCHAIN_ROOT)/common/bin/makebuild" -g:$(generator) -pr:"$(project_root)" -c:$(config) -t:$(type)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
 $(masm_headers)
