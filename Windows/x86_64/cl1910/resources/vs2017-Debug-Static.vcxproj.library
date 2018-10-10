@@ -30,7 +30,6 @@
     <OutDir>$(project_root)\lib\$(naming_convention_prefix)</OutDir>
     <IntDir>obj\</IntDir>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <CustomBuildBeforeTargets>PrepareForBuild</CustomBuildBeforeTargets>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -44,10 +43,10 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitDefaultLibName>true</OmitDefaultLibName>
     </ClCompile>
-    <CustomBuildStep>
+    <PreBuildEvent>
       <Message>Update build system.</Message>
       <Command>"$(TOOLCHAIN_SHELL)" "$(TOOLCHAIN_ROOT)/common/bin/makebuild" -g:$(generator) -pr:"$(project_root)" -c:$(config) -t:$(type)</Command>
-    </CustomBuildStep>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
 $(masm_headers)
