@@ -77,8 +77,8 @@ for i in "$@"; do
     esac
 done
 
-if [ "$project_root" == "" ]; then
-    if [ "$organization" == "" ] || [ "$project" == "" ]; then
+if [ "$help" == "yes" ] || [ "$project_root" == "" ]; then
+    if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
         common_options="\
 [[-hc | --hide-commands]:[yes | no]] \
 [[-pb | --parallel-build]:[yes | no]] \

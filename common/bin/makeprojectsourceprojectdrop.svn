@@ -91,7 +91,7 @@ svn_options="\
 [[-sh | --svn-host]:host] \
 [[-sd | --svn-depot]:depot]"
 
-if [ "$organization" == "" ] || [ "$project" == "" ]; then
+if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "usage: $0 \
 $environment_options \
 $common_options \

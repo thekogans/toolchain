@@ -51,8 +51,9 @@ for i in "$@"; do
     esac
 done
 
-if [ "$git_url" == "" ]; then
-    if [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
+if [ "$help" == "yes" ] || [ "$git_url" == "" ]; then
+    if [ "$help" == "yes" ] || \
+            [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
         echo "usage: $0 \
 $environment_options \
 [[-gs | --git-schema]:[https | git | ssh | ...]] \

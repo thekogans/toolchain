@@ -34,6 +34,7 @@ if [ -e "$TOOLCHAIN_ROOT"/defaultenvironment ]; then
     . "$TOOLCHAIN_ROOT"/defaultenvironment
 fi
 
+help=no
 show_version=no
 show_build_system_version=no
 show_toolchain_version=no
@@ -41,6 +42,9 @@ show_toolchain_version=no
 # Parse the command line.
 for i in "$@"; do
     case $i in
+        -h|--help)
+            help=yes
+            ;;
         -v|--version)
             show_version=yes
             ;;
@@ -89,6 +93,7 @@ if [ "$TOOLCHAIN_NAMING_CONVENTION" == "" ]; then
 fi
 
 environment_options="\
+[-h | --help] \
 [-v | --version] \
 [-bsv | --build-system-version] \
 [-tv | --toolchain-version] \

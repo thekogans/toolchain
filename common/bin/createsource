@@ -44,7 +44,7 @@ for i in "$@"; do
     esac
 done
 
-if [ "$organization" == "" ] || [ "$url" == "" ]; then
+if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$url" == "" ]; then
     echo "usage: $0 \
 $environment_options \
 [-o | --organization]:organization \

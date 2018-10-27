@@ -39,6 +39,13 @@ for i in "$@"; do
     esac
 done
 
+if [ "$help" == "yes" ]; then
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization]"
+    exit 1
+fi
+
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:cleanup_source \
     -o:"$organization"

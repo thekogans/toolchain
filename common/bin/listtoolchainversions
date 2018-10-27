@@ -29,7 +29,7 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
 fi
 
-organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+organization=
 project=
 
 for i in "$@"; do
@@ -43,11 +43,11 @@ for i in "$@"; do
     esac
 done
 
-if [ "$organization" == "" ] || [ "$project" == "" ]; then
+if [ "$help" == "yes" ]; then
     echo "usage: $0 \
 $environment_options \
 [[-o | --organization]:organization] \
-[-p | --project]:project"
+[[-p | --project]:project]"
     exit 1
 fi
 

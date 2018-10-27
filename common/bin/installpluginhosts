@@ -71,8 +71,9 @@ for i in "$@"; do
     esac
 done
 
-if [ "$project_root" == "" ]; then
-    if [ "$organization" == "" ] || [ "$project" == "" ] || [ "$version" == "" ] ||\
+if [ "$help" == "yes" ] || [ "$project_root" == "" ]; then
+    if [ "$help" == "yes" ] || [ "$organization" == "" ] ||\
+            [ "$project" == "" ] || [ "$version" == "" ] ||\
             [ "$plugin_organization" == "" ] || [ "$plugin_project" == "" ]; then
         common_options="\
 [[-c | --config]:[Debug | Release]] \

@@ -55,8 +55,10 @@ for i in "$@"; do
     esac
 done
 
-if [ "$svn_url" == "" ]; then
-    if [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
+if [ "$help" == "yes" ] || [ "$svn_url" == "" ]; then
+    if [ "$help" == "yes" ] || \
+            [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || \
+            [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
         echo "usage: $0 \
 $environment_options \
 [[-ss | --svn-schema]:[https | svn+ssh | ...]] \

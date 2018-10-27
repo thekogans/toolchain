@@ -92,7 +92,7 @@ git_options="\
 [[-gh | --git-host]:[github.com | ...]] \
 [[-gu | --git-user]:user]"
 
-if [ "$organization" == "" ] || [ "$project" == "" ]; then
+if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "usage: $0 \
 $environment_options \
 $common_options \
