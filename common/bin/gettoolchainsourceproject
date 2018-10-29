@@ -17,7 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# Download (if doesn't exist) the given source project and unpack it locally.
+# Download (if doesn't exist) the given toolchain source project and unpack it locally.
+
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[[-u | --url]:url] \
+[-p | --project]:project \
+[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
+[[-v | --version]:version] \
+[[-s | --sha2_256]:sha2_256]"
+}
 
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
@@ -59,15 +70,8 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
-[[-o | --organization]:organization] \
-[[-u | --url]:url] \
-[-p | --project]:project \
-[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
-[[-v | --version]:version] \
-[[-s | --sha2_256]:sha2_256]"
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "Must specify organization and project."
     exit 1
 fi
 

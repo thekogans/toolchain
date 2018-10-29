@@ -19,6 +19,14 @@
 
 # This script will calculate a hash of a specified file.
 
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options \
+[[-h | --hash]:[SHA2 | MD5 | ...]] \
+[[-d | --digest]:[256 | 384 | 512 | ...]] \
+file"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -47,12 +55,8 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$hash" == "" ] || [ "$file" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
-[-h | --hash]:[SHA2 | MD5 | ...] \
-[[-d | --digest]:[256 | 384 | 512 | ...]] \
-file"
+if [ "$hash" == "" ] || [ "$file" == "" ]; then
+    echo "Must specify file."
     exit 1
 fi
 

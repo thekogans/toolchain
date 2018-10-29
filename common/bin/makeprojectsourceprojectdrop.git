@@ -21,6 +21,27 @@
 # the given organization project and optionally install it in
 # to "$SOURCES_ROOT"/"$organization"/projects.
 
+function show_command_help () {
+    common_options="\
+[[-o | --organization]:organization] \
+[[-u | --url]:url] \
+[[-p | --project]:project] \
+[[-v | --version]:version] \
+[[-a | --add_source]:[yes | no]]"
+    git_options="\
+[[-gs | --git-schema]:[https | git | ssh | ...]] \
+[[-gh | --git-host]:[github.com | ...]] \
+[[-gu | --git-user]:user]"
+    echo "usage: $0 \
+$environment_options \
+$common_options \
+$git_options or"
+    echo "       $0 \
+$environment_options \
+$common_options \
+[[--git-url]:url]"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -74,40 +95,14 @@ for i in "$@"; do
 done
 
 # Verify arguments.
-common_options="\
-[[-o | --organization]:organization] \
-[[-u | --url]:url] \
-[[-p | --project]:project] \
-[[-v | --version]:version] \
-[[-a | --add_source]:[yes | no]]"
-
-git_options="\
-[[-gs | --git-schema]:[https | git | ssh | ...]] \
-[[-gh | --git-host]:[github.com | ...]] \
-[[-gu | --git-user]:user]"
-
-if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
-$common_options \
-$git_options or"
-        echo "       $0 \
-$environment_options \
-$common_options \
-[[--git-url]:url]"
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "Must specify organization and project."
     exit 1
 fi
 
 if [ "$git_url" == "" ]; then
     if [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
-        echo "usage: $0 \
-$environment_options \
-$common_options \
-$git_options or"
-        echo "       $0 \
-$environment_options \
-$common_options \
-[[--git-url]:url]"
+        echo "Must specify git url."
         exit 1
     fi
     git_url="$git_schema://$git_host/$git_user"

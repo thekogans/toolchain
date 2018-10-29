@@ -19,6 +19,12 @@
 
 # This script will update the "$TOOLCHAIN_ROOT"/Sources.xml.
 
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization]"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -39,13 +45,6 @@ for i in "$@"; do
             ;;
     esac
 done
-
-if [ "$help" == "yes" ]; then
-    echo "usage: $0 \
-$environment_options \
-[[-o | --organization]:organization]"
-    exit 1
-fi
 
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:update_toolchain_sources \

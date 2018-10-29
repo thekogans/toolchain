@@ -34,7 +34,7 @@ if [ -e "$TOOLCHAIN_ROOT"/defaultenvironment ]; then
     . "$TOOLCHAIN_ROOT"/defaultenvironment
 fi
 
-help=no
+show_help=no
 show_version=no
 show_build_system_version=no
 show_toolchain_version=no
@@ -43,7 +43,7 @@ show_toolchain_version=no
 for i in "$@"; do
     case $i in
         -h|--help)
-            help=yes
+            show_help=yes
             ;;
         -v|--version)
             show_version=yes
@@ -53,6 +53,12 @@ for i in "$@"; do
             ;;
         -tv|--toolchain-version)
             show_toolchain_version=yes
+            ;;
+        -dr:*|--development-root:*)
+            DEVELOPMENT_ROOT="${i#*:}"
+            ;;
+        -sr:*|--sources-root:*)
+            SOURCES_ROOT="${i#*:}"
             ;;
         -os:*|--operating-system:*)
             TOOLCHAIN_OS="${i#*:}"
@@ -65,12 +71,6 @@ for i in "$@"; do
             ;;
         -nc:*|--naming-convention:*)
             TOOLCHAIN_NAMING_CONVENTION="${i#*:}"
-            ;;
-        -dr:*|--development-root:*)
-            DEVELOPMENT_ROOT="${i#*:}"
-            ;;
-        -sr:*|--sources-root:*)
-            SOURCES_ROOT="${i#*:}"
             ;;
         -do:*|--default-organization:*)
             TOOLCHAIN_DEFAULT_ORGANIZATION="${i#*:}"
@@ -97,12 +97,12 @@ environment_options="\
 [-v | --version] \
 [-bsv | --build-system-version] \
 [-tv | --toolchain-version] \
+[[-dr | --development-root]:development_root_path] \
+[[-sr | --sources-root]:sources_root_path] \
 [[-os | --operating-system]:[Windows | OSX | Linux | ...]] \
 [[-arch | --architecture]:[i386 | x86_64 | ...]] \
 [[-comp | --compiler]:compiler] \
 [[-nc | --naming-convention]:[Flat | Hierarchical]] \
-[[-dr | --development-root]:development_root_path] \
-[[-sr | --sources-root]:sources_root_path] \
 [[-do | --default-organization]:default_organization] \
 [[-dp | --default-project]:default_project] \
 [[-db | --default-branch]:[trunk | branches/branch | tags/tag]] \
@@ -151,12 +151,12 @@ if [ ! -e "$TOOLCHAIN_SHELL" ]; then
 fi
 
 # ...and export it.
-export TOOLCHAIN_OS \
+export DEVELOPMENT_ROOT \
+    SOURCES_ROOT \
+    TOOLCHAIN_OS \
     TOOLCHAIN_ARCH \
     TOOLCHAIN_COMPILER \
     TOOLCHAIN_NAMING_CONVENTION \
-    DEVELOPMENT_ROOT \
-    SOURCES_ROOT \
     TOOLCHAIN_DEFAULT_ORGANIZATION \
     TOOLCHAIN_DEFAULT_PROJECT \
     TOOLCHAIN_DEFAULT_BRANCH \
@@ -189,6 +189,11 @@ fi
 
 if [ -e "$TOOLCHAIN_DIR"/bin/version ]; then
     . "$TOOLCHAIN_DIR"/bin/version
+fi
+
+if [ "$show_help" == "yes" ]; then
+    show_command_help
+    exit 0
 fi
 
 if [ "$show_version" == "yes" ]; then

@@ -19,6 +19,15 @@
 
 # Uninstall a library from the toolchain and optionally it's dependencies.
 
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[-p | --project]:project \
+[[-v | --version]:version] \
+[[-d | --dependencies]:[yes | no]]"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -51,13 +60,8 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
-[[-o | --organization]:organization] \
-[-p | --project]:project \
-[[-v | --version]:version] \
-[[-d | --dependencies]:[yes | no]]"
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    ecgo "Must specify organization and project."
     exit 1
 fi
 

@@ -20,6 +20,14 @@
 # This script will configure a directory tree and some
 # helpful starter files for a new organization plugin.
 
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[-p | --project]:project \
+[[-s | --svc]:[svn | git]]"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -48,12 +56,8 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
-[[-o | --organization]:organization] \
-[-p | --project]:project \
-[[-s | --svc]:[svn | git]]"
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "Must specify organization and project."
     exit 1
 fi
 

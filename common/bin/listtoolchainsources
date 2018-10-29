@@ -19,6 +19,11 @@
 
 # This script will list the contents of the "$TOOLCHAIN_ROOT"/Sources.xml.
 
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -27,12 +32,6 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
         exit 1
     fi
     . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
-fi
-
-if [ "$help" == "yes" ]; then
-    echo "usage: $0 \
-$environment_options"
-    exit 1
 fi
 
 "$(get_toolchain_program -o:thekogans -p:make)" \

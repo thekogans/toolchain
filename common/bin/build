@@ -20,6 +20,28 @@
 # This script will build a specified config/type variant of the given
 # organization/project[/branch-version/example] specified in thekogans_make.xml.
 
+function show_command_help () {
+    common_options="\
+[[-c | --config]:[Debug | Release]] \
+[[-t | --type]:[Shared | Static]] \
+[[-m | --mode]:[Development | Install]] \
+[[-hc | --hide-commands]:[yes | no]] \
+[[-pb | --parallel-build]:[yes | no]] \
+[[-ta | --target]:[all | tests | tests_self | clean | clean_self | tags | tags_self]]"
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[[-p | --project]:project] \
+[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
+[[-v | --version]:version] \
+[[-e | --example]:example] \
+$common_options or"
+    echo "       $0 \
+$environment_options \
+[-pr | --project-root]:'folder containing thekogans_make.xml' \
+$common_options"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -85,27 +107,9 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$project_root" == "" ]; then
-    if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
-        common_options="\
-[[-c | --config]:[Debug | Release]] \
-[[-t | --type]:[Shared | Static]] \
-[[-m | --mode]:[Development | Install]] \
-[[-hc | --hide-commands]:[yes | no]] \
-[[-pb | --parallel-build]:[yes | no]] \
-[[-ta | --target]:[all | tests | tests_self | clean | clean_self | tags | tags_self]]"
-        echo "usage: $0 \
-$environment_options \
-[[-o | --organization]:organization] \
-[[-p | --project]:project] \
-[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
-[[-v | --version]:version] \
-[[-e | --example]:example] \
-$common_options or"
-        echo "       $0 \
-$environment_options \
-[-pr | --project-root]:'folder containing thekogans_make.xml' \
-$common_options"
+if [ "$project_root" == "" ]; then
+    if [ "$organization" == "" ] || [ "$project" == "" ]; then
+        echo "Must specify project root."
         exit 1
     fi
     project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"

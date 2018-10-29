@@ -19,6 +19,17 @@
 
 # This script will create a thekogans.net toolchain and build system tarball.
 
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options \
+[[-gs | --git-schema]:[https | git | ssh | ...]] \
+[[-gh | --git-host]:[github.com | ...]] \
+[[-gu | --git-user]:user] or"
+    echo "       $0 \
+$environment_options \
+[[--git-url]:url]"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -51,17 +62,9 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$git_url" == "" ]; then
-    if [ "$help" == "yes" ] || \
-            [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
-        echo "usage: $0 \
-$environment_options \
-[[-gs | --git-schema]:[https | git | ssh | ...]] \
-[[-gh | --git-host]:[github.com | ...]] \
-[[-gu | --git-user]:user] or"
-        echo "       $0 \
-$environment_options \
-[[--git-url]:url]"
+if [ "$git_url" == "" ]; then
+    if [ "$git_schema" == "" ] || [ "$git_host" == "" ] || [ "$git_user" == "" ]; then
+        echo "Must specify git url."
         exit 1
     fi
     git_url="$git_schema://$git_host/$git_user"

@@ -20,6 +20,22 @@
 # This script checks the local toolchain and build system versions
 # against the current ones and updates them if less then.
 
+function show_command_help () {
+    common_options="\
+[[-i | --install]:[yes | no]]"
+    echo "usage: $0 \
+$environment_options \
+[[-ss | --svn-schema]:[https | svn+ssh | ...]] \
+[[-su | --svn-user]:user] \
+[[-sh | --svn-host]:host] \
+[[-sd | --svn-depot]:depot] \
+$common_options or"
+    echo "       $0 \
+$environment_options \
+[[--svn-url]:url] \
+$common_options"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -61,23 +77,10 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$svn_url" == "" ]; then
-    if [ "$help" == "yes" ] || \
-            [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || \
+if [ "$svn_url" == "" ]; then
+    if [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || \
             [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
-        common_options="\
-[[-i | --install]:[yes | no]]"
-        echo "usage: $0 \
-$environment_options \
-[[-ss | --svn-schema]:[https | svn+ssh | ...]] \
-[[-su | --svn-user]:user] \
-[[-sh | --svn-host]:host] \
-[[-sd | --svn-depot]:depot] \
-$common_options or"
-        echo "       $0 \
-$environment_options \
-[[--svn-url]:url] \
-$common_options"
+        echo "Must specify svn url."
         exit 1
     fi
     svn_url="$svn_schema"://"$svn_user"@"$svn_host"/"$svn_depot"

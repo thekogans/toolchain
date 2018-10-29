@@ -21,6 +21,28 @@
 # the given organization project and optionally install it in
 # to "$SOURCES_ROOT"/"$organization"/projects.
 
+function show_command_help () {
+    common_options="\
+[[-o | --organization]:organization] \
+[[-u | --url]:url] \
+[[-p | --project]:project] \
+[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
+[[-a | --add_source]:[yes | no]]"
+    svn_options="\
+[[-ss | --svn-schema]:schema] \
+[[-su | --svn-user]:user] \
+[[-sh | --svn-host]:host] \
+[[-sd | --svn-depot]:depot]"
+    echo "usage: $0 \
+$environment_options \
+$common_options \
+$svn_options or"
+    echo "       $0 \
+$environment_options \
+$common_options \
+[[--svn-url]:url]"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -78,41 +100,15 @@ for i in "$@"; do
 done
 
 # Verify arguments.
-common_options="\
-[[-o | --organization]:organization] \
-[[-u | --url]:url] \
-[[-p | --project]:project] \
-[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
-[[-a | --add_source]:[yes | no]]"
 
-svn_options="\
-[[-ss | --svn-schema]:schema] \
-[[-su | --svn-user]:user] \
-[[-sh | --svn-host]:host] \
-[[-sd | --svn-depot]:depot]"
-
-if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
-$common_options \
-$svn_options or"
-        echo "       $0 \
-$environment_options \
-$common_options \
-[[--svn-url]:url]"
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "Must specify organization and project."
     exit 1
 fi
 
 if [ "$svn_url" == "" ]; then
     if [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
-        echo "usage: $0 \
-$environment_options \
-$common_options \
-$svn_options or"
-        echo "       $0 \
-$environment_options \
-$common_options \
-[[--svn-url]:url]"
+        echo "Must specify svn url."
         exit 1
     fi
     svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"

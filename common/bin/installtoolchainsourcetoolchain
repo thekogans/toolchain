@@ -20,6 +20,20 @@
 # Download (if doesn't exist) the given source toolchain,
 # build and install it in to the toolchain.
 
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options \
+[-o | --organization]:organization \
+[[-u | --url]:url] \
+[-p | --project]:project \
+[[-v | --version]:version] \
+[[-f | --file]:file] \
+[[-s | --sha2_256]:sha2_256] \
+[[-c | --config]:[Debug | Release]] \
+[[-t | --type]:[Static | Shared]] \
+[[-r | --rm_source]:[yes | no]]"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -40,6 +54,7 @@ config=
 type=
 rm_source=no
 
+# Parse input.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)
@@ -72,18 +87,9 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
-[-o | --organization]:organization \
-[[-u | --url]:url] \
-[-p | --project]:project \
-[[-v | --version]:version] \
-[[-f | --file]:file] \
-[[-s | --sha2_256]:sha2_256] \
-[[-c | --config]:[Debug | Release]] \
-[[-t | --type]:[Static | Shared]] \
-[[-r | --rm_source]:[yes | no]]"
+# Validate input.
+if [ "$organization" == "" ] || [ "$project" == "" ]; then
+    echo "Must spefify organization and project."
     exit 1
 fi
 

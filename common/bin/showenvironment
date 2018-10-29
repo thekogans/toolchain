@@ -20,6 +20,10 @@
 # This script dispaly the basic environment variables defined
 # by setenvironment.
 
+function show_command_help () {
+    echo "usage: $0"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"

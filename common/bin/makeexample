@@ -20,6 +20,18 @@
 # This script will configure a directory tree and some helpful
 # starter files for a new organization/project/branch example.
 
+function show_command_help () {
+    echo "usage: $0 \
+$environment_options \
+[[-o | --organization]:organization] \
+[[-p | --project]:project] \
+[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
+[[-v | --version]:version] \
+[-e | --example]:example \
+[[-pt | --project-type]:[program | library | plugin]] \
+[[-t | --template]:template]"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -64,17 +76,8 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || \
-        [ "$organization" == "" ] || [ "$project" == "" ] || [ "$example" == "" ]; then
-    echo "usage: $0 \
-$environment_options \
-[[-o | --organization]:organization] \
-[[-p | --project]:project] \
-[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
-[[-v | --version]:version] \
-[-e | --example]:example \
-[[-pt | --project-type]:[program | library | plugin]] \
-[[-t | --template]:template]"
+if [ "$organization" == "" ] || [ "$project" == "" ] || [ "$example" == "" ]; then
+    echo "Must specify organization, project and example."
     exit 1
 fi
 

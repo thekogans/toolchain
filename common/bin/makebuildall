@@ -21,6 +21,24 @@
 # Release-Shared build system variants of the given organization/project/branch
 # or thekogans_make.xml.
 
+function show_command_help () {
+    common_options="[-g | --generator]:'build system generator'"
+    echo "usage: $0 \
+$environment_options \
+$common_options \
+[[-o | --organization]:organization] \
+[[-p | --project]:project] \
+[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
+[[-v | --version]:version] \
+[[-e | --example]:example] \
+[[-d | --dependencies]:[yes | no]] or"
+    echo "       $0 \
+$environment_options \
+$common_options \
+[[-d | --dependencies]:[yes | no]] \
+[-pr | --project-root]:'folder containing thekogans_make.xml'"
+}
+
 # Create the environment.
 if [ "$TOOLCHAIN_ROOT" == "" ]; then
     TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
@@ -69,23 +87,9 @@ for i in "$@"; do
     esac
 done
 
-if [ "$help" == "yes" ] || [ "$project_root" == "" ]; then
-    if [ "$help" == "yes" ] || [ "$organization" == "" ] || [ "$project" == "" ]; then
-        common_options="[-g | --generator]:'build system generator'"
-        echo "usage: $0 \
-$environment_options \
-$common_options \
-[[-o | --organization]:organization] \
-[[-p | --project]:project] \
-[[-b | --branch]:[trunk | branches/branch | tags/tag]] \
-[[-v | --version]:version] \
-[[-e | --example]:example] \
-[[-d | --dependencies]:[yes | no]] or"
-        echo "       $0 \
-$environment_options \
-$common_options \
-[[-d | --dependencies]:[yes | no]] \
-[-pr | --project-root]:'folder containing thekogans_make.xml'"
+if [ "$project_root" == "" ]; then
+    if [ "$organization" == "" ] || [ "$project" == "" ]; then
+        echo "Must specify project root."
         exit 1
     fi
     project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
