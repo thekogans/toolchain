@@ -18,27 +18,16 @@
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
 function show_command_help () {
-    common_options="\
+    echo "usage: $0 \
+$environment_options \
 [[-o | --organization]:organization] \
 [[-u | --url]:url] \
 [[-p | --project]:project] \
 [[-b | --branch]:[trunk | branches/branch | tags/tag]] \
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Static | Shared]] \
-[[-a | --add_source]:[yes | no]]"
-    svn_options="\
-[[-ss | --svn-schema]:schema] \
-[[-su | --svn-user]:user] \
-[[-sh | --svn-host]:host] \
-[[-sd | --svn-depot]:depot]"
-    echo "usage: $0 \
-$environment_options \
-$common_options \
-$svn_options or"
-    echo "       $0 \
-$environment_options \
-$common_options \
-[[--svn-url]:url]"
+[[-a | --add_source]:[yes | no]] \
+[[-su | --svn-url]:url]"
 }
 
 # Create the environment.
@@ -58,10 +47,6 @@ branch=
 config=
 type=
 add_source=yes
-svn_schema="$TOOLCHAIN_SVN_SCHEMA"
-svn_user="$TOOLCHAIN_SVN_USER"
-svn_host="$TOOLCHAIN_SVN_HOST"
-svn_depot="$TOOLCHAIN_SVN_DEPOT"
 svn_url="$TOOLCHAIN_SVN_URL"
 
 for i in "$@"; do
@@ -87,19 +72,7 @@ for i in "$@"; do
         -a:*|--add-source:*)
             add_source="${i#*:}"
             ;;
-        -ss:*|--svn-schema:*)
-            svn_schema="${i#*:}"
-            ;;
-        -su:*|--svn-user:*)
-            svn_user="${i#*:}"
-            ;;
-        -sh:*|--svn-host:*)
-            svn_host="${i#*:}"
-            ;;
-        -sd:*|--svn-depot:*)
-            svn_depot="${i#*:}"
-            ;;
-        --svn-url:*)
+        -su:*|--svn-url:*)
             svn_url="${i#*:}"
             ;;
     esac
@@ -112,11 +85,8 @@ if [ "$organization" == "" ] || [ "$project" == "" ]; then
 fi
 
 if [ "$svn_url" == "" ]; then
-    if [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
-        echo "Must specify svn url."
-        exit 1
-    fi
-    svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"
+    echo "Must specify svn url."
+    exit 1
 fi
 
 if [ "$config" != "" ] && [ "$config" != "Debug" ] && [ "$config" != "Release" ]; then

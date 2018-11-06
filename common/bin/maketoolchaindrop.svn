@@ -22,13 +22,7 @@
 function show_command_help () {
     echo "usage: $0 \
 $environment_options \
-[[-ss | --svn-schema]:[https | svn+ssh | ...]] \
-[[-su | --svn-user]:user] \
-[[-sh | --svn-host]:host] \
-[[-sd | --svn-depot]:depot] or"
-    echo "       $0 \
-$environment_options \
-[[--svn-url]:url]"
+[--svn-url]:url"
 }
 
 # Create the environment.
@@ -41,38 +35,19 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN/setenvironment" "$@"
 fi
 
-svn_schema="$TOOLCHAIN_SVN_SCHEMA"
-svn_user="$TOOLCHAIN_SVN_USER"
-svn_host="$TOOLCHAIN_SVN_HOST"
-svn_depot="$TOOLCHAIN_SVN_DEPOT"
 svn_url="$TOOLCHAIN_SVN_URL"
 
 for i in "$@"; do
     case $i in
-        -ss:*|--svn-schema:*)
-            svn_schema="${i#*:}"
-            ;;
-        -su:*|--svn-user:*)
-            svn_user="${i#*:}"
-            ;;
-        -sh:*|--svn-host:*)
-            svn_host="${i#*:}"
-            ;;
-        -sd:*|--svn-depot:*)
-            svn_depot="${i#*:}"
-            ;;
-        --svn-url:*)
+        -su:*|--svn-url:*)
             svn_url="${i#*:}"
             ;;
     esac
 done
 
 if [ "$svn_url" == "" ]; then
-    if [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
-        echo "Must specify svn url."
-        exit 1
-    fi
-    svn_url="$svn_schema://$svn_user@$svn_host/$svn_depot"
+    echo "Must specify svn url."
+    exit 1
 fi
 
 toolchain_drops="$TOOLCHAIN_ROOT"/drops

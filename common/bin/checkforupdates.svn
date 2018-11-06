@@ -21,19 +21,10 @@
 # against the current ones and updates them if less then.
 
 function show_command_help () {
-    common_options="\
-[[-i | --install]:[yes | no]]"
     echo "usage: $0 \
 $environment_options \
-[[-ss | --svn-schema]:[https | svn+ssh | ...]] \
-[[-su | --svn-user]:user] \
-[[-sh | --svn-host]:host] \
-[[-sd | --svn-depot]:depot] \
-$common_options or"
-    echo "       $0 \
-$environment_options \
-[[--svn-url]:url] \
-$common_options"
+[-su | --svn-url]:url \
+[[-i | --install]:[yes | no]]"
 }
 
 # Create the environment.
@@ -46,29 +37,13 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
 fi
 
-svn_schema="$TOOLCHAIN_SVN_SCHEMA"
-svn_user="$TOOLCHAIN_SVN_USER"
-svn_host="$TOOLCHAIN_SVN_HOST"
-svn_depot="$TOOLCHAIN_SVN_DEPOT"
 svn_url="$TOOLCHAIN_SVN_URL"
 install=yes
 
 # Parse the command line.
 for i in "$@"; do
     case $i in
-        -ss:*|--svn-schema:*)
-            svn_schema="${i#*:}"
-            ;;
-        -su:*|--svn-user:*)
-            svn_user="${i#*:}"
-            ;;
-        -sh:*|--svn-host:*)
-            svn_host="${i#*:}"
-            ;;
-        -sd:*|--svn-depot:*)
-            svn_depot="${i#*:}"
-            ;;
-        --svn-url:*)
+        -su:*|--svn-url:*)
             svn_url="${i#*:}"
             ;;
         -i:*|--install:*)
@@ -78,12 +53,8 @@ for i in "$@"; do
 done
 
 if [ "$svn_url" == "" ]; then
-    if [ "$svn_schema" == "" ] || [ "$svn_user" == "" ] || \
-            [ "$svn_host" == "" ] || [ "$svn_depot" == "" ]; then
-        echo "Must specify svn url."
-        exit 1
-    fi
-    svn_url="$svn_schema"://"$svn_user"@"$svn_host"/"$svn_depot"
+    echo "Must specify svn url."
+    exit 1
 fi
 
 # Check the build system first.
