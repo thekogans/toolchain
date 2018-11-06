@@ -18,7 +18,7 @@
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
 if [ "$TOOLCHAIN_WINDOWS_SDK_DIR" == "" ]; then
-    TOOLCHAIN_WINDOWS_SDK_DIR=`cygpath -au "$WindowsSdkDir"bin`
+    TOOLCHAIN_WINDOWS_SDK_DIR=`cygpath -au "$WindowsSdkDir"bin\\\x86`
     export TOOLCHAIN_WINDOWS_SDK_DIR
 fi
 if [ "$TOOLCHAIN_VISUAL_STUDIO_DIR" == "" ]; then
