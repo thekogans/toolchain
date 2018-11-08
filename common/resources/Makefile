@@ -55,6 +55,7 @@ rc_preprocessor_definitions := $(rc_preprocessor_definitions)
 rc_sources := $(rc_sources)
 subsystem := $(subsystem)
 def_file := $(def_file)
+runtime_library := $(runtime_library)
 
 $(custom_build_rules)
 
