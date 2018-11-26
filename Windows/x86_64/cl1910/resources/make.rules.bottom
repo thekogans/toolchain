@@ -109,54 +109,35 @@ nasm_it =\
 # cl
 cl = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/cl.exe
 cl_flags = -nologo -c -W3 -EHsc -fp:precise -Gd -GS -Gm-
-ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
-  ifeq "$(config)" "Debug"
-    cl_flags += -MTd
+ifeq "$(config)" "Debug"
+  ifeq "$(type)" "Shared"
+    cl_flags += -MDd
   else
-    cl_flags += -MT
-  endif
-else
-  ifeq "$(runtime_library)" "Shared"
-    ifeq "$(config)" "Debug"
-      cl_flags += -MDd
+    ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
+      cl_flags += -MTd
     else
-      cl_flags += -MD
-    endif
-  else
-    ifeq "$(runtime_library)" "Static"
-      ifeq "$(config)" "Debug"
+      ifeq "$(project_type)" "library"
+        cl_flags += -Zl
+      else
         cl_flags += -MTd
+      endif
+    endif
+  endif
+  cl_flags += -Z7 -RTC1 -Od
+else
+  ifeq "$(type)" "Shared"
+    cl_flags += -MD
+  else
+    ifneq (,$(filter tests tests_self,$(MAKECMDGOALS)))
+      cl_flags += -MT
+    else
+      ifeq "$(project_type)" "library"
+        cl_flags += -Zl
       else
         cl_flags += -MT
       endif
-    else
-      ifeq "$(config)" "Debug"
-        ifeq "$(type)" "Shared"
-          cl_flags += -MDd
-        else
-          ifeq "$(project_type)" "library"
-            cl_flags += -Zl
-          else
-            cl_flags += -MTd
-          endif
-        endif
-      else
-        ifeq "$(type)" "Shared"
-          cl_flags += -MD
-        else
-          ifeq "$(project_type)" "library"
-            cl_flags += -Zl
-          else
-            cl_flags += -MT
-          endif
-        endif
-      endif
     endif
   endif
-endif
-ifeq "$(config)" "Debug"
-  cl_flags += -Z7 -RTC1 -Od
-else
   cl_flags += -GL -Gy -O2 -Oi
 endif
 cl_dependencies_flags =\

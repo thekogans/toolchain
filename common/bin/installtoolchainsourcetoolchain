@@ -31,7 +31,7 @@ $environment_options \
 [[-s | --sha2_256]:sha2_256] \
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Static | Shared]] \
-[[-r | --rm_source]:[yes | no]]"
+[[-rs | --rm_source]:[yes | no]]"
 }
 
 # Create the environment.
@@ -81,8 +81,8 @@ for i in "$@"; do
         -t:*|--type:*)
             type="${i#*:}"
             ;;
-        -r:*|--rm_source:*)
-            type="${i#*:}"
+        -rs:*|--rm_source:*)
+            rm_source="${i#*:}"
             ;;
     esac
 done
@@ -104,7 +104,7 @@ if [ "$type" != "" ] && [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
 fi
 
 if [ "$rm_source" != "" ] && [ "$rm_source" != "yes" ] && [ "$rm_source" != "no" ]; then
-    echo "Unsupported flag [-r | --rm_source]: $rm_source [yes | no]."
+    echo "Unsupported flag [-rs | --rm_source]: $rm_source [yes | no]."
     exit 1
 fi
 
