@@ -116,15 +116,15 @@ if [ "$project_type" == "library" ]; then
 
 #if defined (TOOLCHAIN_OS_Windows)
     #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API __stdcall
-    #if defined (TOOLCHAIN_TYPE_Shared)
+    #if defined (${ORGANIZATION}_${PROJECT}_${EXAMPLE}_TYPE_Shared)
         #if defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
             #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL __declspec (dllexport)
         #else // defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
             #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL __declspec (dllimport)
         #endif // defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
-    #else // defined (TOOLCHAIN_TYPE_Shared)
+    #else // defined (${ORGANIZATION}_${PROJECT}_${EXAMPLE}_TYPE_Shared)
         #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL
-    #endif // defined (TOOLCHAIN_TYPE_Shared)
+    #endif // defined (${ORGANIZATION}_${PROJECT}_${EXAMPLE}_TYPE_Shared)
     #if defined (_MSC_VER)
         #pragma warning (disable: 4251)  // using non-exported as public in exported
         #pragma warning (disable: 4786)
@@ -298,15 +298,11 @@ elif [ "$project_type" == "plugin" ]; then
 
 #if defined (TOOLCHAIN_OS_Windows)
     #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API __stdcall
-    #if defined (TOOLCHAIN_TYPE_Shared)
-        #if defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
-            #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL __declspec (dllexport)
-        #else // defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
-            #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL __declspec (dllimport)
-        #endif // defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
-    #else // defined (TOOLCHAIN_TYPE_Shared)
-        #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL
-    #endif // defined (TOOLCHAIN_TYPE_Shared)
+    #if defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
+        #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL __declspec (dllexport)
+    #else // defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
+        #define _LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL __declspec (dllimport)
+    #endif // defined (_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_BUILD)
     #if defined (_MSC_VER)
         #pragma warning (disable: 4251)  // using non-exported as public in exported
         #pragma warning (disable: 4786)
