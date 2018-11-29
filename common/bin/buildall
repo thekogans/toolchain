@@ -26,6 +26,7 @@
 
 function show_command_help () {
     common_options="\
+[[-m | --mode]:[Development | Install]] \
 [[-hc | --hide-commands]:[yes | no]] \
 [[-pb | --parallel-build]:[yes | no]] \
 [[-ta | --target]:[all | tests | tests_self | clean | clean_self | tags | tags_self]]"
@@ -59,6 +60,7 @@ branch=
 version=
 example=
 project_root=
+mode=Install
 hide_commands=yes
 parallel_build=yes
 target=all
@@ -84,8 +86,8 @@ for i in "$@"; do
         -pr:*|--project-root:*)
             project_root="${i#*:}"
             ;;
-        -t:*|--type:*)
-            type="${i#*:}"
+        -m:*|--mode:*)
+            mode="${i#*:}"
             ;;
         -hc:*|--hide-commands:*)
             hide_commands="${i#*:}"
@@ -114,6 +116,11 @@ if [ ! -e "$config_file" ]; then
     exit 1
 fi
 
+if [ "$mode" != "Development" ] && [ "$mode" != "Install" ]; then
+    echo "Unsupported mode [-m | --mode]: $mode [Development | Install]."
+    exit 1
+fi
+
 if [ "$hide_commands" != "yes" ] && [ "$hide_commands" != "no" ]; then
     echo "Unsupported hide commands [-hc | --hide-commands]: $hide_commands [yes | no]."
     exit 1
@@ -135,15 +142,18 @@ fi
 # Build everything.
 for config in Debug Release; do
     for type in Static Shared; do
-        "$TOOLCHAIN_COMMON_BIN"/build \
-            -pr:"$project_root" \
-            -c:"$config" \
-            -t:"$type" \
-            -m:Install \
-            -hc:"$hide_commands" \
-            -pb:"$parallel_build" \
-            -ta:"$target"
-        check_errors $?
+        for runtime_type in Static Shared; do
+            "$TOOLCHAIN_COMMON_BIN"/build \
+                -pr:"$project_root" \
+                -c:"$config" \
+                -t:"$type" \
+                -rt:"$runtime_type" \
+                -m:"$mode" \
+                -hc:"$hide_commands" \
+                -pb:"$parallel_build" \
+                -ta:"$target"
+                check_errors $?
+        done
     done
 done
 

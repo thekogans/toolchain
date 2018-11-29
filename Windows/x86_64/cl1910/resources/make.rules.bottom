@@ -109,25 +109,51 @@ nasm_it =\
 # cl
 cl = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/cl.exe
 cl_flags = -nologo -c -W3 -EHsc -fp:precise -Gd -GS -Gm-
-ifeq "$(config)" "Debug"
+# If we're building a DLL, let the compiler/linker include
+# appropriate preprocessor definitions/runtime code.
+ifneq (,$(filter $(project_type),library plugin))
   ifeq "$(type)" "Shared"
-    ifneq (,$(filter $(project_type),library plugin))
+    ifeq "$(config)" "Debug"
       cl_flags += -LDd
-    endif
-    cl_flags += -MDd
-  else
-    cl_flags += -MTd
-  endif
-  cl_flags += -Z7 -RTC1 -Od
-else
-  ifeq "$(type)" "Shared"
-    ifneq (,$(filter $(project_type),library plugin))
+    else
       cl_flags += -LD
     endif
-    cl_flags += -MD
-  else
-    cl_flags += -MT
   endif
+endif
+# Check if runtime_type is provided.
+ifeq "$(runtime_type)" "Shared"
+  ifeq "$(config)" "Debug"
+    cl_flags += -MDd
+  else
+    cl_flags += -MD
+  endif
+else
+  ifeq "$(runtime_type)" "Static"
+    ifeq "$(config)" "Debug"
+      cl_flags += -MTd
+    else
+      cl_flags += -MT
+    endif
+  else
+    # Otherwise match runtime_type with type.
+    ifeq "$(config)" "Debug"
+      ifeq "$(type)" "Shared"
+        cl_flags += -MDd
+      else
+        cl_flags += -MTd
+      endif
+    else
+      ifeq "$(type)" "Shared"
+        cl_flags += -MD
+      else
+        cl_flags += -MT
+      endif
+    endif
+  endif
+endif
+ifeq "$(config)" "Debug"
+  cl_flags += -Z7 -RTC1 -Od
+else
   cl_flags += -GL -Gy -O2 -Oi
 endif
 cl_dependencies_flags =\

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Release Shared|x64">
-      <Configuration>Release Shared</Configuration>
+    <ProjectConfiguration Include="$(config) $(type) $(runtime_type)|x64">
+      <Configuration>$(config) $(type) $(runtime_type)</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -50,11 +50,11 @@
     </Link>
     <PreBuildEvent>
       <Message>Update build system.</Message>
-      <Command>"$(TOOLCHAIN_SHELL)" "$(TOOLCHAIN_ROOT)/common/bin/makebuild" -g:$(generator) -pr:"$(project_root)" -c:$(config) -t:$(type)</Command>
+      <Command>"$(TOOLCHAIN_SHELL)" "$(TOOLCHAIN_ROOT)/common/bin/makebuild" -g:$(generator) -pr:"$(project_root)" -c:$(config) -t:$(type) -rt:$(runtime_type)</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Message>Copy plugin.</Message>
-      <Command>"$(TOOLCHAIN_SHELL)" "$(TOOLCHAIN_ROOT)/common/bin/copyplugin" -pr:"$(project_root)" -c:$(config)</Command>
+      <Command>"$(TOOLCHAIN_SHELL)" "$(TOOLCHAIN_ROOT)/common/bin/copyplugin" -pr:"$(project_root)" -c:$(config) -rt:$(runtime_type)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

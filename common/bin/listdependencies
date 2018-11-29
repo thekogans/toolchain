@@ -22,7 +22,8 @@
 function show_command_help () {
     common_options="\
 [-c | --config]:[Debug | Release] \
-[-t | --type]:[Shared | Static]"
+[-t | --type]:[Shared | Static] \
+[-rt | --runtime-type]:[Shared | Static]"
     echo "usage: $0 \
 $environment_options \
 [[-o | --organization]:organization] \
@@ -55,6 +56,7 @@ example=
 project_root=
 config=
 type=
+runtime_type=
 
 # Parse command line options.
 for i in "$@"; do
@@ -82,6 +84,9 @@ for i in "$@"; do
             ;;
         -t:*|--type:*)
             type="${i#*:}"
+            ;;
+        -rt:*|--runtime-type:*)
+            runtime_type="${i#*:}"
             ;;
     esac
 done
@@ -114,10 +119,16 @@ if [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
     exit 1
 fi
 
+if [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
+    echo "Unsupported runtime_type [-rt | --runtime-type]: $runtime_type [Static | Shared]."
+    exit 1
+fi
+
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:list_dependencies \
     -c:"$config" \
     -t:"$type" \
+    -r:"$runtime_type" \
     "$config_file"
 check_errors $?
 

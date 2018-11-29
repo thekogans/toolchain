@@ -17,13 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# This script will delete a build system for the specified config/type
+# This script will delete a build system for the specified config/type/runtime_type
 # variant of the given organization/project/branch or thekogans_make.xml.
 
 function show_command_help () {
     common_options="\
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Shared | Static]] \
+[[-rt | --runtime-type]:[Shared | Static]] \
 [[-d | --dependencies]:[yes | no]]"
     echo "usage: $0 \
 $environment_options \
@@ -60,6 +61,7 @@ example=
 project_root=
 config=Release
 type=Shared
+runtime_type="$type"
 dependencies=yes
 
 for i in "$@"; do
@@ -89,6 +91,9 @@ for i in "$@"; do
             config="${i#*:}"
             ;;
         -t:*|--type:*)
+            type="${i#*:}"
+            ;;
+        -rt:*|--runtime-type:*)
             type="${i#*:}"
             ;;
         -d:*|--dependencies:*)
@@ -124,6 +129,11 @@ if [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
     exit 1
 fi
 
+if [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
+    echo "Unsupported runtime_type [-rt | --runtime-type]: $runtime_type [Static | Shared]."
+    exit 1
+fi
+
 if [ "$dependencies" != "yes" ] && [ "$dependencies" != "no" ]; then
     echo "Unsupported dependencies [-d | --dependencies]: $dependencies [yes | no]."
     exit 1
@@ -137,6 +147,7 @@ fi
     -g:"$generator" \
     -c:"$config" \
     -t:"$type" \
+    -r:"$runtime_type" \
     "$dependencies_flag" \
     "$project_root"
 check_errors $?

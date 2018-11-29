@@ -5,7 +5,7 @@ $(dependency_dependencies)
 $(project_dependencies)
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		$(config) $(type)|x64 = $(config) $(type)|x64
+		$(config) $(type) $(runtime_type)|x64 = $(config) $(type) $(runtime_type)|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 $(dependency_targets)

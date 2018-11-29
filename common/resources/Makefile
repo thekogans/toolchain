@@ -8,6 +8,7 @@ patch_version := $(patch_version)
 naming_convention := $(naming_convention)
 config := $(config)
 type := $(type)
+runtime_type := $(runtime_type)
 
 include $(TOOLCHAIN_ROOT)/common/resources/make.rules.top
 
