@@ -107,7 +107,6 @@ if [ "$runtime_type" == "" ]; then
 fi
 
 config_file="$project_root"/thekogans_make.xml
-
 if [ ! -e "$config_file" ]; then
     echo "$config_file Not found."
     exit 1

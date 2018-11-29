@@ -27,7 +27,7 @@ $environment_options \
 [-p | --project]:project \
 [[-b | --branch]:[trunk | branches/branch | tags/tag]] \
 [[-v | --version]:version] \
-[[-s | --sha2_256]:sha2_256]"
+[[-s2 | --sha2-256]:sha2_256]"
 }
 
 # Create the environment.
@@ -64,12 +64,13 @@ for i in "$@"; do
         -v:*|--version:*)
             version="${i#*:}"
             ;;
-        -s:*|--sha2_256:*)
+        -s2:*|--sha2-256:*)
             sha2_256="${i#*:}"
             ;;
     esac
 done
 
+# Validate input.
 if [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "Must specify organization and project."
     exit 1

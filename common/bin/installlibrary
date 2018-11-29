@@ -100,6 +100,7 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$project_root" == "" ]; then
     if [ "$organization" == "" ] || [ "$project" == "" ]; then
         echo "Must specify project root."
@@ -111,8 +112,6 @@ else
 fi
 
 config_file="$project_root"/thekogans_make.xml
-
-# Validate input.
 if [ ! -e "$config_file" ]; then
     echo "$config_file Not found."
     exit 1

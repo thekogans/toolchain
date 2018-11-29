@@ -65,6 +65,11 @@ if [ "$organization" == "" ] || [ "$project" == "" ]; then
     exit 1
 fi
 
+if [ "$dependencies" != "yes" ] && [ "$dependencies" != "no" ]; then
+    echo "Unsupported dependencies [-d | --dependencies]: $dependencies [yes | no]."
+    exit 1
+fi
+
 dependencies_flag=
 if [ "$dependencies" == "yes" ]; then
     dependencies_flag=-d

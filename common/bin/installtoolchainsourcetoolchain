@@ -28,7 +28,7 @@ $environment_options \
 [-p | --project]:project \
 [[-v | --version]:version] \
 [[-f | --file]:file] \
-[[-s | --sha2_256]:sha2_256] \
+[[-s | --sha2-256]:sha2_256] \
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Static | Shared]] \
 [[-rt | --runtime-type]:[Static | Shared]] \
@@ -74,7 +74,7 @@ for i in "$@"; do
         -f:*|--file:*)
             file="${i#*:}"
             ;;
-        -s:*|--sha2_256:*)
+        -s:*|--sha2-256:*)
             sha2_256="${i#*:}"
             ;;
         -c:*|--config:*)
@@ -86,7 +86,7 @@ for i in "$@"; do
         -rt:*|--runtime-type:*)
             runtime_type="${i#*:}"
             ;;
-        -rs:*|--rm_source:*)
+        -rs:*|--rm-source:*)
             rm_source="${i#*:}"
             ;;
     esac

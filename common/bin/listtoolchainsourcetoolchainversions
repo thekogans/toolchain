@@ -50,11 +50,13 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "Must specify organization and project."
     exit 1
 fi
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:get_toolchain_source_toolchain_versions \
     -o:"$organization" \

@@ -107,6 +107,7 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$project_root" == "" ]; then
     if [ "$organization" == "" ] || [ "$project" == "" ]; then
         echo "Must specify project root."
@@ -122,7 +123,6 @@ if [ "$runtime_type" == "" ]; then
 fi
 
 config_file="$project_root"/thekogans_make.xml
-
 if [ ! -e "$config_file" ]; then
     echo "$config_file Not found."
     exit 1
@@ -159,6 +159,8 @@ fi
 if [ "$force" == "yes" ]; then
     force_flag=-f
 fi
+
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:create_build_system \
     -g:"$generator" \

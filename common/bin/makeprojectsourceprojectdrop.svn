@@ -28,7 +28,7 @@ $environment_options \
 [[-u | --url]:url] \
 [[-p | --project]:project] \
 [[-b | --branch]:[trunk | branches/branch | tags/tag]] \
-[[-a | --add_source]:[yes | no]] \
+[[-as | --add-source]:[yes | no]] \
 [[-su | --svn-url]:url]"
 }
 
@@ -63,7 +63,7 @@ for i in "$@"; do
         -b:*|--branch:*)
             branch="${i#*:}"
             ;;
-        -a:*|--add-source:*)
+        -as:*|--add-source:*)
             add_source="${i#*:}"
             ;;
         -su:*|--svn-url:*)
@@ -76,6 +76,11 @@ done
 
 if [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "Must specify organization and project."
+    exit 1
+fi
+
+if [ "$add_source" != "yes" ] && [ "$add_source" != "no" ]; then
+    echo "Unsupported add_source [-as | --add-source]: $add_source [yes | no]."
     exit 1
 fi
 

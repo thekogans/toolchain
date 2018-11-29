@@ -27,7 +27,7 @@ $environment_options \
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Static | Shared]] \
 [[-rt | --runtime-type]:[Static | Shared]] \
-[[-a | --add_source]:[yes | no]] \
+[[-as | --add-source]:[yes | no]] \
 [[-gu | --git-url]:url]"
 }
 
@@ -74,7 +74,7 @@ for i in "$@"; do
         -rt:*|--runtime-type:*)
             runtime_type="${i#*:}"
             ;;
-        -a:*|--add-source:*)
+        -as:*|--add-source:*)
             add_source="${i#*:}"
             ;;
         -gu:*|--git-url:*)
@@ -86,11 +86,6 @@ done
 # Verify arguments.
 if [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "Must specify organization and project."
-    exit 1
-fi
-
-if [ "$git_url" == "" ]; then
-    echo "Must specify git url."
     exit 1
 fi
 
@@ -109,12 +104,23 @@ if [ "$runtime_type" != "" ] && [ "$runtime_type" != "Static" ] && [ "$runtime_t
     exit 1
 fi
 
+if [ "$add_source" != "yes" ] && [ "$add_source" != "no" ]; then
+    echo "Unsupported add_source [-as | --add-source]: $add_source [yes | no]."
+    exit 1
+fi
+
+if [ "$git_url" == "" ]; then
+    echo "Must specify git url."
+    exit 1
+fi
+
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
 if [ ! -d "$project_drops" ]; then
     mkdir "$project_drops"
     check_errors $?
 fi
 cd "$project_drops"
+check_errors $?
 
 if [ -d foo ]; then
     rm -rf foo

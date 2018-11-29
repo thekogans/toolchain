@@ -52,6 +52,7 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$svn_url" == "" ]; then
     echo "Must specify svn url."
     exit 1

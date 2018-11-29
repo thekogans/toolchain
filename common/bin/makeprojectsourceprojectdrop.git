@@ -28,7 +28,7 @@ $environment_options \
 [[-u | --url]:url] \
 [[-p | --project]:project] \
 [[-v | --version]:version] \
-[[-a | --add_source]:[yes | no]] \
+[[-as | --add-source]:[yes | no]] \
 [[-gu | --git-url]:url]"
 }
 
@@ -63,7 +63,7 @@ for i in "$@"; do
         -v:*|--version:*)
             version="${i#*:}"
             ;;
-        -a:*|--add-source:*)
+        -as:*|--add-source:*)
             add_source="${i#*:}"
             ;;
         -gu:*|--git-url:*)
@@ -80,6 +80,11 @@ fi
 
 if [ "$git_url" == "" ]; then
     echo "Must specify git url."
+    exit 1
+fi
+
+if [ "$add_source" != "yes" ] && [ "$add_source" != "no" ]; then
+    echo "Unsupported add_source [-as | --add-source]: $add_source [yes | no]."
     exit 1
 fi
 

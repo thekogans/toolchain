@@ -92,6 +92,7 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$project_root" == "" ]; then
     if [ "$organization" == "" ] || [ "$project" == "" ]; then
         echo "Must specify project root."
@@ -107,8 +108,6 @@ if [ "$runtime_type" == "" ]; then
 fi
 
 config_file="$project_root"/thekogans_make.xml
-
-# Validate input.
 if [ ! -e "$config_file" ]; then
     echo "$config_file Not found."
     exit 1
@@ -129,6 +128,7 @@ if [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
     exit 1
 fi
 
+# Check project dependencies.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:check_dependencies \
     -c:"$config" \

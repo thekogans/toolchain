@@ -51,6 +51,7 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$organization" == "" ] || [ "$url" == "" ]; then
     echo "Must specify organization and url."
     exit 1
