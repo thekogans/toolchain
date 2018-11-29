@@ -102,6 +102,10 @@ else
     project_root=`cd "$project_root"; pwd`
 fi
 
+if [ "$runtime_type" == "" ]; then
+    runtime_type="$type"
+fi
+
 config_file="$project_root"/thekogans_make.xml
 
 # Validate input.

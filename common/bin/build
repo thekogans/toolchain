@@ -61,7 +61,7 @@ example=
 project_root=
 config=Release
 type=Shared
-runtime_type="$type"
+runtime_type=
 mode=Development
 hide_commands=yes
 parallel_build=yes
@@ -120,6 +120,10 @@ if [ "$project_root" == "" ]; then
     project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
 else
     project_root=`cd "$project_root"; pwd`
+fi
+
+if [ "$runtime_type" == "" ]; then
+    runtime_type="$type"
 fi
 
 config_file="$project_root"/thekogans_make.xml
