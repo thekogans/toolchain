@@ -41,6 +41,7 @@ hash=SHA2
 digest=256
 file=
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -h:*|--hash:*)
@@ -55,11 +56,13 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$hash" == "" ] || [ "$file" == "" ]; then
     echo "Must specify file."
     exit 1
 fi
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:hash)" \
     -h:"$hash" \
     -d:"$digest" \

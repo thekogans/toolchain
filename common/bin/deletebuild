@@ -64,6 +64,7 @@ type=Shared
 runtime_type=
 dependencies=yes
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -g:*|--generator:*)
@@ -146,6 +147,8 @@ fi
 if [ "$dependencies" == "yes" ]; then
     dependencies_flag=-d
 fi
+
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:delete_build_system \
     -g:"$generator" \

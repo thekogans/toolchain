@@ -37,6 +37,7 @@ fi
 
 git_url="$TOOLCHAIN_GIT_URL"
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -gu:*|--git-url:*)

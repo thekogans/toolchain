@@ -66,6 +66,7 @@ runtime_type=
 dependencies=yes
 force=no
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -g:*|--generator:*)

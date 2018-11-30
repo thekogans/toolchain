@@ -60,6 +60,7 @@ runtime_type=Shared
 hide_commands=yes
 parallel_build=yes
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)
@@ -132,6 +133,7 @@ if [ "$parallel_build" != "yes" ] && [ "$parallel_build" != "no" ]; then
     exit 1
 fi
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:install_plugin \
     -c:"$config" \

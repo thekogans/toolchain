@@ -39,7 +39,7 @@ show_version=no
 show_build_system_version=no
 show_toolchain_version=no
 
-# Parse the command line.
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -h|--help)

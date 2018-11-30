@@ -127,6 +127,7 @@ if [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
     exit 1
 fi
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:list_dependencies \
     -c:"$config" \

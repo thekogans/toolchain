@@ -52,6 +52,7 @@ if [ "$organization" == "" ]; then
     exit 1
 fi
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:delete_toolchain_source \
     -o:"$organization"

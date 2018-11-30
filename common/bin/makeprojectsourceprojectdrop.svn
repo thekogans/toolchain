@@ -49,6 +49,7 @@ branch=
 add_source=yes
 svn_url="$TOOLCHAIN_SVN_URL"
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)
@@ -72,8 +73,7 @@ for i in "$@"; do
     esac
 done
 
-# Verify arguments.
-
+# Verify input.
 if [ "$organization" == "" ] || [ "$project" == "" ]; then
     echo "Must specify organization and project."
     exit 1

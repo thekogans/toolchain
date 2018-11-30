@@ -47,6 +47,7 @@ branch=
 version=
 sha2_256=
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)

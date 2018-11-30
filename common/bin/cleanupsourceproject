@@ -41,6 +41,7 @@ organization=
 project=
 branch=
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)
@@ -55,6 +56,7 @@ for i in "$@"; do
     esac
 done
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:cleanup_source_project \
     -o:"$organization" \

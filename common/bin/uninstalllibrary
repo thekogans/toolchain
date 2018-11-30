@@ -43,6 +43,7 @@ project=
 version=
 dependencies=no
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)
@@ -60,6 +61,7 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$organization" == "" ] || [ "$project" == "" ]; then
     ecgo "Must specify organization and project."
     exit 1
@@ -80,6 +82,7 @@ if [ "$version" != "" ]; then
     version_flag=-v:"$version"
 fi
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:uninstall_library \
     -o:"$organization" \

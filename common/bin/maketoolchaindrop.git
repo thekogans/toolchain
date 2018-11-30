@@ -37,6 +37,7 @@ fi
 
 git_url="$TOOLCHAIN_GIT_URL"
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -gu:*|--git-url:*)
@@ -45,6 +46,7 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$git_url" == "" ]; then
     echo "Must specify git url."
     exit 1

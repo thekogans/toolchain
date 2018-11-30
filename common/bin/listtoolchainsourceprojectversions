@@ -41,6 +41,7 @@ organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 project=
 branch=
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)

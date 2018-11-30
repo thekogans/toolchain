@@ -51,11 +51,13 @@ for i in "$@"; do
     esac
 done
 
+# Validate input.
 if [ "$organization" == "" ] || [ "$url" == "" ]; then
     echo "Must specify organization and url."
     exit 1
 fi
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:add_toolchain_source \
     -o:"$organization" \

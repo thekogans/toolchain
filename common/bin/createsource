@@ -57,6 +57,7 @@ if [ "$organization" == "" ] || [ "$url" == "" ]; then
     exit 1
 fi
 
+# Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:create_source \
     -o:"$organization" \

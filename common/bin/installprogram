@@ -62,7 +62,7 @@ runtime_type=
 hide_commands=yes
 parallel_build=yes
 
-# Parse input.
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)

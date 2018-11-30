@@ -37,6 +37,7 @@ fi
 
 svn_url="$TOOLCHAIN_SVN_URL"
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -su:*|--svn-url:*)

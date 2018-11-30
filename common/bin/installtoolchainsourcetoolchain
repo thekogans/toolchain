@@ -28,7 +28,7 @@ $environment_options \
 [-p | --project]:project \
 [[-v | --version]:version] \
 [[-f | --file]:file] \
-[[-s | --sha2-256]:sha2_256] \
+[[-s2 | --sha2-256]:sha2_256] \
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Static | Shared]] \
 [[-rt | --runtime-type]:[Static | Shared]] \
@@ -56,7 +56,7 @@ type=
 runtime_type=
 rm_source=no
 
-# Parse input.
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -o:*|--organization:*)
@@ -74,7 +74,7 @@ for i in "$@"; do
         -f:*|--file:*)
             file="${i#*:}"
             ;;
-        -s:*|--sha2-256:*)
+        -s2:*|--sha2-256:*)
             sha2_256="${i#*:}"
             ;;
         -c:*|--config:*)
@@ -170,7 +170,9 @@ fi
 
 if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$sha2_256" ]; then
     if [ "$url" == "" ]; then
-        url=`"$(get_toolchain_program -o:thekogans -p:make)" -a:get_toolchain_source_url -o:"$organization"`
+        url=`"$(get_toolchain_program -o:thekogans -p:make)" \
+            -a:get_toolchain_source_url \
+            -o:"$organization"`
         check_errors $?
         if [ "$url" == "" ]; then
             echo "No URL for $organization."

@@ -58,6 +58,7 @@ example=
 dependencies=yes
 project_root=
 
+# Parse command line options.
 for i in "$@"; do
     case $i in
         -g:*|--generator:*)
@@ -114,6 +115,7 @@ thekogans_make="$(get_toolchain_program -o:thekogans -p:make)"
 if [ "$dependencies" == "yes" ]; then
     dependencies_flag=-d
 fi
+
 for config in Debug Release; do
     for type in Static Shared; do
         for runtime_type in Static Shared; do
