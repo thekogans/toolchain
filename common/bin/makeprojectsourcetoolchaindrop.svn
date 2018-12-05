@@ -26,8 +26,7 @@ $environment_options \
 [[-b | --branch]:[trunk | branches/branch | tags/tag]] \
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Static | Shared]] \
-[[-rt | --runtime-type]:[Static | Shared]] \
-[[-a | --add_source]:[yes | no]] \
+[[-as | --add-source]:[yes | no]] \
 [[-su | --svn-url]:url]"
 }
 
@@ -47,7 +46,6 @@ project="$TOOLCHAIN_DEFAULT_PROJECT"
 branch=
 config=
 type=
-runtime_type=
 add_source=yes
 svn_url="$TOOLCHAIN_SVN_URL"
 
@@ -72,10 +70,7 @@ for i in "$@"; do
         -t:*|--type:*)
             type="${i#*:}"
             ;;
-        -rt:*|--runtime-type:*)
-            runtime_type="${i#*:}"
-            ;;
-        -a:*|--add-source:*)
+        -as:*|--add-source:*)
             add_source="${i#*:}"
             ;;
         -su:*|--svn-url:*)
@@ -102,11 +97,6 @@ fi
 
 if [ "$type" != "" ] && [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
     echo "Unsupported type [-t | --type]: $type [Static | Shared]."
-    exit 1
-fi
-
-if [ "$runtime_type" != "" ] && [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
-    echo "Unsupported runtime_type [-rt | --runtime-type]: $runtime_type [Static | Shared]."
     exit 1
 fi
 
@@ -164,7 +154,6 @@ cat > foo/install << EOF
 
 config=
 type=
-runtime_type=
 
 for i in "\$@"; do
     case \$i in
@@ -173,9 +162,6 @@ for i in "\$@"; do
             ;;
         -t:*|--type:*)
             type="\${i#*:}"
-            ;;
-        -rt:*|--runtime-type:*)
-            runtime_type="\${i#*:}"
             ;;
     esac
 done
@@ -190,21 +176,16 @@ if [ "\$type" != "" ] && [ "\$type" != "Static" ] && [ "\$type" != "Shared" ]; t
     exit 1
 fi
 
-if [ "\$runtime_type" != "" ] && [ "\$runtime_type" != "Static" ] && [ "\$runtime_type" != "Shared" ]; then
-    echo "Unsupported runtime_type [-rt | --runtime-type]: \$runtime_type [Static | Shared]."
-    exit 1
-fi
-
 project_type="\$(get_project_project_type -pr:.)"
 
 if [ "\$project_type" == library ]; then
-    "\$TOOLCHAIN_COMMON_BIN"/installlibrary -pr:. -c:"\$config" -t:"\$type" -rt:"\$runtime_type"
+    "\$TOOLCHAIN_COMMON_BIN"/installlibrary -pr:. -c:"\$config" -t:"\$type"
     check_errors \$?
 elif [ "\$project_type" == program ]; then
-    "\$TOOLCHAIN_COMMON_BIN"/installprogram -pr:. -c:"\$config" -t:"\$type" -rt:"\$runtime_type"
+    "\$TOOLCHAIN_COMMON_BIN"/installprogram -pr:. -c:"\$config" -t:"\$type"
     check_errors \$?
 elif [ "\$project_type" == plugin ]; then
-    "\$TOOLCHAIN_COMMON_BIN"/installplugin -pr:. -c:"\$config" -t:"\$type" -rt:"\$runtime_type"
+    "\$TOOLCHAIN_COMMON_BIN"/installplugin -pr:. -c:"\$config" -t:"\$type"
     check_errors \$?
 else
     echo "Unknown project type: \$project_type [library | program | plugin]"

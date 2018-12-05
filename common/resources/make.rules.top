@@ -41,7 +41,7 @@ makefile_path := $(lastword $(filter-out $(lastword $(MAKEFILE_LIST)),$(MAKEFILE
 # Where all intermediate files go.
 build_root := $(patsubst %/,%,$(dir $(makefile_path)))
 
-# Makefile is located at $(project_root)/build/$(TOOLCHAIN_BRANCH)/make/$(config)/$(type)/$(runtime_type).
+# Makefile is located at $(project_root)/build/$(TOOLCHAIN_BRANCH)/make/$(config)/$(type).
 # Therefore, in order to locate project_root, walk back seven steps from build_root.
 project_root := $(realpath $(build_root)/../../../../../../..)
 
@@ -80,22 +80,22 @@ endif
 ifeq "$(goal)" ""
   ifeq "$(naming_convention)" "Flat"
     ifeq "$(project_type)" "library"
-      goal := $(project_root)/lib/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type)-$(runtime_type).$(major_version).$(minor_version).$(patch_version).$(library_suffix)
+      goal := $(project_root)/lib/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(major_version).$(minor_version).$(patch_version).$(library_suffix)
     else
       ifeq "$(project_type)" "program"
-        goal := $(project_root)/bin/$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type)-$(runtime_type).$(major_version).$(minor_version).$(patch_version)$(program_suffix)
+        goal := $(project_root)/bin/$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(major_version).$(minor_version).$(patch_version)$(program_suffix)
       else
-        goal := $(project_root)/lib/$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type)-$(runtime_type).$(major_version).$(minor_version).$(patch_version).$(TOOLCHAIN_SHARED_LIBRARY_SUFFIX)
+        goal := $(project_root)/lib/$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(major_version).$(minor_version).$(patch_version).$(TOOLCHAIN_SHARED_LIBRARY_SUFFIX)
       endif
     endif
   else
     ifeq "$(project_type)" "library"
-      goal := $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/$(runtime_type)/lib$(organization)_$(project).$(major_version).$(minor_version).$(patch_version).$(library_suffix)
+      goal := $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/lib$(organization)_$(project).$(major_version).$(minor_version).$(patch_version).$(library_suffix)
     else
       ifeq "$(project_type)" "program"
-        goal := $(project_root)/bin/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/$(runtime_type)/$(organization)_$(project).$(major_version).$(minor_version).$(patch_version)$(program_suffix)
+        goal := $(project_root)/bin/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/$(organization)_$(project).$(major_version).$(minor_version).$(patch_version)$(program_suffix)
       else
-        goal := $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/$(runtime_type)/$(organization)_$(project).$(major_version).$(minor_version).$(patch_version).$(TOOLCHAIN_SHARED_LIBRARY_SUFFIX)
+        goal := $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/$(organization)_$(project).$(major_version).$(minor_version).$(patch_version).$(TOOLCHAIN_SHARED_LIBRARY_SUFFIX)
       endif
     endif
   endif

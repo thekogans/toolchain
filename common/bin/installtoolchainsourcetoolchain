@@ -31,7 +31,6 @@ $environment_options \
 [[-s2 | --sha2-256]:sha2_256] \
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Static | Shared]] \
-[[-rt | --runtime-type]:[Static | Shared]] \
 [[-rs | --rm-source]:[yes | no]]"
 }
 
@@ -53,7 +52,6 @@ file=
 sha2_256=
 config=
 type=
-runtime_type=
 rm_source=no
 
 # Parse command line options.
@@ -83,9 +81,6 @@ for i in "$@"; do
         -t:*|--type:*)
             type="${i#*:}"
             ;;
-        -rt:*|--runtime-type:*)
-            runtime_type="${i#*:}"
-            ;;
         -rs:*|--rm-source:*)
             rm_source="${i#*:}"
             ;;
@@ -105,11 +100,6 @@ fi
 
 if [ "$type" != "" ] && [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
     echo "Unsupported type [-t | --type]: $type [Static | Shared]."
-    exit 1
-fi
-
-if [ "$runtime_type" != "" ] && [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
-    echo "Unsupported runtime_type [-rt | --runtime-type]: $runtime_type [Static | Shared]."
     exit 1
 fi
 
@@ -202,7 +192,7 @@ check_errors $?
 cd "$project_root"
 check_errors $?
 
-./install -c:"$config" -t:"$type" -rt:"$runtime_type"
+./install -c:"$config" -t:"$type"
 check_errors $?
 
 cd ..

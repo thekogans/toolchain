@@ -17,14 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# This script will build a specified config/type/runtime_type variant of the given
+# This script will build a specified config/type variant of the given
 # organization/project[/branch-version/example] specified in thekogans_make.xml.
 
 function show_command_help () {
     common_options="\
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Shared | Static]] \
-[[-rt | --runtime-type]:[Shared | Static]] \
 [[-m | --mode]:[Development | Install]] \
 [[-hc | --hide-commands]:[yes | no]] \
 [[-pb | --parallel-build]:[yes | no]] \
@@ -61,7 +60,6 @@ example=
 project_root=
 config=Release
 type=Shared
-runtime_type=
 mode=Development
 hide_commands=yes
 parallel_build=yes
@@ -94,9 +92,6 @@ for i in "$@"; do
         -t:*|--type:*)
             type="${i#*:}"
             ;;
-        -rt:*|--runtime-type:*)
-            runtime_type="${i#*:}"
-            ;;
         -m:*|--mode:*)
             mode="${i#*:}"
             ;;
@@ -123,10 +118,6 @@ else
     project_root=`cd "$project_root"; pwd`
 fi
 
-if [ "$runtime_type" == "" ]; then
-    runtime_type="$type"
-fi
-
 config_file="$project_root"/thekogans_make.xml
 if [ ! -e "$config_file" ]; then
     echo "$config_file Not found."
@@ -140,11 +131,6 @@ fi
 
 if [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
     echo "Unsupported type [-t | --type]: $type [Static | Shared]."
-    exit 1
-fi
-
-if [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
-    echo "Unsupported runtime_type [-rt | --runtime-type]: $runtime_type [Static | Shared]."
     exit 1
 fi
 
@@ -176,7 +162,6 @@ fi
     -a:build_project \
     -c:"$config" \
     -t:"$type" \
-    -r:"$runtime_type" \
     -m:"$mode" \
     -w:"$hide_commands" \
     -x:"$parallel_build" \

@@ -23,7 +23,6 @@ function show_command_help () {
     common_options="\
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Shared | Static]] \
-[[-rt | --runtime-type]:[Shared | Static]] \
 [[-hc | --hide-commands]:[yes | no]] \
 [[-pb | --parallel-build]:[yes | no]]"
     echo "usage: $0 \
@@ -58,7 +57,6 @@ example=
 project_root=
 config=Release
 type=Shared
-runtime_type=
 hide_commands=yes
 parallel_build=yes
 
@@ -89,9 +87,6 @@ for i in "$@"; do
         -t:*|--type:*)
             type="${i#*:}"
             ;;
-        -rt:*|--runtime-type:*)
-            runtime_type="${i#*:}"
-            ;;
         -hc:*|--hide-commands:*)
             hide_commands="${i#*:}"
             ;;
@@ -112,10 +107,6 @@ else
     project_root=`cd "$project_root"; pwd`
 fi
 
-if [ "$runtime_type" == "" ]; then
-    runtime_type="$type"
-fi
-
 config_file="$project_root"/thekogans_make.xml
 if [ ! -e "$config_file" ]; then
     echo "$config_file Not found."
@@ -129,11 +120,6 @@ fi
 
 if [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
     echo "Unsupported type [-t | --type]: $type [Static | Shared]."
-    exit 1
-fi
-
-if [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
-    echo "Unsupported runtime_type [-rt | --runtime-type]: $runtime_type [Static | Shared]."
     exit 1
 fi
 
@@ -152,7 +138,6 @@ fi
     -a:install_plugin_hosts \
     -c:"$config" \
     -t:"$type" \
-    -r:"$runtime_type" \
     -m:Install \
     -w:"$hide_commands" \
     -x:"$parallel_build" \

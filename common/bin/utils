@@ -487,23 +487,6 @@ function get_project_build_type () {
     fi
 }
 
-function get_project_build_runtime_type () {
-    local project_root=
-    for i in "$@"; do
-        case $i in
-            -pr:*|--project-root:*)
-                project_root="${i#*:}"
-                ;;
-        esac
-    done
-    local config_file="$project_root/thekogans_make.xml"
-    if [ -e "$config_file" ]; then
-        "$(get_toolchain_program -o:thekogans -p:make)" -a:get_build_runtime_type "$config_file"
-    else
-        echo "$config_file not found."
-    fi
-}
-
 function get_project_program () {
     local organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
     local project="$TOOLCHAIN_DEFAULT_PROJECT"
@@ -512,7 +495,6 @@ function get_project_program () {
     local example=
     local config=Release
     local type=Static
-    local runtime_type=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -536,14 +518,8 @@ function get_project_program () {
             -t:*|--type:*)
                 type="${i#*:}"
                 ;;
-            -rt:*|--runtime-type:*)
-                runtime_type="${i#*:}"
-                ;;
         esac
     done
-    if [ "$runtime_type" == "" ]; then
-        runtime_type="$type"
-    fi
     local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
     if [ "$example" != "" ]; then
         project="$project"_"$example"
@@ -554,9 +530,9 @@ function get_project_program () {
     local naming_convention="$(get_project_naming_convention -pr:$project_root)"
     local project_program=
     if [ "$naming_convention" == "Flat" ]; then
-        project_program="$project_root/bin/$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type-$runtime_type.$version$TOOLCHAIN_PROGRAM_SUFFIX"
+        project_program="$project_root/bin/$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version$TOOLCHAIN_PROGRAM_SUFFIX"
     else
-        project_program="$project_root/bin/$TOOLCHAIN_BRANCH/$config/$type/$runtime_type/$organization"_"$project.$version$TOOLCHAIN_PROGRAM_SUFFIX"
+        project_program="$project_root/bin/$TOOLCHAIN_BRANCH/$config/$type/$organization"_"$project.$version$TOOLCHAIN_PROGRAM_SUFFIX"
     fi
     echo "$project_program"
 }
@@ -569,7 +545,6 @@ function get_project_library () {
     local example=
     local config=Release
     local type=Static
-    local runtime_type=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -593,14 +568,8 @@ function get_project_library () {
             -t:*|--type:*)
                 type="${i#*:}"
                 ;;
-            -rt:*|--runtime-type:*)
-                runtime_type="${i#*:}"
-                ;;
         esac
     done
-    if [ "$runtime_type" == "" ]; then
-        runtime_type="$type"
-    fi
     local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
     if [ "$example" != "" ]; then
         project="$project"_"$example"
@@ -611,9 +580,9 @@ function get_project_library () {
     local naming_convention="$(get_project_naming_convention -pr:$project_root)"
     local project_library=
     if [ "$naming_convention" == "Flat" ]; then
-        project_library="$project_root/lib/lib$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type-$runtime_type.$version.$(get_library_suffix -t:$type)"
+        project_library="$project_root/lib/lib$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version.$(get_library_suffix -t:$type)"
     else
-        project_library="$project_root/lib/$TOOLCHAIN_BRANCH/$config/$type/$runtime_type/lib$organization"_"$project.$version.$(get_library_suffix -t:$type)"
+        project_library="$project_root/lib/$TOOLCHAIN_BRANCH/$config/$type/lib$organization"_"$project.$version.$(get_library_suffix -t:$type)"
     fi
     echo "$project_library"
 }
@@ -701,7 +670,6 @@ function get_project_bin_dir () {
     local example=
     local config=Release
     local type=Static
-    local runtime_type=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -725,21 +693,15 @@ function get_project_bin_dir () {
             -t:*|--type:*)
                 type="${i#*:}"
                 ;;
-            -rt:*|--runtime-type:*)
-                runtime_type="${i#*:}"
-                ;;
         esac
     done
-    if [ "$runtime_type" == "" ]; then
-        runtime_type="$type"
-    fi
     local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
     local naming_convention="$(get_project_naming_convention -pr:$project_root)"
     local project_bin_dir=
     if [ "$naming_convention" == "Flat" ]; then
         project_bin_dir="$project_root/bin"
     else
-        project_bin_dir="$project_root/bin/$TOOLCHAIN_BRANCH/$config/$type/$runtime_type"
+        project_bin_dir="$project_root/bin/$TOOLCHAIN_BRANCH/$config/$type"
     fi
     echo "$project_bin_dir"
 }
@@ -752,7 +714,6 @@ function get_project_lib_dir () {
     local example=
     local config=Release
     local type=Static
-    local runtime_type=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -776,21 +737,15 @@ function get_project_lib_dir () {
             -t:*|--type:*)
                 type="${i#*:}"
                 ;;
-            -rt:*|--runtime-type:*)
-                runtime_type="${i#*:}"
-                ;;
         esac
     done
-    if [ "$runtime_type" == "" ]; then
-        runtime_type="$type"
-    fi
     local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
     local naming_convention="$(get_project_naming_convention -pr:$project_root)"
     local project_lib_dir=
     if [ "$naming_convention" == "Flat" ]; then
         project_lib_dir="$project_root/lib"
     else
-        project_lib_dir="$project_root/lib/$TOOLCHAIN_BRANCH/$config/$type/$runtime_type"
+        project_lib_dir="$project_root/lib/$TOOLCHAIN_BRANCH/$config/$type"
     fi
     echo "$project_lib_dir"
 }
@@ -803,7 +758,6 @@ function get_project_link_library () {
     local example=
     local config=Release
     local type=Static
-    local runtime_type=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -827,14 +781,8 @@ function get_project_link_library () {
             -t:*|--type:*)
                 type="${i#*:}"
                 ;;
-            -rt:*|--runtime-type:*)
-                runtime_type="${i#*:}"
-                ;;
         esac
     done
-    if [ "$runtime_type" == "" ]; then
-        runtime_type="$type"
-    fi
     local project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
     if [ "$example" != "" ]; then
         project="$project"_"$example"
@@ -845,7 +793,7 @@ function get_project_link_library () {
     local naming_convention="$(get_project_naming_convention -pr:$project_root)"
     local project_link_library=
     if [ "$naming_convention" == "Flat" ]; then
-        project_link_library="$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type-$runtime_type.$version"
+        project_link_library="$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version"
     else
         project_link_library="$organization"_"$project.$version"
     fi
@@ -1052,30 +1000,6 @@ function get_toolchain_build_type () {
     "$(get_toolchain_program -o:thekogans -p:make)" -a:get_build_type "$config_file"
 }
 
-function get_toolchain_build_runtime_type () {
-    local organization=
-    local project=
-    local version=
-    for i in "$@"; do
-        case $i in
-            -o:*|--organization:*)
-                organization="${i#*:}"
-                ;;
-            -p:*|--project:*)
-                project="${i#*:}"
-                ;;
-            -v:*|--version:*)
-                version="${i#*:}"
-                ;;
-        esac
-    done
-    if [ "$version" == "" ]; then
-        version="$(get_toolchain_latest_version -o:$organization -p:$project)"
-    fi
-    local config_file="$TOOLCHAIN_DIR/config/$organization"_"$project-$version.xml"
-    "$(get_toolchain_program -o:thekogans -p:make)" -a:get_build_runtime_type "$config_file"
-}
-
 function get_toolchain_program () {
     local organization=
     local project=
@@ -1105,7 +1029,6 @@ function get_toolchain_library () {
     local version=
     local config=
     local type=
-    local runtime_type=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -1123,23 +1046,17 @@ function get_toolchain_library () {
             -t:*|--type:*)
                 type="${i#*:}"
                 ;;
-            -rt:*|--runtime-type:*)
-                runtime_type="${i#*:}"
-                ;;
         esac
     done
     if [ "$version" == "" ]; then
         version="$(get_toolchain_latest_version -o:$organization -p:$project)"
     fi
-    if [ "$runtime_type" == "" ]; then
-        runtime_type="$type"
-    fi
     local naming_convention="$(get_toolchain_naming_convention -o:$organization -p:$project -v:$version)"
     local toolchain_library=
     if [ "$naming_convention" == "Flat" ]; then
-        toolchain_library="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/lib$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type-$runtime_type.$version.$(get_library_suffix -t:$type)"
+        toolchain_library="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/lib$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version.$(get_library_suffix -t:$type)"
     else
-        toolchain_library="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/$config/$type/$runtime_type/lib$organization"_"$project.$version.$(get_library_suffix -t:$type)"
+        toolchain_library="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/$config/$type/lib$organization"_"$project.$version.$(get_library_suffix -t:$type)"
     fi
     echo "$toolchain_library"
 }
@@ -1196,7 +1113,6 @@ function get_toolchain_lib_dir () {
     local version=
     local config=
     local type=
-    local runtime_type=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -1214,23 +1130,17 @@ function get_toolchain_lib_dir () {
             -t:*|--type:*)
                 type="${i#*:}"
                 ;;
-            -rt:*|--runtime-type:*)
-                runtime_type="${i#*:}"
-                ;;
         esac
     done
     if [ "$version" == "" ]; then
         version="$(get_toolchain_latest_version -o:$organization -p:$project)"
-    fi
-    if [ "$runtime_type" == "" ]; then
-        runtime_type="$type"
     fi
     local naming_convention="$(get_toolchain_naming_convention -o:$organization -p:$project -v:$version)"
     local toolchain_lib_dir=
     if [ "$naming_convention" == "Flat" ]; then
         toolchain_lib_dir="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version"
     else
-        toolchain_lib_dir="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/$config/$type/$runtime_type"
+        toolchain_lib_dir="$TOOLCHAIN_DIR/lib/$organization"_"$project-$version/$config/$type"
     fi
     echo "$toolchain_lib_dir"
 }
@@ -1241,7 +1151,6 @@ function get_toolchain_link_library () {
     local version=
     local config=
     local type=
-    local runtime_type=
     for i in "$@"; do
         case $i in
             -o:*|--organization:*)
@@ -1259,21 +1168,15 @@ function get_toolchain_link_library () {
             -t:*|--type:*)
                 type="${i#*:}"
                 ;;
-            -rt:*|--runtime-type:*)
-                runtime_type="${i#*:}"
-                ;;
         esac
     done
     if [ "$version" == "" ]; then
         version="$(get_toolchain_latest_version -o:$organization -p:$project)"
     fi
-    if [ "$runtime_type" == "" ]; then
-        runtime_type="$type"
-    fi
     local naming_convention="$(get_toolchain_naming_convention -o:$organization -p:$project -v:$version)"
     local toolchain_link_library=
     if [ "$naming_convention" == "Flat" ]; then
-        toolchain_link_library="$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type-$runtime_type.$version"
+        toolchain_link_library="$organization"_"$project-$TOOLCHAIN_TRIPLET-$config-$type.$version"
     else
         toolchain_link_library="$organization"_"$project.$version"
     fi
@@ -1439,7 +1342,6 @@ export -f \
     get_project_naming_convention \
     get_project_build_config \
     get_project_build_type \
-    get_project_build_runtime_type \
     get_project_program \
     get_project_library \
     get_project_plugin \
@@ -1455,7 +1357,6 @@ export -f \
     get_toolchain_naming_convention \
     get_toolchain_build_config \
     get_toolchain_build_type \
-    get_toolchain_build_runtime_type \
     get_toolchain_program \
     get_toolchain_library \
     get_toolchain_include_dir \

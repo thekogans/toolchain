@@ -23,7 +23,6 @@ function show_command_help () {
     common_options="\
 [[-c | --config]:[Debug | Release]] \
 [[-t | --type]:[Shared | Static]] \
-[[-rt | --runtime-type]:[Shared | Static]] \
 [[-hc | --hide-commands]:[yes | no]] \
 [[-pb | --parallel-build]:[yes | no]]"
     echo "usage: $0 \
@@ -58,7 +57,6 @@ example=
 project_root=
 config=
 type=
-runtime_type=
 hide_commands=yes
 parallel_build=yes
 
@@ -88,9 +86,6 @@ for i in "$@"; do
             ;;
         -t:*|--type:*)
             type="${i#*:}"
-            ;;
-        -rt:*|--runtime-type:*)
-            runtime_type="${i#*:}"
             ;;
         -hc:*|--hide-commands:*)
             hide_commands="${i#*:}"
@@ -128,11 +123,6 @@ if [ "$type" != "" ] && [ "$type" != "Static" ] && [ "$type" != "Shared" ]; then
     exit 1
 fi
 
-if [ "$runtime_type" != "" ] && [ "$runtime_type" != "Static" ] && [ "$runtime_type" != "Shared" ]; then
-    echo "Unsupported runtime_type [-rt | --runtime-type]: $runtime_type [Static | Shared]."
-    exit 1
-fi
-
 if [ "$hide_commands" != "yes" ] && [ "$hide_commands" != "no" ]; then
     echo "Unsupported hide commands [-hc | --hide-commands]: $hide_commands [yes | no]."
     exit 1
@@ -148,7 +138,6 @@ fi
     -a:install_library \
     -c:"$config" \
     -t:"$type" \
-    -r:"$runtime_type" \
     -w:"$hide_commands" \
     -x:"$parallel_build" \
     "$project_root"

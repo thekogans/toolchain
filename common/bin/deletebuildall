@@ -116,19 +116,17 @@ if [ "$dependencies" == "yes" ]; then
     dependencies_flag=-d
 fi
 
+# Execute command.
 for config in Debug Release; do
     for type in Static Shared; do
-        for runtime_type in Static Shared; do
-            "$thekogans_make" \
-                -a:delete_build_system \
-                -g:"$generator" \
-                -c:"$config" \
-                -t:"$type" \
-                -r:"$runtime_type" \
-                "$dependencies_flag" \
-                "$project_root"
-            check_errors $?
-        done
+        "$thekogans_make" \
+            -a:delete_build_system \
+            -g:"$generator" \
+            -c:"$config" \
+            -t:"$type" \
+            "$dependencies_flag" \
+            "$project_root"
+        check_errors $?
     done
 done
 

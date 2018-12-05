@@ -7,7 +7,6 @@
                 naming_convention = "$(naming_convention)"
                 build_config = "$(build_config)"
                 build_type = "$(build_type)"
-                build_runtime_type = "$(build_runtime_type)"
                 guid = "$(guid)"
                 schema_version = "$(schema_version)">
   <!-- NOTE: When creating $(TOOLCHAIN_DIR)/config/$(organization)_$(project)-$(version).xml
@@ -29,15 +28,15 @@
        libraries copied to:
 
        if $(naming_convention) == 'Flat'
-         $(TOOLCHAIN_DIR)/lib/$(organization)_$(project)-$(version)/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type)-$(runtime_type).$(version).$(link_library_suffix)
+         $(TOOLCHAIN_DIR)/lib/$(organization)_$(project)-$(version)/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(version).$(link_library_suffix)
 
          <link_libraries prefix = "lib/$(organization)_$(project)-$(version)">
-           <link_library>lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type)-$(runtime_type).$(version).$(link_library_suffix)</link_library>
+           <link_library>lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(version).$(link_library_suffix)</link_library>
          </link_libraries>
        else
-         $(TOOLCHAIN_DIR)/lib/$(organization)_$(project)-$(version)/$(config)/$(type)/$(runtime_type)/lib$(organization)_$(project).$(version).$(link_library_suffix)
+         $(TOOLCHAIN_DIR)/lib/$(organization)_$(project)-$(version)/$(config)/$(type)/lib$(organization)_$(project).$(version).$(link_library_suffix)
 
-         <link_libraries prefix = "lib/$(organization)_$(project)-$(version)/$(config)/$(type)/$(runtime_type)">
+         <link_libraries prefix = "lib/$(organization)_$(project)-$(version)/$(config)/$(type)">
            <link_library>lib$(organization)_$(project).$(version).$(link_library_suffix)</link_library>
          </link_libraries>
        endif
@@ -118,7 +117,6 @@
          branch - Optional project branch name (default to trunk).
          config - Optional project build configuration (Release | Debug).
          type - Optional project type (Static | Shared).
-         runtime_type - Optional runtime type (Static | Shared).
          version - Optional project version. If omitted use latest.
          example - Optional project example.
          link - Optional flag to indicate that this project will
@@ -147,7 +145,6 @@
              branch = "trunk | branches/branch | tags/tag"
              config = "Release | Debug"
              type = "Static | Shared"
-             runtime_type = "Static | Shared"
              version = ""
              example = ""
              link = "yes | no"/>
@@ -158,7 +155,6 @@
          name - Mandatory toolchain name.
          config - Optional toolchain build configuration (Release | Debug).
          type - Optional toolchain type (Static | Shared).
-         runtime_type - Optional toolchain runtime type (Static | Shared).
          version - Optional toolchain version (empty == latest).
          link - Optional flag to indicate that this project will
                 link against the library (default to yes).
@@ -182,7 +178,6 @@
                name = ""
                config = "Release | Debug"
                type = "Static | Shared"
-               runtime_type = "Static | Shared"
                version = ""
                link = "yes | no"/>
     <!-- Freeform system dependency. The only expansion will be is of
@@ -217,9 +212,9 @@
        it's path should look like this:
 
        if $(naming_convention) == 'Flat'
-         $(project_root)/lib/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type)-$(runtime_type).$(version).$(link_library_suffix)
+         $(project_root)/lib/lib$(organization)_$(project)-$(TOOLCHAIN_TRIPLET)-$(config)-$(type).$(version).$(link_library_suffix)
        else
-         $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/$(runtime_type)/lib$(organization)_$(project).$(version).$(link_library_suffix)
+         $(project_root)/lib/$(TOOLCHAIN_BRANCH)/$(config)/$(type)/lib$(organization)_$(project).$(version).$(link_library_suffix)
        endif
 
        If your project follows this simple rule, you can (and should)
