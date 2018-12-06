@@ -65,7 +65,8 @@ windows_include_directories = $(windowspath $(include_directories))
 
 # masm
 masm = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/$(TOOLCHAIN_MASM)
-masm_flags += -nologo -c -Cx -W2
+#masm_flags += -nologo -c -Cx -W3
+masm_flags += -nologo -c -Cx
 ifeq "$(config)" "Debug"
   masm_flags += -Zi -Zd
 endif
