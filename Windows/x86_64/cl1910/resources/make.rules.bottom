@@ -114,15 +114,21 @@ ifeq "$(config)" "Debug"
     ifneq (,$(filter $(project_type),library plugin))
       cl_flags += -LDd
     endif
+    cl_flags += -MDd
+  else
+    cl_flags += -MTd
   endif
-  cl_flags += -MDd -Z7 -RTC1 -Od
+  cl_flags += -Z7 -RTC1 -Od
 else
   ifeq "$(type)" "Shared"
     ifneq (,$(filter $(project_type),library plugin))
       cl_flags += -LD
     endif
+    cl_flags +=  -MD
+  else
+    cl_flags +=  -MT
   endif
-  cl_flags += -MD -GL -Gy -O2 -Oi
+  cl_flags += -GL -Gy -O2 -Oi
 endif
 cl_dependencies_flags =\
   -E -showIncludes 1>$(addsuffix .i,$(basename $@))\
