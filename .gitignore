@@ -25,6 +25,12 @@ Windows/x86_64/cl1910/config
 Windows/x86_64/cl1910/include
 Windows/x86_64/cl1910/lib
 Windows/x86_64/cl1910/ssl
+Linux/x86_64/gcc/bin
+Linux/x86_64/gcc/config
+Linux/x86_64/gcc/include
+Linux/x86_64/gcc/lib
+Linux/x86_64/gcc/share
+Linux/x86_64/gcc/ssl
 OSX/x86_64/clang/bin
 OSX/x86_64/clang/config
 OSX/x86_64/clang/include
