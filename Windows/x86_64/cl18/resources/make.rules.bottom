@@ -215,7 +215,7 @@ linker_command_file = $(addsuffix .linker,$(basename $@))
 
 # librarian
 librarian = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/lib.exe
-librarian_flags += -NOLOGO
+librarian_flags += -NOLOGO -MACHINE:X64
 ifeq "$(config)" "Release"
   librarian_flags += -LTCG
 endif
