@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="$(config) $(type)|Win32">
+    <ProjectConfiguration Include="$(config) $(type)|$(platform)">
       <Configuration>$(config) $(type)</Configuration>
-      <Platform>Win32</Platform>
+      <Platform>$(platform)</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -45,6 +45,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
+      <TargetMachine>$(target_machine)</TargetMachine>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>$(link_libraries)%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>$(link_subsystem)</SubSystem>

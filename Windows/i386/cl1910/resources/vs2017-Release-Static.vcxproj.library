@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="$(config) $(type)|Win32">
+    <ProjectConfiguration Include="$(config) $(type)|$(platform)">
       <Configuration>$(config) $(type)</Configuration>
-      <Platform>Win32</Platform>
+      <Platform>$(paltform)</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -45,6 +45,9 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitDefaultLibName>true</OmitDefaultLibName>
     </ClCompile>
+    <Lib>
+      <TargetMachine>$(target_machine)</TargetMachine>
+    </Lib>
     <PreBuildEvent>
       <Message>Update build system.</Message>
       <Command>"$(TOOLCHAIN_SHELL)" "$(TOOLCHAIN_ROOT)/common/bin/makebuild" -g:$(generator) -pr:"$(project_root)" -c:$(config) -t:$(type)</Command>
