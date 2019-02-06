@@ -110,11 +110,11 @@ environment_options="\
 
 # Check if the TOOLCHAIN_TRIPLET was specified.
 if [ "$TOOLCHAIN_OS" == "" ] || [ "$TOOLCHAIN_ARCH" == "" ] || [ "$TOOLCHAIN_COMPILER" == "" ]; then
-    echo "usage: $0 $environment_options"
+    echo "Must specify the toolchain triplet (TOOLCHAIN_OS, TOOLCHAIN_ARCH, TOOLCHAIN_COMPILER)."
     exit 1
 fi
 
-# Validate naming_convention.
+# Validate TOOLCHAIN_NAMING_CONVENTION.
 if [ "$TOOLCHAIN_NAMING_CONVENTION" != "Flat" ] && [ "$TOOLCHAIN_NAMING_CONVENTION" != "Hierarchical" ]; then
     echo "Unknown naming convention [-nc | --naming-convention]: $TOOLCHAIN_NAMING_CONVENTION [Flat | Hierarchical]"
     exit 1
@@ -151,6 +151,8 @@ if [ ! -e "$TOOLCHAIN_SHELL" ]; then
 fi
 
 # ...and export it.
+# NOTE: If you ever add new environment variables,
+# don't forget to update showenvironment.
 export DEVELOPMENT_ROOT \
     SOURCES_ROOT \
     TOOLCHAIN_OS \
