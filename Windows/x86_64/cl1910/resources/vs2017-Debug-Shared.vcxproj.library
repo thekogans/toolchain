@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="$(tools_version)" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="$(config) $(type)|$(platform)">
       <Configuration>$(config) $(type)</Configuration>
@@ -12,10 +12,11 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>$(configuration_type)</ConfigurationType>
+    <UseDebugLibraries>$(use_debug_libraries)</UseDebugLibraries>
+    <WholeProgramOptimization>$(whole_program_optimization)</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>$(platform_toolset)</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -25,9 +26,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <TargetName>lib$(target_name)</TargetName>
-    <TargetExt>.dll</TargetExt>
-    <OutDir>$(project_root)\lib\$(naming_convention_prefix)</OutDir>
+    <TargetName>$(target_prefix)$(target_name)</TargetName>
+    <TargetExt>$(target_ext)</TargetExt>
+    <OutDir>$(project_root)\$(out_dir)\$(naming_convention_prefix)</OutDir>
     <IntDir>obj\</IntDir>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
@@ -35,20 +36,22 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>$(optimization)</Optimization>
+      <FunctionLevelLinking>$(function_level_linking)</FunctionLevelLinking>
+      <IntrinsicFunctions>$(intrinsic_functions)</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(include_directories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN64;_DEBUG;BOOST_ALL_NO_LIB;$(preprocessor_definitions);$(features);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>$(preprocessor_definitions);$(features);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>$(runtime_library)</RuntimeLibrary>
-      <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>$(debug_information_format)</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <TargetMachine>$(target_machine)</TargetMachine>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>$(generate_debug_information)</GenerateDebugInformation>
       <AdditionalDependencies>$(link_libraries)%(AdditionalDependencies)</AdditionalDependencies>
 $(import_library)
-$(def_file)
+$(module_definition_file)
+$(sub_system)
     </Link>
     <PreBuildEvent>
       <Message>Update build system.</Message>
