@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
-# This script is used internally by "$TOOLCHAIN_ROOT"/common/resources/bootstrap
+# This script is used internally by "$DEVELOPMENT_ROOT"/thekogans/build_system/bootstrap
 # to write the default environment to "$TOOLCHAIN_ROOT"/defaultenvironment.
 
 cat > "$TOOLCHAIN_ROOT"/defaultenvironment << EOF

@@ -25,7 +25,6 @@ function show_command_help () {
 $environment_options \
 [[-o | --organization]:organization] \
 [-p | --project]:project \
-[[-t | --template]:template] \
 [[-s | --svc]:[svn | git]]"
 }
 
@@ -41,7 +40,6 @@ fi
 
 organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 project=
-template=
 svc=
 
 # Parse command line options.
@@ -52,9 +50,6 @@ for i in "$@"; do
             ;;
         -p:*|--project:*)
             project="${i#*:}"
-            ;;
-        -t:*|--template:*)
-            template="${i#*:}"
             ;;
         -s:*|--svc:*)
             svc="${i#*:}"
@@ -99,6 +94,87 @@ check_errors $?
 ORGANIZATION=`echo ${organization} | tr '[:lower:]' '[:upper:]'`
 PROJECT=`echo ${project} | tr '[:lower:]' '[:upper:]'`
 
+cat > include/"${organization}"/"${project//_//}"/Options.h << EOF
+#if !defined (__${organization}_${project}_Options_h)
+#define __${organization}_${project}_Options_h
+
+#include <string>
+#include <pugixml/pugixml.hpp>
+#include <thekogans/util/Types.h>
+#include <thekogans/util/Singleton.h>
+#include <thekogans/util/CommandLineOptions.h>
+#include <thekogans/util/Directory.h>
+#include <thekogans/util/LoggerMgr.h>
+#include <thekogans/util/FileLogger.h>
+
+$(begin_namespace -o:$organization -p:$project)
+
+$(indent_namespace -o:$organization -p:$project)struct Options :
+$(indent_namespace -o:$organization -p:$project)        public thekogans::util::Singleton<Options>,
+$(indent_namespace -o:$organization -p:$project)        public thekogans::util::CommandLineOptions,
+$(indent_namespace -o:$organization -p:$project)        public thekogans::util::Directory::Watcher::EventSink {
+$(indent_namespace -o:$organization -p:$project)    bool help;
+$(indent_namespace -o:$organization -p:$project)    bool version;
+$(indent_namespace -o:$organization -p:$project)    struct LoggerMgr {
+$(indent_namespace -o:$organization -p:$project)        thekogans::util::ui32 level;
+$(indent_namespace -o:$organization -p:$project)        thekogans::util::ui32 decorations;
+$(indent_namespace -o:$organization -p:$project)        bool consoleLogger;
+$(indent_namespace -o:$organization -p:$project)        struct FileLogger {
+$(indent_namespace -o:$organization -p:$project)            std::string path;
+$(indent_namespace -o:$organization -p:$project)            bool archive;
+$(indent_namespace -o:$organization -p:$project)            thekogans::util::ui32 maxLogFileSize;
+
+$(indent_namespace -o:$organization -p:$project)            FileLogger () :
+$(indent_namespace -o:$organization -p:$project)                archive (true),
+$(indent_namespace -o:$organization -p:$project)                maxLogFileSize (thekogans::util::FileLogger::DEFAULT_MAX_LOG_FILE_SIZE) {}
+
+$(indent_namespace -o:$organization -p:$project)            void Reset () {
+$(indent_namespace -o:$organization -p:$project)                path.clear ();
+$(indent_namespace -o:$organization -p:$project)                archive = true;
+$(indent_namespace -o:$organization -p:$project)                maxLogFileSize = thekogans::util::FileLogger::DEFAULT_MAX_LOG_FILE_SIZE;
+$(indent_namespace -o:$organization -p:$project)            }
+$(indent_namespace -o:$organization -p:$project)        } fileLogger;
+
+$(indent_namespace -o:$organization -p:$project)        LoggerMgr () :
+$(indent_namespace -o:$organization -p:$project)            level (thekogans::util::LoggerMgr::Info),
+$(indent_namespace -o:$organization -p:$project)            decorations (thekogans::util::LoggerMgr::All),
+$(indent_namespace -o:$organization -p:$project)            consoleLogger (false) {}
+
+$(indent_namespace -o:$organization -p:$project)        void Reset () {
+$(indent_namespace -o:$organization -p:$project)            level = thekogans::util::LoggerMgr::Info;
+$(indent_namespace -o:$organization -p:$project)            decorations = thekogans::util::LoggerMgr::All;
+$(indent_namespace -o:$organization -p:$project)            consoleLogger = false;
+$(indent_namespace -o:$organization -p:$project)            fileLogger.Reset ();
+$(indent_namespace -o:$organization -p:$project)        }
+$(indent_namespace -o:$organization -p:$project)    } loggerMgr;
+$(indent_namespace -o:$organization -p:$project)    std::string lockFilePath;
+$(indent_namespace -o:$organization -p:$project)    std::string startDirectory;
+$(indent_namespace -o:$organization -p:$project)    thekogans::util::Directory::Watcher::WatchId watchId;
+
+$(indent_namespace -o:$organization -p:$project)    Options ();
+
+$(indent_namespace -o:$organization -p:$project)    // thekogans::util::CommandLineOptions
+$(indent_namespace -o:$organization -p:$project)    virtual void DoOption (
+$(indent_namespace -o:$organization -p:$project)        char option,
+$(indent_namespace -o:$organization -p:$project)        const std::string &value);
+
+$(indent_namespace -o:$organization -p:$project)    // thekogans::util::Directory::Watcher::EventSink
+$(indent_namespace -o:$organization -p:$project)    virtual void HandleModified (
+$(indent_namespace -o:$organization -p:$project)        util::Directory::Watcher::WatchId watchId_,
+$(indent_namespace -o:$organization -p:$project)        const std::string &directory,
+$(indent_namespace -o:$organization -p:$project)        const util::Directory::Entry &entry);
+
+$(indent_namespace -o:$organization -p:$project)private:
+$(indent_namespace -o:$organization -p:$project)    void ReadConfig ();
+$(indent_namespace -o:$organization -p:$project)    void ParseLoggerMgr (const pugi::xml_node &node);
+$(indent_namespace -o:$organization -p:$project)};
+
+$(end_namespace -o:$organization -p:$project)
+
+#endif // !defined (__${organization}_${project}_Options_h)
+EOF
+check_errors $?
+
 cat > include/"${organization}"/"${project//_//}"/Version.h << EOF
 #if !defined (__${organization}_${project}_Version_h)
 #define __${organization}_${project}_Version_h
@@ -107,10 +183,10 @@ cat > include/"${organization}"/"${project//_//}"/Version.h << EOF
 
 $(begin_namespace -o:$organization -p:$project)
 
-$(indent_namespace -o:$organization -p:$project -e:$example)/// \brief
-$(indent_namespace -o:$organization -p:$project -e:$example)/// Return the compiled ${organization}_${project} version.
-$(indent_namespace -o:$organization -p:$project -e:$example)/// \return Compiled ${organization}_${project} version.
-$(indent_namespace -o:$organization -p:$project -e:$example)const thekogans::util::Version &GetVersion ();
+$(indent_namespace -o:$organization -p:$project)/// \\brief
+$(indent_namespace -o:$organization -p:$project)/// Return the compiled ${organization}_${project} version.
+$(indent_namespace -o:$organization -p:$project)/// \\return Compiled ${organization}_${project} version.
+$(indent_namespace -o:$organization -p:$project)const thekogans::util::Version &GetVersion ();
 
 $(end_namespace -o:$organization -p:$project)
 
@@ -119,11 +195,283 @@ EOF
 check_errors $?
 
 cat > src/main.cpp << EOF
+#include <string>
+#include <list>
+#include <thekogans/util/Types.h>
+#include <thekogans/util/LoggerMgr.h>
+#include <thekogans/util/ConsoleLogger.h>
+#include <thekogans/util/FileLogger.h>
+#include "${organization}/${project//_//}/Options.h"
+#include "${organization}/${project//_//}/Version.h"
+
+using namespace thekogans;
+using namespace ${organization};
+
+namespace {
+    std::string GetLogLevelList (const std::string &separator) {
+        std::string logLevelList;
+        {
+            std::list<util::ui32> levels;
+            util::LoggerMgr::GetLevels (levels);
+            if (!levels.empty ()) {
+                std::list<util::ui32>::const_iterator it = levels.begin ();
+                logLevelList = util::LoggerMgr::levelTostring (*it++);
+                for (std::list<util::ui32>::const_iterator end = levels.end (); it != end; ++it) {
+                    logLevelList += separator + util::LoggerMgr::levelTostring (*it);
+                }
+            }
+            else {
+                logLevelList = "No LoggerMgr levels defined.";
+            }
+        }
+        return logLevelList;
+    }
+
+    std::string GetDecorationsList (const std::string &separator) {
+        std::string decorationsList;
+        {
+            std::list<util::ui32> decorations;
+            util::LoggerMgr::GetDecorations (decorations);
+            if (!decorations.empty ()) {
+                std::list<util::ui32>::const_iterator it = decorations.begin ();
+                decorationsList = util::LoggerMgr::decorationsTostring (*it++);
+                for (std::list<util::ui32>::const_iterator end = decorations.end (); it != end; ++it) {
+                    decorationsList += separator + util::LoggerMgr::decorationsTostring (*it);
+                }
+            }
+            else {
+                decorationsList = "No LoggerMgr decorations defined.";
+            }
+        }
+        return decorationsList;
+    }
+}
+
 int main (
-        int /*argc*/,
-        const char * /*argv*/ []) {
+        int argc,
+        const char *argv[]) {
+    ${project//_/::}::Options::Instance ().Parse (argc, argv, "hvldcfrk");
+    THEKOGANS_UTIL_LOG_INIT (
+        ${project//_/::}::Options::Instance ().loggerMgr.level,
+        ${project//_/::}::Options::Instance ().loggerMgr.decorations);
+    if (${project//_/::}::Options::Instance ().help ||
+            ${project//_/::}::Options::Instance ().version ||
+            ${project//_/::}::Options::Instance ().loggerMgr.consoleLogger) {
+        THEKOGANS_UTIL_LOG_ADD_LOGGER (util::Logger::Ptr (new util::ConsoleLogger));
+    }
+    if (!${project//_/::}::Options::Instance ().loggerMgr.fileLogger.path.empty ()) {
+        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+            util::Logger::Ptr (
+                new util::FileLogger (
+                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.path,
+                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.archive,
+                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.maxLogFileSize)));
+    }
+    THEKOGANS_UTIL_IMPLEMENT_LOG_FLUSHER;
+    if (${project//_/::}::Options::Instance ().help) {
+        THEKOGANS_UTIL_LOG_INFO (
+            "%s [-h] [-v] [-l:'%s'] [-d:'%s'] [-c] [-f:'path'] [-r[:max size]] [-k:'path']\\n\\n"
+            "h - Display this help message.\\n"
+            "v - Display version information.\\n"
+            "l - Set logging level.\\n"
+            "d - Set log entry decorations. (This flag can be repeated. All specified decorations will be combined).\\n"
+            "c - Log to console.\\n"
+            "f - Log to file (path - Path of log file).\\n"
+            "r - Archive file log (max size - Max log file size before archiving).\\n"
+            "k - Use lock file to prevent multiple instances (path - Path to lock file).\\n",
+            argv[0],
+            GetLogLevelList (" | ").c_str (),
+            GetDecorationsList (" | ").c_str ());
+    }
+    else if (${project//_/::}::Options::Instance ().version) {
+        THEKOGANS_UTIL_LOG_INFO (
+            "libthekogans_util - %s\n"
+            "%s - %s\n",
+            util::GetVersion ().ToString ().c_str (),
+            argv[0], ${project//_/::}::GetVersion ().ToString ().c_str ());
+    }
+    else {
+        THEKOGANS_UTIL_TRY {
+            // Application code goes here.
+        }
+        THEKOGANS_UTIL_CATCH_AND_LOG
+    }
     return 0;
 }
+EOF
+check_errors $?
+
+cat > src/Options.cpp << EOF
+#include <thekogans/util/Path.h>
+#include <thekogans/util/HRTimer.h>
+#include <thekogans/util/ConsoleLogger.h>
+#include <thekogans/util/FileLogger.h>
+#include <thekogans/util/StringUtils.h>
+#include <thekogans/util/XMLUtils.h>
+#include <thekogans/util/File.h>
+#include "${organization}/${project//_//}/Options.h"
+
+using namespace thekogans;
+
+$(begin_namespace -o:$organization -p:$project)
+
+$(indent_namespace -o:$organization -p:$project)namespace {
+$(indent_namespace -o:$organization -p:$project)    const char *OPTIONS_XML = "Options.xml";
+$(indent_namespace -o:$organization -p:$project)}
+
+$(indent_namespace -o:$organization -p:$project)#if defined (_MSC_VER)
+$(indent_namespace -o:$organization -p:$project)    #pragma warning (push)
+$(indent_namespace -o:$organization -p:$project)    #pragma warning (disable : 4355)
+$(indent_namespace -o:$organization -p:$project)#endif // defined (_MSC_VER)
+
+$(indent_namespace -o:$organization -p:$project)Options::Options () :
+$(indent_namespace -o:$organization -p:$project)        help (false),
+$(indent_namespace -o:$organization -p:$project)        version (false),
+$(indent_namespace -o:$organization -p:$project)        startDirectory (util::Path::GetCurrDirectory ()),
+$(indent_namespace -o:$organization -p:$project)        watchId (
+$(indent_namespace -o:$organization -p:$project)            util::Directory::Watcher::Instance ().AddWatch (
+$(indent_namespace -o:$organization -p:$project)                startDirectory, *this)) {
+$(indent_namespace -o:$organization -p:$project)    if (util::Path (OPTIONS_XML).Exists ()) {
+$(indent_namespace -o:$organization -p:$project)        ReadConfig ();
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)}
+
+$(indent_namespace -o:$organization -p:$project)#if defined (_MSC_VER)
+$(indent_namespace -o:$organization -p:$project)    #pragma warning (pop)
+$(indent_namespace -o:$organization -p:$project)#endif // defined (_MSC_VER)
+
+$(indent_namespace -o:$organization -p:$project)void Options::DoOption (
+$(indent_namespace -o:$organization -p:$project)        char option,
+$(indent_namespace -o:$organization -p:$project)        const std::string &value) {
+$(indent_namespace -o:$organization -p:$project)    switch (option) {
+$(indent_namespace -o:$organization -p:$project)        case 'h':
+$(indent_namespace -o:$organization -p:$project)            help = true;
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'v':
+$(indent_namespace -o:$organization -p:$project)            version = true;
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'l':
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.level =
+$(indent_namespace -o:$organization -p:$project)                util::LoggerMgr::stringTolevel (value.c_str ());
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'd':
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.decorations |=
+$(indent_namespace -o:$organization -p:$project)                util::LoggerMgr::stringTodecorations (value.c_str ());
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'c':
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.consoleLogger = true;
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'f':
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.fileLogger.path = value;
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'r':
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.fileLogger.archive = true;
+$(indent_namespace -o:$organization -p:$project)            if (!value.empty ()) {
+$(indent_namespace -o:$organization -p:$project)                loggerMgr.fileLogger.maxLogFileSize =
+$(indent_namespace -o:$organization -p:$project)                    util::stringToui32 (value.c_str ());
+$(indent_namespace -o:$organization -p:$project)            }
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'k':
+$(indent_namespace -o:$organization -p:$project)            lockFilePath = value;
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        // Application options go here.
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)}
+
+$(indent_namespace -o:$organization -p:$project)void Options::HandleModified (
+$(indent_namespace -o:$organization -p:$project)        util::Directory::Watcher::WatchId watchId_,
+$(indent_namespace -o:$organization -p:$project)        const std::string &directory,
+$(indent_namespace -o:$organization -p:$project)        const util::Directory::Entry &entry) {
+$(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_LOG_DEBUG (
+$(indent_namespace -o:$organization -p:$project)        "watchId = %x (%x)\n"
+$(indent_namespace -o:$organization -p:$project)        "directory = %s (%s)\n"
+$(indent_namespace -o:$organization -p:$project)        "entry.name = %s (%s)\n",
+$(indent_namespace -o:$organization -p:$project)        watchId_, watchId,
+$(indent_namespace -o:$organization -p:$project)        directory.c_str (), startDirectory.c_str (),
+$(indent_namespace -o:$organization -p:$project)        entry.name.c_str (), OPTIONS_XML);
+$(indent_namespace -o:$organization -p:$project)    if (watchId_ == watchId && directory == startDirectory && entry.name == OPTIONS_XML) {
+$(indent_namespace -o:$organization -p:$project)        ReadConfig ();
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)}
+
+$(indent_namespace -o:$organization -p:$project)void Options::ReadConfig () {
+$(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_TRY {
+$(indent_namespace -o:$organization -p:$project)        pugi::xml_document doc;
+$(indent_namespace -o:$organization -p:$project)        pugi::xml_parse_result result = doc.load_file (
+$(indent_namespace -o:$organization -p:$project)            util::MakePath (startDirectory, OPTIONS_XML).c_str ());
+$(indent_namespace -o:$organization -p:$project)        if (!result) {
+$(indent_namespace -o:$organization -p:$project)            // FIXME: throw
+$(indent_namespace -o:$organization -p:$project)            assert (0);
+$(indent_namespace -o:$organization -p:$project)        }
+$(indent_namespace -o:$organization -p:$project)        pugi::xml_node node = doc.document_element ();
+$(indent_namespace -o:$organization -p:$project)        if (!node.empty () && std::string (node.name ()) == "Options") {
+$(indent_namespace -o:$organization -p:$project)            for (pugi::xml_node child = node.first_child ();
+$(indent_namespace -o:$organization -p:$project)                    !child.empty (); child = child.next_sibling ()) {
+$(indent_namespace -o:$organization -p:$project)                if (child.type () == pugi::node_element) {
+$(indent_namespace -o:$organization -p:$project)                    std::string childName = child.name ();
+$(indent_namespace -o:$organization -p:$project)                    if (childName == "LoggerMgr") {
+$(indent_namespace -o:$organization -p:$project)                        ParseLoggerMgr (child);
+$(indent_namespace -o:$organization -p:$project)                    }
+$(indent_namespace -o:$organization -p:$project)                    else if (childName == "LockFile") {
+$(indent_namespace -o:$organization -p:$project)                        lockFilePath =
+$(indent_namespace -o:$organization -p:$project)                            util::Decodestring (
+$(indent_namespace -o:$organization -p:$project)                                child.attribute ("Path").value ());
+$(indent_namespace -o:$organization -p:$project)                    }
+$(indent_namespace -o:$organization -p:$project)                    // Application options go here.
+$(indent_namespace -o:$organization -p:$project)                }
+$(indent_namespace -o:$organization -p:$project)            }
+$(indent_namespace -o:$organization -p:$project)        }
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_CATCH_AND_LOG
+$(indent_namespace -o:$organization -p:$project)}
+
+$(indent_namespace -o:$organization -p:$project)void Options::ParseLoggerMgr (const pugi::xml_node &node) {
+$(indent_namespace -o:$organization -p:$project)    loggerMgr.Reset ();
+$(indent_namespace -o:$organization -p:$project)    loggerMgr.level =
+$(indent_namespace -o:$organization -p:$project)        util::LoggerMgr::stringTolevel (node.attribute ("Level").value ());
+$(indent_namespace -o:$organization -p:$project)    loggerMgr.decorations =
+$(indent_namespace -o:$organization -p:$project)        util::LoggerMgr::stringTodecorations (
+$(indent_namespace -o:$organization -p:$project)            node.attribute ("Decorations").value ());
+$(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_LOG_RESET (
+$(indent_namespace -o:$organization -p:$project)        loggerMgr.level,
+$(indent_namespace -o:$organization -p:$project)        loggerMgr.decorations);
+$(indent_namespace -o:$organization -p:$project)    for (pugi::xml_node child = node.first_child ();
+$(indent_namespace -o:$organization -p:$project)            !child.empty (); child = child.next_sibling ()) {
+$(indent_namespace -o:$organization -p:$project)        if (child.type () == pugi::node_element) {
+$(indent_namespace -o:$organization -p:$project)            std::string childName = child.name ();
+$(indent_namespace -o:$organization -p:$project)            if (childName == "ConsoleLogger") {
+$(indent_namespace -o:$organization -p:$project)                loggerMgr.consoleLogger = true;
+$(indent_namespace -o:$organization -p:$project)            }
+$(indent_namespace -o:$organization -p:$project)            else if (childName == "FileLogger") {
+$(indent_namespace -o:$organization -p:$project)                loggerMgr.fileLogger.path =
+$(indent_namespace -o:$organization -p:$project)                    util::Decodestring (child.attribute ("Path").value ());
+$(indent_namespace -o:$organization -p:$project)                std::string archive = std::string (child.attribute ("Archive").value ());
+$(indent_namespace -o:$organization -p:$project)                if (!archive.empty ()) {
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.archive = archive == util::XML_TRUE;
+$(indent_namespace -o:$organization -p:$project)                }
+$(indent_namespace -o:$organization -p:$project)                std::string maxLogFileSize =
+$(indent_namespace -o:$organization -p:$project)                    std::string (child.attribute ("MaxLogFileSize").value ());
+$(indent_namespace -o:$organization -p:$project)                if (!maxLogFileSize.empty ()) {
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.maxLogFileSize =
+$(indent_namespace -o:$organization -p:$project)                        util::stringToui32 (maxLogFileSize.c_str ());
+$(indent_namespace -o:$organization -p:$project)                }
+$(indent_namespace -o:$organization -p:$project)            }
+$(indent_namespace -o:$organization -p:$project)        }
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)    if (loggerMgr.consoleLogger) {
+$(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+$(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (new util::ConsoleLogger));
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)    if (!loggerMgr.fileLogger.path.empty ()) {
+$(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+$(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (
+$(indent_namespace -o:$organization -p:$project)                new util::FileLogger (
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.path,
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.archive)));
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)}
+
+$(end_namespace -o:$organization -p:$project)
 EOF
 check_errors $?
 
@@ -134,13 +482,13 @@ using namespace thekogans;
 
 $(begin_namespace -o:$organization -p:$project)
 
-$(indent_namespace -o:$organization -p:$project -e:$example)const util::Version &GetVersion () {
-$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
-$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_MAJOR_VERSION,
-$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_MINOR_VERSION,
-$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_PATCH_VERSION);
-$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
-$(indent_namespace -o:$organization -p:$project -e:$example)}
+$(indent_namespace -o:$organization -p:$project)const util::Version &GetVersion () {
+$(indent_namespace -o:$organization -p:$project)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project)        ${ORGANIZATION}_${PROJECT}_MAJOR_VERSION,
+$(indent_namespace -o:$organization -p:$project)        ${ORGANIZATION}_${PROJECT}_MINOR_VERSION,
+$(indent_namespace -o:$organization -p:$project)        ${ORGANIZATION}_${PROJECT}_PATCH_VERSION);
+$(indent_namespace -o:$organization -p:$project)    return version;
+$(indent_namespace -o:$organization -p:$project)}
 
 $(end_namespace -o:$organization -p:$project)
 EOF
@@ -160,10 +508,12 @@ cat > thekogans_make.xml << EOF
                 name = "util"/>
   </dependencies>
   <cpp_headers prefix = "include">
+    <cpp_header>\$(organization)/\$(project_directory)/Options.h</cpp_header>
     <cpp_header>\$(organization)/\$(project_directory)/Version.h</cpp_header>
   </cpp_headers>
   <cpp_sources prefix = "src">
     <cpp_source>main.cpp</cpp_source>
+    <cpp_source>Options.cpp</cpp_source>
     <cpp_source>Version.cpp</cpp_source>
   </cpp_sources>
   <if condition = "\$(TOOLCHAIN_OS) == 'Windows'">
@@ -172,10 +522,5 @@ cat > thekogans_make.xml << EOF
 </thekogans_make>
 EOF
 check_errors $?
-
-if [ "$template" != "" ]; then
-    cp -v "$TOOLCHAIN_ROOT"/common/resources/main."$template" src/main.cpp
-    check_errors $?
-fi
 
 exit 0
