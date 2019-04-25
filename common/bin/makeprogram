@@ -274,7 +274,7 @@ int main (
             "h - Display this help message.\\n"
             "v - Display version information.\\n"
             "l - Set logging level.\\n"
-            "d - Set log entry decorations. (This flag can be repeated. All specified decorations will be combined).\\n"
+            "d - Set log entry decorations.  (If using more than one, wrap in \\\" and separate by |).\\n"
             "c - Log to console.\\n"
             "f - Log to file (path - Path of log file).\\n"
             "r - Archive file log (max size - Max log file size before archiving).\\n"
@@ -355,7 +355,7 @@ $(indent_namespace -o:$organization -p:$project)            loggerMgr.level =
 $(indent_namespace -o:$organization -p:$project)                util::LoggerMgr::stringTolevel (value.c_str ());
 $(indent_namespace -o:$organization -p:$project)            break;
 $(indent_namespace -o:$organization -p:$project)        case 'd':
-$(indent_namespace -o:$organization -p:$project)            loggerMgr.decorations |=
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.decorations =
 $(indent_namespace -o:$organization -p:$project)                util::LoggerMgr::stringTodecorations (value.c_str ());
 $(indent_namespace -o:$organization -p:$project)            break;
 $(indent_namespace -o:$organization -p:$project)        case 'c':
