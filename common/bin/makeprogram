@@ -201,6 +201,9 @@ cat > src/main.cpp << EOF
 #include <thekogans/util/LoggerMgr.h>
 #include <thekogans/util/ConsoleLogger.h>
 #include <thekogans/util/FileLogger.h>
+#include <thekogans/util/ChildProcess.h>
+#include <thekogans/util/SystemInfo.h>
+#include <thekogans/util/MainRunLoop.h>
 #include "${organization}/${project//_//}/Options.h"
 #include "${organization}/${project//_//}/Version.h"
 
@@ -208,7 +211,7 @@ using namespace thekogans;
 using namespace ${organization};
 
 namespace {
-    std::string GetLogLevelList (const std::string &separator) {
+    std::string GetLevelsList (const std::string &separator) {
         std::string logLevelList;
         {
             std::list<util::ui32> levels;
@@ -274,25 +277,45 @@ int main (
             "h - Display this help message.\\n"
             "v - Display version information.\\n"
             "l - Set logging level.\\n"
-            "d - Set log entry decorations.  (If using more than one, wrap in \\\" and separate by |).\\n"
+            "d - Set log entry decorations. (If using more than one, wrap in \\" and separate by |).\\n"
             "c - Log to console.\\n"
             "f - Log to file (path - Path of log file).\\n"
             "r - Archive file log (max size - Max log file size before archiving).\\n"
             "k - Use lock file to prevent multiple instances (path - Path to lock file).\\n",
-            argv[0],
-            GetLogLevelList (" | ").c_str (),
+            util::SystemInfo::Instance ().GetProcessPath ().c_str (),
+            GetLevelsList (" | ").c_str (),
             GetDecorationsList (" | ").c_str ());
     }
     else if (${project//_/::}::Options::Instance ().version) {
         THEKOGANS_UTIL_LOG_INFO (
-            "libthekogans_util - %s\n"
+            "%s - %s\n"
             "%s - %s\n",
+            THEKOGANS_UTIL,
             util::GetVersion ().ToString ().c_str (),
-            argv[0], ${project//_/::}::GetVersion ().ToString ().c_str ());
+            util::SystemInfo::Instance ().GetProcessPath ().c_str (),
+            ${project//_/::}::GetVersion ().ToString ().c_str ());
     }
     else {
         THEKOGANS_UTIL_TRY {
-            // Application code goes here.
+            struct App {
+                App () {
+                    THEKOGANS_UTIL_LOG_INFO ("%s starting.\n",
+                        util::SystemInfo::Instance ().GetProcessPath ().c_str ());
+                    util::LockFile lockFile (${project//_/::}::Options::Instance ().lockFilePath);
+                    util::MainRunLoopCreateInstance::Parameterize (
+                        "MainRunLoop",
+                        util::RunLoop::TYPE_FIFO,
+                        util::UI32_MAX,
+                        true);
+                    // Application code goes here.
+                    util::MainRunLoop::Instance ().Start ();
+                }
+                ~App () {
+                    // Application shutdown code goes here.
+                    THEKOGANS_UTIL_LOG_INFO ("%s exiting.\n",
+                        util::SystemInfo::Instance ().GetProcessPath ().c_str ());
+                }
+            } app;
         }
         THEKOGANS_UTIL_CATCH_AND_LOG
     }
