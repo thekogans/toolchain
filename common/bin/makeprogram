@@ -197,12 +197,14 @@ check_errors $?
 cat > src/main.cpp << EOF
 #include <string>
 #include <list>
+#include <iostream>
 #include <thekogans/util/Types.h>
 #include <thekogans/util/LoggerMgr.h>
 #include <thekogans/util/ConsoleLogger.h>
 #include <thekogans/util/FileLogger.h>
 #include <thekogans/util/ChildProcess.h>
 #include <thekogans/util/SystemInfo.h>
+#include <thekogans/util/StringUtils.h>
 #include <thekogans/util/MainRunLoop.h>
 #include "${organization}/${project//_//}/Options.h"
 #include "${organization}/${project//_//}/Version.h"
@@ -272,7 +274,7 @@ int main (
     }
     THEKOGANS_UTIL_IMPLEMENT_LOG_FLUSHER;
     if (${project//_/::}::Options::Instance ().help) {
-        THEKOGANS_UTIL_LOG_INFO (
+        std::cout << util::FormatString (
             "%s [-h] [-v] [-l:'%s'] [-d:'%s'] [-c] [-f:'path'] [-r[:max size]] [-k:'path']\\n\\n"
             "h - Display this help message.\\n"
             "v - Display version information.\\n"
@@ -287,7 +289,7 @@ int main (
             GetDecorationsList (" | ").c_str ());
     }
     else if (${project//_/::}::Options::Instance ().version) {
-        THEKOGANS_UTIL_LOG_INFO (
+        std::cout << util::FormatString (
             "%s - %s\n"
             "%s - %s\n",
             THEKOGANS_UTIL,
@@ -307,15 +309,18 @@ int main (
                         util::RunLoop::TYPE_FIFO,
                         util::UI32_MAX,
                         true);
-                    // Application code goes here.
-                    util::MainRunLoop::Instance ().Start ();
+                    // Application startup code goes here.
                 }
                 ~App () {
                     // Application shutdown code goes here.
                     THEKOGANS_UTIL_LOG_INFO ("%s exiting.\n",
                         util::SystemInfo::Instance ().GetProcessPath ().c_str ());
                 }
+                void Run () {
+                    util::MainRunLoop::Instance ().Start ();
+                }
             } app;
+            app.Run ();
         }
         THEKOGANS_UTIL_CATCH_AND_LOG
     }
