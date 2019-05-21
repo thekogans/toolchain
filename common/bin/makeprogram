@@ -109,63 +109,132 @@ cat > include/"${organization}"/"${project//_//}"/Options.h << EOF
 
 $(begin_namespace -o:$organization -p:$project)
 
+$(indent_namespace -o:$organization -p:$project)/// \struct Options Options.h ${organization}/${project//_//}/Options.h
+$(indent_namespace -o:$organization -p:$project)///
+$(indent_namespace -o:$organization -p:$project)/// \brief
+$(indent_namespace -o:$organization -p:$project)/// Parse command line options.
+
 $(indent_namespace -o:$organization -p:$project)struct Options :
 $(indent_namespace -o:$organization -p:$project)        public thekogans::util::Singleton<Options>,
 $(indent_namespace -o:$organization -p:$project)        public thekogans::util::CommandLineOptions,
 $(indent_namespace -o:$organization -p:$project)        public thekogans::util::Directory::Watcher::EventSink {
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Display help.
 $(indent_namespace -o:$organization -p:$project)    bool help;
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Display version number.
 $(indent_namespace -o:$organization -p:$project)    bool version;
+$(indent_namespace -o:$organization -p:$project)    /// \struct Options::LoggerMgr Options.h ${organization}/${project//_//}/Options.h
+$(indent_namespace -o:$organization -p:$project)    ///
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// \see{thekogans::util::LoggerMgr} options.
 $(indent_namespace -o:$organization -p:$project)    struct LoggerMgr {
+$(indent_namespace -o:$organization -p:$project)        /// \brief
+$(indent_namespace -o:$organization -p:$project)        /// \see{thekogans::util::LoggerMgr::Level}.
 $(indent_namespace -o:$organization -p:$project)        thekogans::util::ui32 level;
+$(indent_namespace -o:$organization -p:$project)        /// \brief
+$(indent_namespace -o:$organization -p:$project)        /// \see{thekogans::util::LoggerMgr::Decorations}.
 $(indent_namespace -o:$organization -p:$project)        thekogans::util::ui32 decorations;
+$(indent_namespace -o:$organization -p:$project)        /// \brief
+$(indent_namespace -o:$organization -p:$project)        /// true == log to console.
 $(indent_namespace -o:$organization -p:$project)        bool consoleLogger;
+$(indent_namespace -o:$organization -p:$project)        /// \struct Options::LoggerMgr::FileLogger Options.h ${organization}/${project//_//}/Options.h
+$(indent_namespace -o:$organization -p:$project)        ///
+$(indent_namespace -o:$organization -p:$project)        /// \brief
+$(indent_namespace -o:$organization -p:$project)        /// \see{thekogans::util::FileLogger} options.
 $(indent_namespace -o:$organization -p:$project)        struct FileLogger {
+$(indent_namespace -o:$organization -p:$project)            /// \brief
+$(indent_namespace -o:$organization -p:$project)            /// Log file path.
 $(indent_namespace -o:$organization -p:$project)            std::string path;
+$(indent_namespace -o:$organization -p:$project)            /// \brief
+$(indent_namespace -o:$organization -p:$project)            /// true == archive log files when they reach maxLogFileSize.
 $(indent_namespace -o:$organization -p:$project)            bool archive;
-$(indent_namespace -o:$organization -p:$project)            thekogans::util::ui32 maxLogFileSize;
+$(indent_namespace -o:$organization -p:$project)            /// \brief
+$(indent_namespace -o:$organization -p:$project)            /// Count of archives before dropping the oldest.
+$(indent_namespace -o:$organization -p:$project)            std::size_t archiveCount;
+$(indent_namespace -o:$organization -p:$project)            /// \brief
+$(indent_namespace -o:$organization -p:$project)            /// Max size of log file to trigger archive.
+$(indent_namespace -o:$organization -p:$project)            std::size_t maxLogFileSize;
 
+$(indent_namespace -o:$organization -p:$project)            /// \brief
+$(indent_namespace -o:$organization -p:$project)            /// ctor.
 $(indent_namespace -o:$organization -p:$project)            FileLogger () :
-$(indent_namespace -o:$organization -p:$project)                archive (true),
+$(indent_namespace -o:$organization -p:$project)                archive (false),
+$(indent_namespace -o:$organization -p:$project)                archiveCount (thekogans::util::FileLogger::DEFAULT_ARCHIVE_COUNT),
 $(indent_namespace -o:$organization -p:$project)                maxLogFileSize (thekogans::util::FileLogger::DEFAULT_MAX_LOG_FILE_SIZE) {}
 
+$(indent_namespace -o:$organization -p:$project)            /// \brief
+$(indent_namespace -o:$organization -p:$project)            /// Reset the \see{thekogans::util::FileLogger} options.
 $(indent_namespace -o:$organization -p:$project)            void Reset () {
 $(indent_namespace -o:$organization -p:$project)                path.clear ();
-$(indent_namespace -o:$organization -p:$project)                archive = true;
+$(indent_namespace -o:$organization -p:$project)                archive = false;
+$(indent_namespace -o:$organization -p:$project)                archiveCount = thekogans::util::FileLogger::DEFAULT_ARCHIVE_COUNT;
 $(indent_namespace -o:$organization -p:$project)                maxLogFileSize = thekogans::util::FileLogger::DEFAULT_MAX_LOG_FILE_SIZE;
 $(indent_namespace -o:$organization -p:$project)            }
 $(indent_namespace -o:$organization -p:$project)        } fileLogger;
+$(indent_namespace -o:$organization -p:$project)        /// \brief
+$(indent_namespace -o:$organization -p:$project)        /// true == log to debugger.
+$(indent_namespace -o:$organization -p:$project)        bool debuggerLogger;
 
+$(indent_namespace -o:$organization -p:$project)        /// \brief
+$(indent_namespace -o:$organization -p:$project)        /// ctor.
 $(indent_namespace -o:$organization -p:$project)        LoggerMgr () :
 $(indent_namespace -o:$organization -p:$project)            level (thekogans::util::LoggerMgr::Info),
 $(indent_namespace -o:$organization -p:$project)            decorations (thekogans::util::LoggerMgr::All),
-$(indent_namespace -o:$organization -p:$project)            consoleLogger (false) {}
+$(indent_namespace -o:$organization -p:$project)            consoleLogger (false),
+$(indent_namespace -o:$organization -p:$project)            debuggerLogger (false) {}
 
+$(indent_namespace -o:$organization -p:$project)        /// \brief
+$(indent_namespace -o:$organization -p:$project)        /// Reset the \see{thekogans::util::LoggerMgr} options.
 $(indent_namespace -o:$organization -p:$project)        void Reset () {
 $(indent_namespace -o:$organization -p:$project)            level = thekogans::util::LoggerMgr::Info;
 $(indent_namespace -o:$organization -p:$project)            decorations = thekogans::util::LoggerMgr::All;
 $(indent_namespace -o:$organization -p:$project)            consoleLogger = false;
 $(indent_namespace -o:$organization -p:$project)            fileLogger.Reset ();
+$(indent_namespace -o:$organization -p:$project)            debuggerLogger = false;
 $(indent_namespace -o:$organization -p:$project)        }
 $(indent_namespace -o:$organization -p:$project)    } loggerMgr;
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// \see{thekogans::util::LockFile} path.
 $(indent_namespace -o:$organization -p:$project)    std::string lockFilePath;
-$(indent_namespace -o:$organization -p:$project)    std::string startDirectory;
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Process install directory.
+$(indent_namespace -o:$organization -p:$project)    std::string processDirectory;
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Options file \see{thekogans::util::Directory::Watcher::WatchId}.
 $(indent_namespace -o:$organization -p:$project)    thekogans::util::Directory::Watcher::WatchId watchId;
+$(indent_namespace -o:$organization -p:$project)    // FIXME: Application options go here.
 
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// ctor.
 $(indent_namespace -o:$organization -p:$project)    Options ();
 
 $(indent_namespace -o:$organization -p:$project)    // thekogans::util::CommandLineOptions
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Called when a know option (one in options) is encoutered.
+$(indent_namespace -o:$organization -p:$project)    /// \param[in] option A valid option.
+$(indent_namespace -o:$organization -p:$project)    /// \param[in] value Optional option value.
 $(indent_namespace -o:$organization -p:$project)    virtual void DoOption (
 $(indent_namespace -o:$organization -p:$project)        char option,
 $(indent_namespace -o:$organization -p:$project)        const std::string &value);
 
 $(indent_namespace -o:$organization -p:$project)    // thekogans::util::Directory::Watcher::EventSink
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Called when an entry was modified.
+$(indent_namespace -o:$organization -p:$project)    /// \param[in] watchId_ Watch id of the affected directory.
+$(indent_namespace -o:$organization -p:$project)    /// \param[in] directory Path of the affected directory.
+$(indent_namespace -o:$organization -p:$project)    /// \param[in] entry The modified entry.
 $(indent_namespace -o:$organization -p:$project)    virtual void HandleModified (
 $(indent_namespace -o:$organization -p:$project)        util::Directory::Watcher::WatchId watchId_,
 $(indent_namespace -o:$organization -p:$project)        const std::string &directory,
 $(indent_namespace -o:$organization -p:$project)        const util::Directory::Entry &entry);
 
 $(indent_namespace -o:$organization -p:$project)private:
-$(indent_namespace -o:$organization -p:$project)    void ReadConfig ();
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Parse the options file.
+$(indent_namespace -o:$organization -p:$project)    void ParseOptions ();
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Parse the \see{thekogans::util::LoggerMgr} options.
 $(indent_namespace -o:$organization -p:$project)    void ParseLoggerMgr (const pugi::xml_node &node);
 $(indent_namespace -o:$organization -p:$project)};
 
@@ -202,6 +271,11 @@ cat > src/main.cpp << EOF
 #include <thekogans/util/LoggerMgr.h>
 #include <thekogans/util/ConsoleLogger.h>
 #include <thekogans/util/FileLogger.h>
+#if defined (TOOLCHAIN_OS_Windows)
+    #include <thekogans/util/OutputDebugStringLogger.h>
+#elif defined (TOOLCHAIN_OS_OSX)
+    #include <thekogans/util/NSLogLogger.h>
+#endif // defined (TOOLCHAIN_OS_Windows)
 #include <thekogans/util/ChildProcess.h>
 #include <thekogans/util/SystemInfo.h>
 #include <thekogans/util/StringUtils.h>
@@ -255,34 +329,19 @@ namespace {
 int main (
         int argc,
         const char *argv[]) {
-    ${project//_/::}::Options::Instance ().Parse (argc, argv, "hvldcfrk");
-    THEKOGANS_UTIL_LOG_INIT (
-        ${project//_/::}::Options::Instance ().loggerMgr.level,
-        ${project//_/::}::Options::Instance ().loggerMgr.decorations);
-    if (${project//_/::}::Options::Instance ().help ||
-            ${project//_/::}::Options::Instance ().version ||
-            ${project//_/::}::Options::Instance ().loggerMgr.consoleLogger) {
-        THEKOGANS_UTIL_LOG_ADD_LOGGER (util::Logger::Ptr (new util::ConsoleLogger));
-    }
-    if (!${project//_/::}::Options::Instance ().loggerMgr.fileLogger.path.empty ()) {
-        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-            util::Logger::Ptr (
-                new util::FileLogger (
-                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.path,
-                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.archive,
-                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.maxLogFileSize)));
-    }
-    THEKOGANS_UTIL_IMPLEMENT_LOG_FLUSHER;
+    ${project//_/::}::Options::Instance ().Parse (argc, argv, "hvldcfamok");
     if (${project//_/::}::Options::Instance ().help) {
         std::cout << util::FormatString (
-            "%s [-h] [-v] [-l:'%s'] [-d:'%s'] [-c] [-f:'path'] [-r[:max size]] [-k:'path']\\n\\n"
+            "%s [-h] [-v] [-l:'%s'] [-d:'%s'] [-c] [-f:'path'] [-a[:archive count]] [-m:max size] [-o] [-k:'path']\\n\\n"
             "h - Display this help message.\\n"
             "v - Display version information.\\n"
             "l - Set logging level.\\n"
             "d - Set log entry decorations. (If using more than one, wrap in \\" and separate by |).\\n"
             "c - Log to console.\\n"
             "f - Log to file (path - Path of log file).\\n"
-            "r - Archive file log (max size - Max log file size before archiving).\\n"
+            "a - Archive file log (archive count - Number of archives before dropping the oldest).\\n"
+            "m - Max log file size before archiving.\\n"
+            "o - Log to debugger console.\\n"
             "k - Use lock file to prevent multiple instances (path - Path to lock file).\\n",
             util::SystemInfo::Instance ().GetProcessPath ().c_str (),
             GetLevelsList (" | ").c_str (),
@@ -301,6 +360,32 @@ int main (
         THEKOGANS_UTIL_TRY {
             struct App {
                 App () {
+                    THEKOGANS_UTIL_LOG_INIT (
+                        ${project//_/::}::Options::Instance ().loggerMgr.level,
+                        ${project//_/::}::Options::Instance ().loggerMgr.decorations);
+                    if (${project//_/::}::Options::Instance ().loggerMgr.consoleLogger) {
+                        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+                            util::Logger::Ptr (new util::ConsoleLogger));
+                    }
+                    if (!${project//_/::}::Options::Instance ().loggerMgr.fileLogger.path.empty ()) {
+                        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+                            util::Logger::Ptr (
+                                new util::FileLogger (
+                                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.path,
+                                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.archive,
+                                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.archiveCount,
+                                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.maxLogFileSize)));
+                    }
+                    if (${project//_/::}::Options::Instance ().loggerMgr.debuggerLogger) {
+                    #if defined (TOOLCHAIN_OS_Windows)
+                        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+                            util::Logger::Ptr (new util::OutputDebugStringLogger));
+                    #elif defined (TOOLCHAIN_OS_OSX)
+                        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+                            util::Logger::Ptr (new util::NSLogLogger));
+                    #endif // defined (TOOLCHAIN_OS_Windows)
+                    }
+                    THEKOGANS_UTIL_IMPLEMENT_LOG_FLUSHER;
                     THEKOGANS_UTIL_LOG_INFO ("%s starting.\n",
                         util::SystemInfo::Instance ().GetProcessPath ().c_str ());
                     util::LockFile lockFile (${project//_/::}::Options::Instance ().lockFilePath);
@@ -309,10 +394,10 @@ int main (
                         util::RunLoop::TYPE_FIFO,
                         util::UI32_MAX,
                         true);
-                    // Application startup code goes here.
+                    // FIXME: Application startup code goes here.
                 }
                 ~App () {
-                    // Application shutdown code goes here.
+                    // FIXME: Application shutdown code goes here.
                     THEKOGANS_UTIL_LOG_INFO ("%s exiting.\n",
                         util::SystemInfo::Instance ().GetProcessPath ().c_str ());
                 }
@@ -330,13 +415,18 @@ EOF
 check_errors $?
 
 cat > src/Options.cpp << EOF
+#include <thekogans/util/File.h>
 #include <thekogans/util/Path.h>
-#include <thekogans/util/HRTimer.h>
+#include <thekogans/util/SystemInfo.h>
 #include <thekogans/util/ConsoleLogger.h>
 #include <thekogans/util/FileLogger.h>
+#if defined (TOOLCHAIN_OS_Windows)
+    #include <thekogans/util/OutputDebugStringLogger.h>
+#elif defined (TOOLCHAIN_OS_OSX)
+    #include <thekogans/util/NSLogLogger.h>
+#endif // defined (TOOLCHAIN_OS_Windows)
 #include <thekogans/util/StringUtils.h>
 #include <thekogans/util/XMLUtils.h>
-#include <thekogans/util/File.h>
 #include "${organization}/${project//_//}/Options.h"
 
 using namespace thekogans;
@@ -344,7 +434,20 @@ using namespace thekogans;
 $(begin_namespace -o:$organization -p:$project)
 
 $(indent_namespace -o:$organization -p:$project)namespace {
-$(indent_namespace -o:$organization -p:$project)    const char *OPTIONS_XML = "Options.xml";
+$(indent_namespace -o:$organization -p:$project)    const char * const LOG_TXT = "${organization}_${project}_log.txt";
+$(indent_namespace -o:$organization -p:$project)    const char * const OPTIONS_XML = "${organization}_${project}_options.xml";
+$(indent_namespace -o:$organization -p:$project)    const char * const TAG_OPTIONS = "Options";
+$(indent_namespace -o:$organization -p:$project)    const char * const TAG_LOGGER_MGR = "LoggerMgr";
+$(indent_namespace -o:$organization -p:$project)    const char * const ATTR_LEVEL = "Level";
+$(indent_namespace -o:$organization -p:$project)    const char * const ATTR_DECORATIONS = "Decorations";
+$(indent_namespace -o:$organization -p:$project)    const char * const TAG_CONSOLE_LOGGER = "ConsoleLogger";
+$(indent_namespace -o:$organization -p:$project)    const char * const TAG_FILE_LOGGER = "FileLogger";
+$(indent_namespace -o:$organization -p:$project)    const char * const ATTR_PATH = "Path";
+$(indent_namespace -o:$organization -p:$project)    const char * const ATTR_ARCHIVE = "Archive";
+$(indent_namespace -o:$organization -p:$project)    const char * const ATTR_ARCHIVE_COUNT = "ArchiveCount";
+$(indent_namespace -o:$organization -p:$project)    const char * const ATTR_MAX_LOG_FILE_SIZE = "MaxLogFileSize";
+$(indent_namespace -o:$organization -p:$project)    const char * const TAG_DEBUGGER_LOGGER = "DebuggerLogger";
+$(indent_namespace -o:$organization -p:$project)    const char * const TAG_LOCK_FILE = "LockFile";
 $(indent_namespace -o:$organization -p:$project)}
 
 $(indent_namespace -o:$organization -p:$project)#if defined (_MSC_VER)
@@ -355,12 +458,15 @@ $(indent_namespace -o:$organization -p:$project)#endif // defined (_MSC_VER)
 $(indent_namespace -o:$organization -p:$project)Options::Options () :
 $(indent_namespace -o:$organization -p:$project)        help (false),
 $(indent_namespace -o:$organization -p:$project)        version (false),
-$(indent_namespace -o:$organization -p:$project)        startDirectory (util::Path::GetCurrDirectory ()),
+$(indent_namespace -o:$organization -p:$project)        processDirectory (
+$(indent_namespace -o:$organization -p:$project)            util::Path (
+$(indent_namespace -o:$organization -p:$project)                util::SystemInfo::Instance ().GetProcessPath ()).GetDirectory ()),
 $(indent_namespace -o:$organization -p:$project)        watchId (
 $(indent_namespace -o:$organization -p:$project)            util::Directory::Watcher::Instance ().AddWatch (
-$(indent_namespace -o:$organization -p:$project)                startDirectory, *this)) {
-$(indent_namespace -o:$organization -p:$project)    if (util::Path (OPTIONS_XML).Exists ()) {
-$(indent_namespace -o:$organization -p:$project)        ReadConfig ();
+$(indent_namespace -o:$organization -p:$project)                processDirectory, *this)) {
+$(indent_namespace -o:$organization -p:$project)        // FIXME: Application option initialization go here.
+$(indent_namespace -o:$organization -p:$project)    if (util::Path (util::MakePath (processDirectory, OPTIONS_XML)).Exists ()) {
+$(indent_namespace -o:$organization -p:$project)        ParseOptions ();
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)}
 
@@ -390,19 +496,27 @@ $(indent_namespace -o:$organization -p:$project)        case 'c':
 $(indent_namespace -o:$organization -p:$project)            loggerMgr.consoleLogger = true;
 $(indent_namespace -o:$organization -p:$project)            break;
 $(indent_namespace -o:$organization -p:$project)        case 'f':
-$(indent_namespace -o:$organization -p:$project)            loggerMgr.fileLogger.path = value;
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.fileLogger.path =
+$(indent_namespace -o:$organization -p:$project)                !value.empty () ? value : util::MakePath (processDirectory, LOG_TXT);
 $(indent_namespace -o:$organization -p:$project)            break;
-$(indent_namespace -o:$organization -p:$project)        case 'r':
+$(indent_namespace -o:$organization -p:$project)        case 'a':
 $(indent_namespace -o:$organization -p:$project)            loggerMgr.fileLogger.archive = true;
 $(indent_namespace -o:$organization -p:$project)            if (!value.empty ()) {
-$(indent_namespace -o:$organization -p:$project)                loggerMgr.fileLogger.maxLogFileSize =
-$(indent_namespace -o:$organization -p:$project)                    util::stringToui32 (value.c_str ());
+$(indent_namespace -o:$organization -p:$project)                loggerMgr.fileLogger.archiveCount =
+$(indent_namespace -o:$organization -p:$project)                    util::stringTosize_t (value.c_str ());
 $(indent_namespace -o:$organization -p:$project)            }
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'm':
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.fileLogger.maxLogFileSize =
+$(indent_namespace -o:$organization -p:$project)                util::stringTosize_t (value.c_str ());
+$(indent_namespace -o:$organization -p:$project)            break;
+$(indent_namespace -o:$organization -p:$project)        case 'o':
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.debuggerLogger = true;
 $(indent_namespace -o:$organization -p:$project)            break;
 $(indent_namespace -o:$organization -p:$project)        case 'k':
 $(indent_namespace -o:$organization -p:$project)            lockFilePath = value;
 $(indent_namespace -o:$organization -p:$project)            break;
-$(indent_namespace -o:$organization -p:$project)        // Application options go here.
+$(indent_namespace -o:$organization -p:$project)        // FIXME: Application options go here.
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)}
 
@@ -410,42 +524,41 @@ $(indent_namespace -o:$organization -p:$project)void Options::HandleModified (
 $(indent_namespace -o:$organization -p:$project)        util::Directory::Watcher::WatchId watchId_,
 $(indent_namespace -o:$organization -p:$project)        const std::string &directory,
 $(indent_namespace -o:$organization -p:$project)        const util::Directory::Entry &entry) {
-$(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_LOG_DEBUG (
-$(indent_namespace -o:$organization -p:$project)        "watchId = %x (%x)\n"
-$(indent_namespace -o:$organization -p:$project)        "directory = %s (%s)\n"
-$(indent_namespace -o:$organization -p:$project)        "entry.name = %s (%s)\n",
-$(indent_namespace -o:$organization -p:$project)        watchId_, watchId,
-$(indent_namespace -o:$organization -p:$project)        directory.c_str (), startDirectory.c_str (),
-$(indent_namespace -o:$organization -p:$project)        entry.name.c_str (), OPTIONS_XML);
-$(indent_namespace -o:$organization -p:$project)    if (watchId_ == watchId && directory == startDirectory && entry.name == OPTIONS_XML) {
-$(indent_namespace -o:$organization -p:$project)        ReadConfig ();
+$(indent_namespace -o:$organization -p:$project)    if (watchId_ == watchId &&
+$(indent_namespace -o:$organization -p:$project)            directory == processDirectory &&
+$(indent_namespace -o:$organization -p:$project)            entry.name == OPTIONS_XML) {
+$(indent_namespace -o:$organization -p:$project)        ParseOptions ();
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)}
 
-$(indent_namespace -o:$organization -p:$project)void Options::ReadConfig () {
+$(indent_namespace -o:$organization -p:$project)void Options::ParseOptions () {
 $(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_TRY {
-$(indent_namespace -o:$organization -p:$project)        pugi::xml_document doc;
-$(indent_namespace -o:$organization -p:$project)        pugi::xml_parse_result result = doc.load_file (
-$(indent_namespace -o:$organization -p:$project)            util::MakePath (startDirectory, OPTIONS_XML).c_str ());
+$(indent_namespace -o:$organization -p:$project)        std::string optionsFilePath =
+$(indent_namespace -o:$organization -p:$project)            util::MakePath (processDirectory, OPTIONS_XML);
+$(indent_namespace -o:$organization -p:$project)        pugi::xml_document document;
+$(indent_namespace -o:$organization -p:$project)        pugi::xml_parse_result result =
+$(indent_namespace -o:$organization -p:$project)            document.load_file (optionsFilePath.c_str ());
 $(indent_namespace -o:$organization -p:$project)        if (!result) {
-$(indent_namespace -o:$organization -p:$project)            // FIXME: throw
-$(indent_namespace -o:$organization -p:$project)            assert (0);
+$(indent_namespace -o:$organization -p:$project)            THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
+$(indent_namespace -o:$organization -p:$project)                "Unable to parse: %s (%s)",
+$(indent_namespace -o:$organization -p:$project)                optionsFilePath.c_str (),
+$(indent_namespace -o:$organization -p:$project)                result.description ());
 $(indent_namespace -o:$organization -p:$project)        }
-$(indent_namespace -o:$organization -p:$project)        pugi::xml_node node = doc.document_element ();
-$(indent_namespace -o:$organization -p:$project)        if (!node.empty () && std::string (node.name ()) == "Options") {
+$(indent_namespace -o:$organization -p:$project)        pugi::xml_node node = document.document_element ();
+$(indent_namespace -o:$organization -p:$project)        if (!node.empty () && std::string (node.name ()) == TAG_OPTIONS) {
 $(indent_namespace -o:$organization -p:$project)            for (pugi::xml_node child = node.first_child ();
 $(indent_namespace -o:$organization -p:$project)                    !child.empty (); child = child.next_sibling ()) {
 $(indent_namespace -o:$organization -p:$project)                if (child.type () == pugi::node_element) {
 $(indent_namespace -o:$organization -p:$project)                    std::string childName = child.name ();
-$(indent_namespace -o:$organization -p:$project)                    if (childName == "LoggerMgr") {
+$(indent_namespace -o:$organization -p:$project)                    if (childName == TAG_LOGGER_MGR) {
 $(indent_namespace -o:$organization -p:$project)                        ParseLoggerMgr (child);
 $(indent_namespace -o:$organization -p:$project)                    }
-$(indent_namespace -o:$organization -p:$project)                    else if (childName == "LockFile") {
+$(indent_namespace -o:$organization -p:$project)                    else if (childName == TAG_LOCK_FILE) {
 $(indent_namespace -o:$organization -p:$project)                        lockFilePath =
 $(indent_namespace -o:$organization -p:$project)                            util::Decodestring (
-$(indent_namespace -o:$organization -p:$project)                                child.attribute ("Path").value ());
+$(indent_namespace -o:$organization -p:$project)                                child.attribute (ATTR_PATH).value ());
 $(indent_namespace -o:$organization -p:$project)                    }
-$(indent_namespace -o:$organization -p:$project)                    // Application options go here.
+$(indent_namespace -o:$organization -p:$project)                    // FIXME: Application options go here.
 $(indent_namespace -o:$organization -p:$project)                }
 $(indent_namespace -o:$organization -p:$project)            }
 $(indent_namespace -o:$organization -p:$project)        }
@@ -456,10 +569,10 @@ $(indent_namespace -o:$organization -p:$project)}
 $(indent_namespace -o:$organization -p:$project)void Options::ParseLoggerMgr (const pugi::xml_node &node) {
 $(indent_namespace -o:$organization -p:$project)    loggerMgr.Reset ();
 $(indent_namespace -o:$organization -p:$project)    loggerMgr.level =
-$(indent_namespace -o:$organization -p:$project)        util::LoggerMgr::stringTolevel (node.attribute ("Level").value ());
+$(indent_namespace -o:$organization -p:$project)        util::LoggerMgr::stringTolevel (node.attribute (ATTR_LEVEL).value ());
 $(indent_namespace -o:$organization -p:$project)    loggerMgr.decorations =
 $(indent_namespace -o:$organization -p:$project)        util::LoggerMgr::stringTodecorations (
-$(indent_namespace -o:$organization -p:$project)            node.attribute ("Decorations").value ());
+$(indent_namespace -o:$organization -p:$project)            node.attribute (ATTR_DECORATIONS).value ());
 $(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_LOG_RESET (
 $(indent_namespace -o:$organization -p:$project)        loggerMgr.level,
 $(indent_namespace -o:$organization -p:$project)        loggerMgr.decorations);
@@ -467,22 +580,35 @@ $(indent_namespace -o:$organization -p:$project)    for (pugi::xml_node child = 
 $(indent_namespace -o:$organization -p:$project)            !child.empty (); child = child.next_sibling ()) {
 $(indent_namespace -o:$organization -p:$project)        if (child.type () == pugi::node_element) {
 $(indent_namespace -o:$organization -p:$project)            std::string childName = child.name ();
-$(indent_namespace -o:$organization -p:$project)            if (childName == "ConsoleLogger") {
+$(indent_namespace -o:$organization -p:$project)            if (childName == TAG_CONSOLE_LOGGER) {
 $(indent_namespace -o:$organization -p:$project)                loggerMgr.consoleLogger = true;
 $(indent_namespace -o:$organization -p:$project)            }
-$(indent_namespace -o:$organization -p:$project)            else if (childName == "FileLogger") {
+$(indent_namespace -o:$organization -p:$project)            else if (childName == TAG_FILE_LOGGER) {
 $(indent_namespace -o:$organization -p:$project)                loggerMgr.fileLogger.path =
-$(indent_namespace -o:$organization -p:$project)                    util::Decodestring (child.attribute ("Path").value ());
-$(indent_namespace -o:$organization -p:$project)                std::string archive = std::string (child.attribute ("Archive").value ());
+$(indent_namespace -o:$organization -p:$project)                    util::Decodestring (child.attribute (ATTR_PATH).value ());
+$(indent_namespace -o:$organization -p:$project)                if (loggerMgr.fileLogger.path.empty ()) {
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.path = util::MakePath (processDirectory, LOG_TXT);
+$(indent_namespace -o:$organization -p:$project)                }
+$(indent_namespace -o:$organization -p:$project)                std::string archive =
+$(indent_namespace -o:$organization -p:$project)                    std::string (child.attribute (ATTR_ARCHIVE).value ());
 $(indent_namespace -o:$organization -p:$project)                if (!archive.empty ()) {
 $(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.archive = archive == util::XML_TRUE;
 $(indent_namespace -o:$organization -p:$project)                }
+$(indent_namespace -o:$organization -p:$project)                std::string archiveCount =
+$(indent_namespace -o:$organization -p:$project)                    std::string (child.attribute (ATTR_ARCHIVE_COUNT).value ());
+$(indent_namespace -o:$organization -p:$project)                if (!archiveCount.empty ()) {
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.archiveCount =
+$(indent_namespace -o:$organization -p:$project)                        util::stringTosize_t (archiveCount.c_str ());
+$(indent_namespace -o:$organization -p:$project)                }
 $(indent_namespace -o:$organization -p:$project)                std::string maxLogFileSize =
-$(indent_namespace -o:$organization -p:$project)                    std::string (child.attribute ("MaxLogFileSize").value ());
+$(indent_namespace -o:$organization -p:$project)                    std::string (child.attribute (ATTR_MAX_LOG_FILE_SIZE).value ());
 $(indent_namespace -o:$organization -p:$project)                if (!maxLogFileSize.empty ()) {
 $(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.maxLogFileSize =
-$(indent_namespace -o:$organization -p:$project)                        util::stringToui32 (maxLogFileSize.c_str ());
+$(indent_namespace -o:$organization -p:$project)                        util::stringTosize_t (maxLogFileSize.c_str ());
 $(indent_namespace -o:$organization -p:$project)                }
+$(indent_namespace -o:$organization -p:$project)            }
+$(indent_namespace -o:$organization -p:$project)            else if (childName == TAG_DEBUGGER_LOGGER) {
+$(indent_namespace -o:$organization -p:$project)                loggerMgr.debuggerLogger = true;
 $(indent_namespace -o:$organization -p:$project)            }
 $(indent_namespace -o:$organization -p:$project)        }
 $(indent_namespace -o:$organization -p:$project)    }
@@ -495,7 +621,18 @@ $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_L
 $(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (
 $(indent_namespace -o:$organization -p:$project)                new util::FileLogger (
 $(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.path,
-$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.archive)));
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.archive,
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.archiveCount,
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.maxLogFileSize)));
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)    if (loggerMgr.debuggerLogger) {
+$(indent_namespace -o:$organization -p:$project)    #if defined (TOOLCHAIN_OS_Windows)
+$(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+$(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (new util::OutputDebugStringLogger));
+$(indent_namespace -o:$organization -p:$project)    #elif defined (TOOLCHAIN_OS_OSX)
+$(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
+$(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (new util::NSLogLogger));
+$(indent_namespace -o:$organization -p:$project)    #endif // defined (TOOLCHAIN_OS_Windows)
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)}
 
@@ -534,15 +671,18 @@ cat > thekogans_make.xml << EOF
   <dependencies>
     <dependency organization = "thekogans"
                 name = "util"/>
+    <!-- FIXME: Application dependencies go here. -->
   </dependencies>
   <cpp_headers prefix = "include">
     <cpp_header>\$(organization)/\$(project_directory)/Options.h</cpp_header>
     <cpp_header>\$(organization)/\$(project_directory)/Version.h</cpp_header>
+    <!-- FIXME: Application headers go here. -->
   </cpp_headers>
   <cpp_sources prefix = "src">
     <cpp_source>main.cpp</cpp_source>
     <cpp_source>Options.cpp</cpp_source>
     <cpp_source>Version.cpp</cpp_source>
+    <!-- FIXME: Application sources go here. -->
   </cpp_sources>
   <if condition = "\$(TOOLCHAIN_OS) == 'Windows'">
     <subsystem>Console</subsystem>
