@@ -209,6 +209,7 @@ $(indent_namespace -o:$organization -p:$project)    /// \brief
 $(indent_namespace -o:$organization -p:$project)    /// ctor.
 $(indent_namespace -o:$organization -p:$project)    Options ();
 
+$(indent_namespace -o:$organization -p:$project)private:
 $(indent_namespace -o:$organization -p:$project)    // thekogans::util::CommandLineOptions
 $(indent_namespace -o:$organization -p:$project)    /// \brief
 $(indent_namespace -o:$organization -p:$project)    /// Called when a know option (one in options) is encoutered.
@@ -217,6 +218,10 @@ $(indent_namespace -o:$organization -p:$project)    /// \param[in] value Optiona
 $(indent_namespace -o:$organization -p:$project)    virtual void DoOption (
 $(indent_namespace -o:$organization -p:$project)        char option,
 $(indent_namespace -o:$organization -p:$project)        const std::string &value);
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Called right after the options are parsed.
+$(indent_namespace -o:$organization -p:$project)    /// Do one time postprocessing after options are parsed.
+$(indent_namespace -o:$organization -p:$project)    virtual void Epilog ();
 
 $(indent_namespace -o:$organization -p:$project)    // thekogans::util::Directory::Watcher::EventSink
 $(indent_namespace -o:$organization -p:$project)    /// \brief
@@ -229,13 +234,17 @@ $(indent_namespace -o:$organization -p:$project)        util::Directory::Watcher
 $(indent_namespace -o:$organization -p:$project)        const std::string &directory,
 $(indent_namespace -o:$organization -p:$project)        const util::Directory::Entry &entry);
 
-$(indent_namespace -o:$organization -p:$project)private:
 $(indent_namespace -o:$organization -p:$project)    /// \brief
 $(indent_namespace -o:$organization -p:$project)    /// Parse the options file.
 $(indent_namespace -o:$organization -p:$project)    void ParseOptions ();
 $(indent_namespace -o:$organization -p:$project)    /// \brief
 $(indent_namespace -o:$organization -p:$project)    /// Parse the \see{thekogans::util::LoggerMgr} options.
 $(indent_namespace -o:$organization -p:$project)    void ParseLoggerMgr (const pugi::xml_node &node);
+
+$(indent_namespace -o:$organization -p:$project)    /// \brief
+$(indent_namespace -o:$organization -p:$project)    /// Initialize or reset the \see{thekogans::util::LoggerMgr}.
+$(indent_namespace -o:$organization -p:$project)    /// \param[in] init true == Initialize, false == Reset.
+$(indent_namespace -o:$organization -p:$project)    void InitLoggerMgr (bool init);
 $(indent_namespace -o:$organization -p:$project)};
 
 $(end_namespace -o:$organization -p:$project)
@@ -360,31 +369,6 @@ int main (
         THEKOGANS_UTIL_TRY {
             struct App {
                 App () {
-                    THEKOGANS_UTIL_LOG_INIT (
-                        ${project//_/::}::Options::Instance ().loggerMgr.level,
-                        ${project//_/::}::Options::Instance ().loggerMgr.decorations);
-                    if (${project//_/::}::Options::Instance ().loggerMgr.consoleLogger) {
-                        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-                            util::Logger::Ptr (new util::ConsoleLogger));
-                    }
-                    if (!${project//_/::}::Options::Instance ().loggerMgr.fileLogger.path.empty ()) {
-                        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-                            util::Logger::Ptr (
-                                new util::FileLogger (
-                                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.path,
-                                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.archive,
-                                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.archiveCount,
-                                    ${project//_/::}::Options::Instance ().loggerMgr.fileLogger.maxLogFileSize)));
-                    }
-                    if (${project//_/::}::Options::Instance ().loggerMgr.debuggerLogger) {
-                    #if defined (TOOLCHAIN_OS_Windows)
-                        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-                            util::Logger::Ptr (new util::OutputDebugStringLogger));
-                    #elif defined (TOOLCHAIN_OS_OSX)
-                        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-                            util::Logger::Ptr (new util::NSLogLogger));
-                    #endif // defined (TOOLCHAIN_OS_Windows)
-                    }
                     THEKOGANS_UTIL_IMPLEMENT_LOG_FLUSHER;
                     THEKOGANS_UTIL_LOG_INFO ("%s starting.\n",
                         util::SystemInfo::Instance ().GetProcessPath ().c_str ());
@@ -520,6 +504,10 @@ $(indent_namespace -o:$organization -p:$project)        // FIXME: Application op
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)}
 
+$(indent_namespace -o:$organization -p:$project)void Options::Epilog () {
+$(indent_namespace -o:$organization -p:$project)    InitLoggerMgr (true);
+$(indent_namespace -o:$organization -p:$project)}
+
 $(indent_namespace -o:$organization -p:$project)void Options::HandleModified (
 $(indent_namespace -o:$organization -p:$project)        util::Directory::Watcher::WatchId watchId_,
 $(indent_namespace -o:$organization -p:$project)        const std::string &directory,
@@ -573,9 +561,6 @@ $(indent_namespace -o:$organization -p:$project)        util::LoggerMgr::stringT
 $(indent_namespace -o:$organization -p:$project)    loggerMgr.decorations =
 $(indent_namespace -o:$organization -p:$project)        util::LoggerMgr::stringTodecorations (
 $(indent_namespace -o:$organization -p:$project)            node.attribute (ATTR_DECORATIONS).value ());
-$(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_LOG_RESET (
-$(indent_namespace -o:$organization -p:$project)        loggerMgr.level,
-$(indent_namespace -o:$organization -p:$project)        loggerMgr.decorations);
 $(indent_namespace -o:$organization -p:$project)    for (pugi::xml_node child = node.first_child ();
 $(indent_namespace -o:$organization -p:$project)            !child.empty (); child = child.next_sibling ()) {
 $(indent_namespace -o:$organization -p:$project)        if (child.type () == pugi::node_element) {
@@ -587,7 +572,8 @@ $(indent_namespace -o:$organization -p:$project)            else if (childName =
 $(indent_namespace -o:$organization -p:$project)                loggerMgr.fileLogger.path =
 $(indent_namespace -o:$organization -p:$project)                    util::Decodestring (child.attribute (ATTR_PATH).value ());
 $(indent_namespace -o:$organization -p:$project)                if (loggerMgr.fileLogger.path.empty ()) {
-$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.path = util::MakePath (processDirectory, LOG_TXT);
+$(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.path =
+$(indent_namespace -o:$organization -p:$project)                        util::MakePath (processDirectory, LOG_TXT);
 $(indent_namespace -o:$organization -p:$project)                }
 $(indent_namespace -o:$organization -p:$project)                std::string archive =
 $(indent_namespace -o:$organization -p:$project)                    std::string (child.attribute (ATTR_ARCHIVE).value ());
@@ -611,6 +597,20 @@ $(indent_namespace -o:$organization -p:$project)            else if (childName =
 $(indent_namespace -o:$organization -p:$project)                loggerMgr.debuggerLogger = true;
 $(indent_namespace -o:$organization -p:$project)            }
 $(indent_namespace -o:$organization -p:$project)        }
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)    InitLoggerMgr (false);
+$(indent_namespace -o:$organization -p:$project)}
+
+$(indent_namespace -o:$organization -p:$project)void Options::InitLoggerMgr (bool init) {
+$(indent_namespace -o:$organization -p:$project)    if (init) {
+$(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_INIT (
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.level,
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.decorations);
+$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)    else {
+$(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_RESET (
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.level,
+$(indent_namespace -o:$organization -p:$project)            loggerMgr.decorations);
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)    if (loggerMgr.consoleLogger) {
 $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
