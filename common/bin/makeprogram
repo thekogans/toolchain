@@ -293,7 +293,15 @@ cat > src/main.cpp << EOF
 #include "${organization}/${project//_//}/Version.h"
 
 using namespace thekogans;
+EOF
+check_errors $?
+if [ "${organization}" != "thekogans" ]; then
+cat >> src/main.cpp << EOF
 using namespace ${organization};
+EOF
+check_errors $?
+fi
+cat >> src/main.cpp << EOF
 
 namespace {
     std::string GetLevelsList (const std::string &separator) {
