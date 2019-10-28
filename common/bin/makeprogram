@@ -277,14 +277,8 @@ cat > src/main.cpp << EOF
 #include <list>
 #include <iostream>
 #include <thekogans/util/Types.h>
+#include <thekogans/util/Constants.h>
 #include <thekogans/util/LoggerMgr.h>
-#include <thekogans/util/ConsoleLogger.h>
-#include <thekogans/util/FileLogger.h>
-#if defined (TOOLCHAIN_OS_Windows)
-    #include <thekogans/util/OutputDebugStringLogger.h>
-#elif defined (TOOLCHAIN_OS_OSX)
-    #include <thekogans/util/NSLogLogger.h>
-#endif // defined (TOOLCHAIN_OS_Windows)
 #include <thekogans/util/ChildProcess.h>
 #include <thekogans/util/SystemInfo.h>
 #include <thekogans/util/StringUtils.h>
@@ -382,10 +376,8 @@ int main (
                         util::SystemInfo::Instance ().GetProcessPath ().c_str ());
                     util::LockFile lockFile (${project//_/::}::Options::Instance ().lockFilePath);
                     util::MainRunLoopCreateInstance::Parameterize (
-                        "MainRunLoop",
-                        util::RunLoop::TYPE_FIFO,
-                        util::UI32_MAX,
-                        true);
+                        util::MainRunLoopCreateInstance::MAIN_RUN_LOOP_NAME,
+                        util::RunLoop::JobExecutionPolicy::Ptr (new util::RunLoop::FIFOJobExecutionPolicy));
                     // FIXME: Application startup code goes here.
                 }
                 ~App () {
@@ -456,10 +448,8 @@ $(indent_namespace -o:$organization -p:$project)                util::SystemInfo
 $(indent_namespace -o:$organization -p:$project)        watchId (
 $(indent_namespace -o:$organization -p:$project)            util::Directory::Watcher::Instance ().AddWatch (
 $(indent_namespace -o:$organization -p:$project)                processDirectory, *this)) {
-$(indent_namespace -o:$organization -p:$project)        // FIXME: Application option initialization go here.
-$(indent_namespace -o:$organization -p:$project)    if (util::Path (util::MakePath (processDirectory, OPTIONS_XML)).Exists ()) {
-$(indent_namespace -o:$organization -p:$project)        ParseOptions ();
-$(indent_namespace -o:$organization -p:$project)    }
+$(indent_namespace -o:$organization -p:$project)    // FIXME: Application option initialization go here.
+$(indent_namespace -o:$organization -p:$project)    ParseOptions ();
 $(indent_namespace -o:$organization -p:$project)}
 
 $(indent_namespace -o:$organization -p:$project)#if defined (_MSC_VER)
@@ -531,30 +521,32 @@ $(indent_namespace -o:$organization -p:$project)void Options::ParseOptions () {
 $(indent_namespace -o:$organization -p:$project)    THEKOGANS_UTIL_TRY {
 $(indent_namespace -o:$organization -p:$project)        std::string optionsFilePath =
 $(indent_namespace -o:$organization -p:$project)            util::MakePath (processDirectory, OPTIONS_XML);
-$(indent_namespace -o:$organization -p:$project)        pugi::xml_document document;
-$(indent_namespace -o:$organization -p:$project)        pugi::xml_parse_result result =
-$(indent_namespace -o:$organization -p:$project)            document.load_file (optionsFilePath.c_str ());
-$(indent_namespace -o:$organization -p:$project)        if (!result) {
-$(indent_namespace -o:$organization -p:$project)            THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
-$(indent_namespace -o:$organization -p:$project)                "Unable to parse: %s (%s)",
-$(indent_namespace -o:$organization -p:$project)                optionsFilePath.c_str (),
-$(indent_namespace -o:$organization -p:$project)                result.description ());
-$(indent_namespace -o:$organization -p:$project)        }
-$(indent_namespace -o:$organization -p:$project)        pugi::xml_node node = document.document_element ();
-$(indent_namespace -o:$organization -p:$project)        if (!node.empty () && std::string (node.name ()) == TAG_OPTIONS) {
-$(indent_namespace -o:$organization -p:$project)            for (pugi::xml_node child = node.first_child ();
-$(indent_namespace -o:$organization -p:$project)                    !child.empty (); child = child.next_sibling ()) {
-$(indent_namespace -o:$organization -p:$project)                if (child.type () == pugi::node_element) {
-$(indent_namespace -o:$organization -p:$project)                    std::string childName = child.name ();
-$(indent_namespace -o:$organization -p:$project)                    if (childName == TAG_LOGGER_MGR) {
-$(indent_namespace -o:$organization -p:$project)                        ParseLoggerMgr (child);
+$(indent_namespace -o:$organization -p:$project)        if (util::Path (optionsFilePath).Exists ()) {
+$(indent_namespace -o:$organization -p:$project)            pugi::xml_document document;
+$(indent_namespace -o:$organization -p:$project)            pugi::xml_parse_result result =
+$(indent_namespace -o:$organization -p:$project)                document.load_file (optionsFilePath.c_str ());
+$(indent_namespace -o:$organization -p:$project)            if (!result) {
+$(indent_namespace -o:$organization -p:$project)                THEKOGANS_UTIL_THROW_STRING_EXCEPTION (
+$(indent_namespace -o:$organization -p:$project)                    "Unable to parse: %s (%s)",
+$(indent_namespace -o:$organization -p:$project)                    optionsFilePath.c_str (),
+$(indent_namespace -o:$organization -p:$project)                    result.description ());
+$(indent_namespace -o:$organization -p:$project)            }
+$(indent_namespace -o:$organization -p:$project)            pugi::xml_node node = document.document_element ();
+$(indent_namespace -o:$organization -p:$project)            if (!node.empty () && std::string (node.name ()) == TAG_OPTIONS) {
+$(indent_namespace -o:$organization -p:$project)                for (pugi::xml_node child = node.first_child ();
+$(indent_namespace -o:$organization -p:$project)                        !child.empty (); child = child.next_sibling ()) {
+$(indent_namespace -o:$organization -p:$project)                    if (child.type () == pugi::node_element) {
+$(indent_namespace -o:$organization -p:$project)                        std::string childName = child.name ();
+$(indent_namespace -o:$organization -p:$project)                        if (childName == TAG_LOGGER_MGR) {
+$(indent_namespace -o:$organization -p:$project)                            ParseLoggerMgr (child);
+$(indent_namespace -o:$organization -p:$project)                        }
+$(indent_namespace -o:$organization -p:$project)                        else if (childName == TAG_LOCK_FILE) {
+$(indent_namespace -o:$organization -p:$project)                            lockFilePath =
+$(indent_namespace -o:$organization -p:$project)                                util::Decodestring (
+$(indent_namespace -o:$organization -p:$project)                                    child.attribute (ATTR_PATH).value ());
+$(indent_namespace -o:$organization -p:$project)                        }
+$(indent_namespace -o:$organization -p:$project)                        // FIXME: Application options go here.
 $(indent_namespace -o:$organization -p:$project)                    }
-$(indent_namespace -o:$organization -p:$project)                    else if (childName == TAG_LOCK_FILE) {
-$(indent_namespace -o:$organization -p:$project)                        lockFilePath =
-$(indent_namespace -o:$organization -p:$project)                            util::Decodestring (
-$(indent_namespace -o:$organization -p:$project)                                child.attribute (ATTR_PATH).value ());
-$(indent_namespace -o:$organization -p:$project)                    }
-$(indent_namespace -o:$organization -p:$project)                    // FIXME: Application options go here.
 $(indent_namespace -o:$organization -p:$project)                }
 $(indent_namespace -o:$organization -p:$project)            }
 $(indent_namespace -o:$organization -p:$project)        }
