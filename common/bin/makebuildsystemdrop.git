@@ -114,7 +114,7 @@ TOOLCHAIN_ROOT="\$(cd \$(dirname \${BASH_SOURCE[0]}) && pwd)"
 
 # thekogans_build_system
 "\$TOOLCHAIN_ROOT"/thekogans_build_system/bootstrap
-check_errors $?
+check_errors \$?
 
 # Copy the new build system to the real toolchain.
 REAL_TOOLCHAIN_ROOT="\$(cd \$(dirname \$(dirname \$TOOLCHAIN_ROOT)) && pwd)"
@@ -129,7 +129,7 @@ done
 # Create a code signing key if it doesn't exist.
 if [ ! -e "\$TOOLCHAIN_COMMON_RESOURCES"/signature.xml ];
     "\$TOOLCHAIN_COMMON_BIN"/createcodesigningkey
-    check_errors $?
+    check_errors \$?
 fi
 
 exit 0
