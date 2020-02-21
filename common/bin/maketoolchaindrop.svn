@@ -98,6 +98,9 @@ cat > "$TOOLCHAIN_NAME"/install << EOF
 # You should have received a copy of the GNU General Public License
 # along with thekogans_toolchain. If not, see <http://www.gnu.org/licenses/>.
 
+TOOLCHAIN_ROOT="\$(cd \$(dirname \${BASH_SOURCE[0]}) && pwd)"
+. "\$TOOLCHAIN_ROOT"/common/bin/setenvironment "\$@"
+
 # Copy the new build system to the real toolchain.
 TOOLCHAIN_ROOT="\$(cd \$(dirname \${BASH_SOURCE[0]}) && pwd)"
 REAL_TOOLCHAIN_ROOT="\$(cd \$(dirname \$(dirname \$TOOLCHAIN_ROOT)) && pwd)"
