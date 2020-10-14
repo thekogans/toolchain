@@ -167,11 +167,11 @@ $(begin_namespace -o:$organization -p:$project)
 
 $(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_DECL const util::Version &
 $(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_API GetVersion () {
-$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version *version = new util::Version (
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_MAJOR_VERSION,
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_MINOR_VERSION,
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_PATCH_VERSION);
-$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
+$(indent_namespace -o:$organization -p:$project -e:$example)    return *version;
 $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project)

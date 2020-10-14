@@ -181,11 +181,11 @@ $(begin_namespace -o:$organization -p:$project -e:$example)
 
 $(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_DECL const util::Version &
 $(indent_namespace -o:$organization -p:$project -e:$example)_LIB_${ORGANIZATION}_${PROJECT}_${EXAMPLE}_API GetVersion () {
-$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version *version = new util::Version (
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
-$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
+$(indent_namespace -o:$organization -p:$project -e:$example)    return *version;
 $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project -e:$example)
@@ -252,11 +252,11 @@ using namespace thekogans;
 $(begin_namespace -o:$organization -p:$project -e:$example)
 
 $(indent_namespace -o:$organization -p:$project -e:$example)const util::Version &GetVersion () {
-$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version *version = new util::Version (
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
-$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
+$(indent_namespace -o:$organization -p:$project -e:$example)    return *version;
 $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project -e:$example)
@@ -392,11 +392,11 @@ using namespace thekogans;
 $(begin_namespace -o:$organization -p:$project -e:$example)
 
 $(indent_namespace -o:$organization -p:$project -e:$example)const util::Version &GetVersion () {
-$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version *version = new util::Version (
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
 $(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
-$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
+$(indent_namespace -o:$organization -p:$project -e:$example)    return *version;
 $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project -e:$example)
