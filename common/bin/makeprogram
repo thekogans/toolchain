@@ -375,9 +375,6 @@ int main (
                     THEKOGANS_UTIL_LOG_INFO ("%s starting.\n",
                         util::SystemInfo::Instance ().GetProcessPath ().c_str ());
                     util::LockFile lockFile (${project//_/::}::Options::Instance ().lockFilePath);
-                    util::MainRunLoopCreateInstance::Parameterize (
-                        util::MainRunLoopCreateInstance::MAIN_RUN_LOOP_NAME,
-                        util::RunLoop::JobExecutionPolicy::Ptr (new util::RunLoop::FIFOJobExecutionPolicy));
                     // FIXME: Application startup code goes here.
                 }
                 ~App () {
