@@ -611,11 +611,11 @@ $(indent_namespace -o:$organization -p:$project)            loggerMgr.decoration
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)    if (loggerMgr.consoleLogger) {
 $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-$(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (new util::ConsoleLogger));
+$(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::ConsoleLogger));
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)    if (!loggerMgr.fileLogger.path.empty ()) {
 $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-$(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (
+$(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (
 $(indent_namespace -o:$organization -p:$project)                new util::FileLogger (
 $(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.path,
 $(indent_namespace -o:$organization -p:$project)                    loggerMgr.fileLogger.archive,
@@ -625,10 +625,10 @@ $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)    if (loggerMgr.debuggerLogger) {
 $(indent_namespace -o:$organization -p:$project)    #if defined (TOOLCHAIN_OS_Windows)
 $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-$(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (new util::OutputDebugStringLogger));
+$(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::OutputDebugStringLogger));
 $(indent_namespace -o:$organization -p:$project)    #elif defined (TOOLCHAIN_OS_OSX)
 $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-$(indent_namespace -o:$organization -p:$project)            util::Logger::Ptr (new util::NSLogLogger));
+$(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::NSLogLogger));
 $(indent_namespace -o:$organization -p:$project)    #endif // defined (TOOLCHAIN_OS_Windows)
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)}
