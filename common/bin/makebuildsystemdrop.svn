@@ -127,10 +127,10 @@ for file in "\$TOOLCHAIN_ROOT"/*; do
 done
 
 # Create a code signing key if it doesn't exist.
-if [ ! -e "\$TOOLCHAIN_COMMON_RESOURCES"/signature.xml ];
-    "\$TOOLCHAIN_COMMON_BIN"/createcodesigningkey
-    check_errors \$?
-fi
+#if [ ! -e "\$TOOLCHAIN_COMMON_RESOURCES"/signature.xml ];
+#    "\$TOOLCHAIN_COMMON_BIN"/createcodesigningkey
+#    check_errors \$?
+#fi
 
 exit 0
 EOF
