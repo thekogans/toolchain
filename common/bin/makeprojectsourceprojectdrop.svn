@@ -92,7 +92,7 @@ fi
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
 if [ ! -d "$project_drops" ]; then
     mkdir "$project_drops"
-    check_errors $?
+    $(check_errors $?)
 fi
 cd "$project_drops"
 
@@ -103,31 +103,31 @@ project_root="$organization/${project//_//}/$branch"
 
 if [ -d foo ]; then
     rm -rf foo
-    check_errors $?
+    $(check_errors $?)
 fi
 
 # Check out the source tree.
 svn co "$svn_url/$organization/${project//_//}/$branch" "foo/$project_root"
-check_errors $?
+$(check_errors $?)
 
 # Clean up the source tree.
 cd foo
-check_errors $?
+$(check_errors $?)
 find . -name ".svn" -print0 | xargs -0 rm -rf
-check_errors $?
+$(check_errors $?)
 find . -name "*.h" -print0 | xargs -0 chmod 664
-check_errors $?
+$(check_errors $?)
 find . -name "*.cpp" -print0 | xargs -0 chmod 664
-check_errors $?
+$(check_errors $?)
 
 # Package the source tree.
 version="$(get_project_version -pr:$project_root)"
-check_errors $?
+$(check_errors $?)
 mv "$project_root" "$project_root-$version"
-check_errors $?
+$(check_errors $?)
 tarball="$organization"_"$project-${branch////_}-$version.tar.gz"
 tar zcvf "../$tarball" "$organization"
-check_errors $?
+$(check_errors $?)
 
 sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n ../$tarball`
 
@@ -136,14 +136,14 @@ if [ "$add_source" == "yes" ]; then
         -a:create_source\
         -o:"$organization"\
         -u:"$url"
-    check_errors $?
+    $(check_errors $?)
     source="$SOURCES_ROOT/$organization"
     if [ ! -d "$source/projects" ]; then
         mkdir -p "$source/projects"
-        check_errors $?
+        $(check_errors $?)
     fi
     cp -v "../$tarball" "$source/projects"
-    check_errors $?
+    $(check_errors $?)
     svn add "$source/projects/$tarball"
     "$(get_toolchain_program -o:thekogans -p:make)"\
         -a:add_source_project\
@@ -152,19 +152,19 @@ if [ "$add_source" == "yes" ]; then
         -b:"$branch"\
         -v:"$version"\
         -s:"$sha2_256"
-    check_errors $?
+    $(check_errors $?)
     svn commit -m'Added $source.' "$source"
-    check_errors $?
+    $(check_errors $?)
 else
     echo "$sha2_256"
 fi
 
 # Clean up.
 cd ..
-check_errors $?
+$(check_errors $?)
 rm -rf foo
-check_errors $?
+$(check_errors $?)
 cd ..
-check_errors $?
+$(check_errors $?)
 
 exit 0

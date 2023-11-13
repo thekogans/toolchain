@@ -21,12 +21,14 @@
 # thekogans.net development environment and toolchain.
 
 TOOLCHAIN_COMMON_BIN="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
-if [ -e "$TOOLCHAIN_COMMON_BIN"/version ]; then
-    . "$TOOLCHAIN_COMMON_BIN"/version
-else
+if [ ! -e "$TOOLCHAIN_COMMON_BIN"/version ]; then
     echo "Unable to find $TOOLCHAIN_COMMON_BIN/version."
     exit 1
 fi
+
+# Pull in a bunch of useful utility functions.
+. "$TOOLCHAIN_COMMON_BIN"/utils
+. "$TOOLCHAIN_COMMON_BIN"/version
 
 # Fill in what's missing from the environmnet with defaults provided during bootstrap.
 TOOLCHAIN_ROOT="$(dirname $(dirname $TOOLCHAIN_COMMON_BIN))"
@@ -187,9 +189,6 @@ fi
 if [ -e "$TOOLCHAIN_DIR"/setenvironment ]; then
     . "$TOOLCHAIN_DIR"/setenvironment "$@"
 fi
-
-# Pull in a bunch of useful utility functions.
-. "$TOOLCHAIN_COMMON_BIN"/utils
 
 if [ -e "$TOOLCHAIN_DIR"/bin/version ]; then
     . "$TOOLCHAIN_DIR"/bin/version

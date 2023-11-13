@@ -62,6 +62,6 @@ fi
     -a:add_toolchain_source \
     -o:"$organization" \
     -u:"$url"
-check_errors $?
+$(check_errors $?)
 
 exit 0

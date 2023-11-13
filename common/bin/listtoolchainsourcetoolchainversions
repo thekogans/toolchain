@@ -62,6 +62,6 @@ fi
     -a:get_toolchain_source_toolchain_versions \
     -o:"$organization" \
     -p:"$project"
-check_errors $?
+$(check_errors $?)
 
 exit 0

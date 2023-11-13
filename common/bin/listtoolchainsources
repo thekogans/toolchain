@@ -37,6 +37,6 @@ fi
 # Execute command.
 "$(get_toolchain_program -o:thekogans -p:make)" \
     -a:list_toolchain_sources
-check_errors $?
+$(check_errors $?)
 
 exit 0

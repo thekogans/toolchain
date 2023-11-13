@@ -108,6 +108,6 @@ fi
     -a:copy_plugin \
     -c:"$config" \
     "$project_root"
-check_errors $?
+$(check_errors $?)
 
 exit 0
