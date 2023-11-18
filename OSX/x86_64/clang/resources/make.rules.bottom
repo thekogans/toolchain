@@ -49,7 +49,7 @@ nasm_it =\
 
 # clang
 clang = clang
-clang_flags = -c -m64 -Wall -fPIC -fno-common -pipe -march=native
+clang_flags = -c -m64 -Wall -fPIC -fno-common -pipe -march=native -mno-avx
 ifeq "$(config)" "Debug"
   clang_flags += -g
 else
@@ -72,7 +72,7 @@ c_compile_it =\
 
 # clang++
 clangpp = clang++
-clangpp_flags = -std=c++11 -stdlib=libc++ $(clang_flags) -Wno-undefined-var-template
+clangpp_flags = -std=c++17 -stdlib=libc++ $(clang_flags) -Wno-undefined-var-template
 
 # cpp compiler
 make_cpp_dependencies =\

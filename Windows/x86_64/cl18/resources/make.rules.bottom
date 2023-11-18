@@ -108,7 +108,7 @@ nasm_it =\
 
 # cl
 cl = $(TOOLCHAIN_VISUAL_STUDIO_DIR)/cl.exe
-cl_flags = -nologo -c -W3 -EHsc -fp:precise -Gd -GS -Gm-
+cl_flags = -std:c++17 -nologo -c -W3 -EHsc -fp:precise -Gd -GS -Gm-
 ifeq "$(config)" "Debug"
   ifeq "$(type)" "Shared"
     ifneq (,$(filter $(project_type),library plugin))
