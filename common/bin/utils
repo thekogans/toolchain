@@ -56,9 +56,9 @@ function copy_file () {
         esac
     done
     mkdir -p "$(dirname $to)"
-    $(check_errors $?)
+    check_errors $?
     cp -v "$from" "$to"
-    $(check_errors $?)
+    check_errors $?
 }
 
 function get_library_suffix () {

@@ -54,38 +54,38 @@ fi
 toolchain_drops="$TOOLCHAIN_ROOT"/drops
 if [ ! -d "$toolchain_drops" ]; then
     mkdir -p "$toolchain_drops"
-    $(check_errors $?)
+    check_errors $?
 fi
 cd "$toolchain_drops"
-$(check_errors $?)
+check_errors $?
 
 if [ -d temp ]; then
     rm -rf temp
-    $(check_errors $?)
+    check_errors $?
 fi
 mkdir -p temp
-$(check_errors $?)
+check_errors $?
 cd temp
-$(check_errors $?)
+check_errors $?
 
 # Check out the toolchain tree.
 git clone "$git_url/$TOOLCHAIN_NAME.git" "$TOOLCHAIN_NAME"
-$(check_errors $?)
+check_errors $?
 
 # Clean up the toolchain tree.
 rm -rf "$TOOLCHAIN_NAME"/.git "$TOOLCHAIN_NAME"/.gitignore
-$(check_errors $?)
+check_errors $?
 
 # Check out the build system sources.
 thekogans_build_system="$TOOLCHAIN_NAME"/thekogans_build_system
 mkdir -p "$thekogans_build_system"
-$(check_errors $?)
+check_errors $?
 git clone "$git_url/build_system.git" "$thekogans_build_system"
-$(check_errors $?)
+check_errors $?
 rm -rf "$thekogans_build_system"/.git
-$(check_errors $?)
+check_errors $?
 . "$thekogans_build_system"/version
-$(check_errors $?)
+check_errors $?
 BUILD_SYSTEM_VERSION="$BUILD_SYSTEM_MAJOR_VERSION.$BUILD_SYSTEM_MINOR_VERSION.$BUILD_SYSTEM_PATCH_VERSION"
 
 # Add install script.
@@ -114,7 +114,7 @@ TOOLCHAIN_ROOT="\$(cd \$(dirname \${BASH_SOURCE[0]}) && pwd)"
 
 # thekogans_build_system
 "\$TOOLCHAIN_ROOT"/thekogans_build_system/bootstrap
-\$(check_errors \$?)
+check_errors \$?
 
 # Copy the new build system to the real toolchain.
 REAL_TOOLCHAIN_ROOT="\$(cd \$(dirname \$(dirname \$TOOLCHAIN_ROOT)) && pwd)"
@@ -122,21 +122,21 @@ for file in "\$TOOLCHAIN_ROOT"/*; do
     if [ "\$file" != "\$TOOLCHAIN_ROOT"/install ] && \\
             [ "\$file" != "\$TOOLCHAIN_ROOT"/thekogans_build_system ]; then
         cp -v -r "\$file" "\$REAL_TOOLCHAIN_ROOT"
-        \$(check_errors \$?)
+        check_errors \$?
     fi
 done
 
 # Create a code signing key if it doesn't exist.
 #if [ ! -e "\$TOOLCHAIN_COMMON_RESOURCES"/signature.xml ];
 #    "\$TOOLCHAIN_COMMON_BIN"/createcodesigningkey
-#    \$(check_errors \$?)
+#    check_errors \$?
 #fi
 
 exit 0
 EOF
-$(check_errors $?)
+check_errors $?
 chmod +x "$TOOLCHAIN_NAME"/install
-$(check_errors $?)
+check_errors $?
 
 # Write defaultenvironment.
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
@@ -147,12 +147,12 @@ SOURCES_ROOT=
 # Package the toolchain tree.
 . "$TOOLCHAIN_NAME"/common/bin/version
 tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)"-"$BUILD_SYSTEM_VERSION".tar.gz "$TOOLCHAIN_NAME"
-$(check_errors $?)
+check_errors $?
 
 # Clean up.
 cd ..
-$(check_errors $?)
+check_errors $?
 rm -rf temp
-$(check_errors $?)
+check_errors $?
 
 exit 0

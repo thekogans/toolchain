@@ -55,27 +55,27 @@ fi
 toolchain_drops="$TOOLCHAIN_ROOT"/drops
 if [ ! -d "$toolchain_drops" ]; then
     mkdir -p "$toolchain_drops"
-    $(check_errors $?)
+    check_errors $?
 fi
 cd "$toolchain_drops"
-$(check_errors $?)
+check_errors $?
 
 if [ -d temp ]; then
     rm -rf temp
-    $(check_errors $?)
+    check_errors $?
 fi
 mkdir -p temp
-$(check_errors $?)
+check_errors $?
 cd temp
-$(check_errors $?)
+check_errors $?
 
 # Check out the toolchain tree.
 svn co "$svn_url/$TOOLCHAIN_NAME" "$TOOLCHAIN_NAME"
-$(check_errors $?)
+check_errors $?
 
 # Clean up the toolchain tree.
 rm -rf "$TOOLCHAIN_NAME"/.svn
-$(check_errors $?)
+check_errors $?
 
 # Add install script.
 cat > "$TOOLCHAIN_NAME"/install << EOF
@@ -107,15 +107,15 @@ REAL_TOOLCHAIN_ROOT="\$(cd \$(dirname \$(dirname \$TOOLCHAIN_ROOT)) && pwd)"
 for file in "\$TOOLCHAIN_ROOT"/*; do
     if [ "\$file" != "\$TOOLCHAIN_ROOT"/install ]; then
         cp -v -r "\$file" "\$REAL_TOOLCHAIN_ROOT"
-        \$(check_errors \$?)
+        check_errors \$?
     fi
 done
 
 exit 0
 EOF
-$(check_errors $?)
+check_errors $?
 chmod +x "$TOOLCHAIN_NAME"/install
-$(check_errors $?)
+check_errors $?
 
 # Write defaultenvironment.
 TOOLCHAIN_ROOT="$TOOLCHAIN_NAME"
@@ -126,12 +126,12 @@ SOURCES_ROOT=
 # Package the toolchain tree.
 . "$TOOLCHAIN_NAME"/common/bin/version
 tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
-$(check_errors $?)
+check_errors $?
 
 # Clean up.
 cd ..
-$(check_errors $?)
+check_errors $?
 rm -rf temp
-$(check_errors $?)
+check_errors $?
 
 exit 0

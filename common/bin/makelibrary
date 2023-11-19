@@ -66,30 +66,30 @@ fi
 project_root="$DEVELOPMENT_ROOT"/"$organization"/"${project//_//}"
 if [ ! -d "$project_root" ]; then
     mkdir -p "$project_root"
-    $(check_errors $?)
+    check_errors $?
 fi
 cd "$project_root"
-$(check_errors $?)
+check_errors $?
 
 if [ "$svc" == "" ]; then
     svc="$(get_default_svc -o:$organization)"
 fi
 if [ "$svc" == "svn" ]; then
     mkdir trunk branches tags
-    $(check_errors $?)
+    check_errors $?
     cd trunk
-    $(check_errors $?)
+    check_errors $?
 fi
 mkdir -p include/"$organization"/"${project//_//}" src resources doc examples tests
-$(check_errors $?)
+check_errors $?
 if [ "$svc" == "git" ]; then
     touch resources/.keep doc/.keep tests/.keep
-    $(check_errors $?)
+    check_errors $?
     cp -v "$TOOLCHAIN_ROOT"/common/resources/.gitignore .gitignore
-    $(check_errors $?)
+    check_errors $?
 fi
 touch README ReleaseNotes
-$(check_errors $?)
+check_errors $?
 
 ORGANIZATION=`echo ${organization} | tr '[:lower:]' '[:upper:]'`
 PROJECT=`echo ${project} | tr '[:lower:]' '[:upper:]'`
@@ -135,7 +135,7 @@ private:\\
 
 #endif // !defined (__${organization}_${project}_Config_h)
 EOF
-$(check_errors $?)
+check_errors $?
 
 cat > include/"${organization}"/"${project//_//}"/Version.h << EOF
 #if !defined (__${organization}_${project}_Version_h)
@@ -156,7 +156,7 @@ $(end_namespace -o:$organization -p:$project)
 
 #endif // !defined (__${organization}_${project}_Version_h)
 EOF
-$(check_errors $?)
+check_errors $?
 
 cat > src/Version.cpp << EOF
 #include "${organization}/${project//_//}/Version.h"
@@ -176,7 +176,7 @@ $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project)
 EOF
-$(check_errors $?)
+check_errors $?
 
 cat > thekogans_make.xml << EOF
 <thekogans_make organization = "${organization}"
@@ -200,6 +200,6 @@ cat > thekogans_make.xml << EOF
   </cpp_sources>
 </thekogans_make>
 EOF
-$(check_errors $?)
+check_errors $?
 
 exit 0

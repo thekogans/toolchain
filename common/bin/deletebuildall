@@ -126,7 +126,7 @@ for config in Debug Release; do
             -t:"$type" \
             "$dependencies_flag" \
             "$project_root"
-        $(check_errors $?)
+        check_errors $?
     done
 done
 

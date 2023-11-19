@@ -149,7 +149,7 @@ for config in Debug Release; do
             -hc:"$hide_commands" \
             -pb:"$parallel_build" \
             -ta:"$target"
-        $(check_errors $?)
+        check_errors $?
     done
 done
 

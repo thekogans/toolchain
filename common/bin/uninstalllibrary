@@ -89,6 +89,6 @@ fi
     -p:"$project" \
     "$version_flag" \
     "$dependencies_flag"
-$(check_errors $?)
+check_errors $?
 
 exit 0

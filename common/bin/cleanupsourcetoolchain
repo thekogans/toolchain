@@ -56,6 +56,6 @@ done
     -a:cleanup_source_toolchain \
     -o:"$organization" \
     -p:"$project"
-$(check_errors $?)
+check_errors $?
 
 exit 0

@@ -79,7 +79,7 @@ fi
 
 if [ "$branch" == "" ]; then
     branch="$(get_default_branch -o:thekogans -p:make)"
-    $(check_errors $?)
+    check_errors $?
 fi
 
 if [ "$version" == "" ]; then
@@ -87,7 +87,7 @@ if [ "$version" == "" ]; then
         -a:get_toolchain_source_project_latest_version \
         -o:"$organization" \
         -p:"$project"`
-    $(check_errors $?)
+    check_errors $?
     if [ "$version" == "" ]; then
         echo "No entry for project $organization"_"$project in Sources.xml."
         exit 1
@@ -101,7 +101,7 @@ if [ "$sha2_256" == "" ]; then
         -p:"$project" \
         -b:"$branch" \
         -v:"$version"`
-    $(check_errors $?)
+    check_errors $?
 fi
 
 project_file="$organization"_"$project"
@@ -118,19 +118,19 @@ function get_file_sha2_256 () {
         -d:256 \
         -n \
         "$(to_system_path -p:$to)"`
-    $(check_errors $?)
+    check_errors $?
     echo "$sha2_256"
 }
 
 if [ ! -e "$TOOLCHAIN_ROOT/sources" ]; then
     mkdir -p "$TOOLCHAIN_ROOT/sources"
-    $(check_errors $?)
+    check_errors $?
 fi
 
 if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$sha2_256" ]; then
     if [ "$url" == "" ]; then
         url=`"$(get_toolchain_program -o:thekogans -p:make)" -a:get_toolchain_source_url -o:"$organization"`
-        $(check_errors $?)
+        check_errors $?
         if [ "$url" == "" ]; then
             echo "No URL for $organization."
             exit 1
@@ -139,7 +139,7 @@ if [ ! -e "$to" ] || [ "$(get_file_sha2_256)" != "$sha2_256" ]; then
     from="$url/$organization/projects/$project_file"
     echo "Downloading $from -> $to"
     "$(get_toolchain_program -o:thekogans -p:curl)" -L -# -k "$from" -o "$(to_system_path -p:$to)"
-    $(check_errors $?)
+    check_errors $?
     if [ "$(get_file_sha2_256)" != "$sha2_256" ]; then
         echo "$to failed integrity check."
         exit 1
@@ -153,10 +153,10 @@ fi
 project_dir+="-$version"
 if [ -d "$project_dir" ]; then
     rm -rf "$project_dir"
-    $(check_errors $?)
+    check_errors $?
 fi
 
 tar zxvf "$to" -C "$DEVELOPMENT_ROOT"
-$(check_errors $?)
+check_errors $?
 
 exit 0

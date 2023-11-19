@@ -79,6 +79,6 @@ cat > thekogans_make.xml << EOF
                 schema_version = "`$(get_toolchain_program -o:thekogans -p:make) -a:get_schema_version`">
 </thekogans_make>
 EOF
-$(check_errors $?)
+check_errors $?
 
 exit 0

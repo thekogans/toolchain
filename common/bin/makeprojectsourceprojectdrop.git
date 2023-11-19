@@ -92,7 +92,7 @@ fi
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
 if [ ! -d "$project_drops" ]; then
     mkdir -p "$project_drops"
-    $(check_errors $?)
+    check_errors $?
 fi
 cd "$project_drops"
 
@@ -100,49 +100,49 @@ project_root="$organization/${project//_//}"
 
 if [ -d foo ]; then
     rm -rf foo
-    $(check_errors $?)
+    check_errors $?
 fi
 
 # Check out the source tree.
 git clone "$git_url/$project.git" "foo/$project_root"
-$(check_errors $?)
+check_errors $?
 
 # Clean up the source tree.
 cd foo
-$(check_errors $?)
+check_errors $?
 find . -name ".git" -print0 | xargs -0 rm -rf
-$(check_errors $?)
+check_errors $?
 find . -name "*.h" -print0 | xargs -0 chmod 664
-$(check_errors $?)
+check_errors $?
 find . -name "*.cpp" -print0 | xargs -0 chmod 664
-$(check_errors $?)
+check_errors $?
 
 # Package the source tree.
 if [ "$version" == "" ]; then
     version="$(get_project_version -pr:$project_root)"
-    $(check_errors $?)
+    check_errors $?
 fi
 mv "$project_root" "$project_root-$version"
-$(check_errors $?)
+check_errors $?
 tarball="$organization"_"$project-$version.tar.gz"
 tar zcvf "../$tarball" "$organization"
-$(check_errors $?)
+check_errors $?
 
 if [ "$add_source" == "yes" ]; then
     "$(get_toolchain_program -o:thekogans -p:make)"\
         -a:create_source\
         -o:"$organization"\
         -u:"$url"
-    $(check_errors $?)
+    check_errors $?
     source="$SOURCES_ROOT"/"$organization"
     if [ ! -d "$source"/projects ]; then
         mkdir -p "$source"/projects
-        $(check_errors $?)
+        check_errors $?
     fi
     cp -v ../"$tarball" "$source"/projects
-    $(check_errors $?)
+    check_errors $?
     pushd "$source"
-    $(check_errors $?)
+    check_errors $?
     git add projects/"$tarball"
     sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n projects/$tarball`
     "$(get_toolchain_program -o:thekogans -p:make)"\
@@ -151,20 +151,20 @@ if [ "$add_source" == "yes" ]; then
         -p:"$project"\
         -v:"$version"\
         -s:"$sha2_256"
-    $(check_errors $?)
+    check_errors $?
     git commit -m "Added projects/$tarball." Source.xml projects/"$tarball"
-    $(check_errors $?)
+    check_errors $?
     git push
-    $(check_errors $?)
+    check_errors $?
     popd
 fi
 
 # Clean up.
 cd ..
-$(check_errors $?)
+check_errors $?
 rm -rf foo
-$(check_errors $?)
+check_errors $?
 cd ..
-$(check_errors $?)
+check_errors $?
 
 exit 0

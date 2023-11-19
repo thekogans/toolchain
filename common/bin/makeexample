@@ -86,22 +86,22 @@ fi
 project_root="$(get_project_root -o:$organization -p:$project -b:$branch -v:$version -e:$example)"
 if [ ! -d "$project_root" ]; then
     mkdir -p "$project_root"
-    $(check_errors $?)
+    check_errors $?
 fi
 cd "$project_root"
-$(check_errors $?)
+check_errors $?
 
 mkdir -p include/"$organization"/"${project//_//}"/"${example//_//}" src resources doc tests
-$(check_errors $?)
+check_errors $?
 svc="$(get_default_svc -o:$organization)"
 if [ "$svc" == "git" ]; then
     touch include/"$organization"/"${project//_//}"/"${example//_//}"/.keep src/.keep resources/.keep doc/.keep tests/.keep
-    $(check_errors $?)
+    check_errors $?
     cp -v "$TOOLCHAIN_ROOT"/common/resources/.gitignore .gitignore
-    $(check_errors $?)
+    check_errors $?
 fi
 touch README ReleaseNotes
-$(check_errors $?)
+check_errors $?
 
 ORGANIZATION=`echo ${organization} | tr '[:lower:]' '[:upper:]'`
 PROJECT=`echo ${project} | tr '[:lower:]' '[:upper:]'`
@@ -149,7 +149,7 @@ private:\\
 
 #endif // !defined (__${organization}_${project}_${example}_Config_h)
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > include/"${organization}"/"${project//_//}"/"${example//_//}"/Version.h << EOF
 #if !defined (__${organization}_${project}_${example}_Version_h)
@@ -170,7 +170,7 @@ $(end_namespace -o:$organization -p:$project -e:$example)
 
 #endif // !defined (__${organization}_${project}_${example}_Version_h)
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > src/Version.cpp << EOF
 #include "${organization}/${project//_//}/${example//_//}/Version.h"
@@ -190,7 +190,7 @@ $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project -e:$example)
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > thekogans_make.xml << EOF
 <thekogans_make organization = "${organization}"
@@ -214,7 +214,7 @@ EOF
   </cpp_sources>
 </thekogans_make>
 EOF
-    $(check_errors $?)
+    check_errors $?
 elif [ "$project_type" == "program" ]; then
     cat > include/"${organization}"/"${project//_//}"/"${example//_//}"/Version.h << EOF
 #if !defined (__${organization}_${project}_${example}_Version_h)
@@ -233,7 +233,7 @@ $(end_namespace -o:$organization -p:$project -e:$example)
 
 #endif // !defined (__${organization}_${project}_${example}_Version_h)
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > src/main.cpp << EOF
 int main (
@@ -242,7 +242,7 @@ int main (
     return 0;
 }
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > src/Version.cpp << EOF
 #include "${organization}/${project//_//}/${example//_//}/Version.h"
@@ -261,7 +261,7 @@ $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project -e:$example)
 EOF
-$(check_errors $?)
+check_errors $?
 
     cat > thekogans_make.xml << EOF
 <thekogans_make organization = "${organization}"
@@ -288,7 +288,7 @@ $(check_errors $?)
   </if>
 </thekogans_make>
 EOF
-    $(check_errors $?)
+    check_errors $?
 elif [ "$project_type" == "plugin" ]; then
     cat > include/"${organization}"/"${project//_//}"/"${example//_//}"/Config.h << EOF
 #if !defined (__${organization}_${project}_${example}_Config_h)
@@ -327,7 +327,7 @@ private:\\
 
 #endif // !defined (__${organization}_${project}_${example}_Config_h)
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > include/"${organization}"/"${project//_//}"/"${example//_//}"/Version.h << EOF
 #if !defined (__${organization}_${project}_${example}_Version_h)
@@ -346,7 +346,7 @@ $(end_namespace -o:$organization -p:$project -e:$example)
 
 #endif // !defined (__${organization}_${project}_${example}_Version_h)
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > src/main.cpp << EOF
 #include <thekogans/util/Plugins.h>
@@ -382,7 +382,7 @@ extern "C" {
     #pragma clang diagnostic pop
 #endif
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > src/Version.cpp << EOF
 #include "${organization}/${project//_//}/${example//_//}/Version.h"
@@ -401,7 +401,7 @@ $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project -e:$example)
 EOF
-    $(check_errors $?)
+    check_errors $?
 
     cat > thekogans_make.xml << EOF
 <thekogans_make organization = "${organization}"
@@ -429,12 +429,12 @@ EOF
   </cpp_sources>
 </thekogans_make>
 EOF
-    $(check_errors $?)
+    check_errors $?
 fi
 
 if [ "$template" != "" ]; then
     cp -v "$TOOLCHAIN_ROOT"/common/resources/main."$template" src/main.cpp
-    $(check_errors $?)
+    check_errors $?
 fi
 
 exit 0
