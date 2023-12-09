@@ -42,6 +42,7 @@ Linux/x86_64/gcc/share
 Linux/x86_64/gcc/ssl
 OSX/x86_64/clang/bin
 OSX/x86_64/clang/config
+OSX/x86_64/clang/frameworks
 OSX/x86_64/clang/include
 OSX/x86_64/clang/lib
 OSX/x86_64/clang/share
