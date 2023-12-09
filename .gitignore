@@ -34,6 +34,11 @@ Windows/x86_64/cl1910/include
 Windows/x86_64/cl1910/lib
 Windows/x86_64/cl1910/share
 Windows/x86_64/cl1910/ssl
+Windows/x86_64/cl1924/bin
+Windows/x86_64/cl1924/config
+Windows/x86_64/cl1924/include
+Windows/x86_64/cl1924/lib
+Windows/x86_64/cl1924/ssl
 Linux/x86_64/gcc/bin
 Linux/x86_64/gcc/config
 Linux/x86_64/gcc/include
