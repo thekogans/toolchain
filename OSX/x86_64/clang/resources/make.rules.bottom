@@ -80,12 +80,14 @@ make_cpp_dependencies =\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories))\
+    $(addprefix -F,$(framework_directories))\
     $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks) $<
 cpp_compile_it =\
   $(clangpp) $(clangpp_flags) $(cpp_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories))\
+    $(addprefix -F,$(framework_directories))\
     $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks) -o $@ $<
 
 # objective-c compiler
@@ -106,12 +108,14 @@ make_objective_cpp_dependencies =\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(objective_cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories))\
+    $(addprefix -F,$(framework_directories))\
     $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks) $<
 objective_cpp_compile_it =\
   $(clangpp) $(clangpp_flags) $(objective_cpp_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(objective_cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories))\
+    $(addprefix -F,$(framework_directories))\
     $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks) -o $@ $<
 
 # linker
@@ -126,6 +130,7 @@ ifneq (,$(filter $(project_type),library plugin))
 else
   clangpp_linker_flags = -Wl,-rpath,@executable_path
 endif
+clangpp_linker_flags += $(addprefix -F,$(framework_directories))
 clangpp_linker_flags += $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks)
 
 # librarian
