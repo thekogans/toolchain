@@ -40,12 +40,14 @@ make_nasm_dependencies =\
   $(nasm) $(nasm_flags) $(nasm_dependencies_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(nasm_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) $<
 nasm_it =\
   $(nasm) $(nasm_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(nasm_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) -o $@ $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) -o $@ $<
 
 # clang
 clang = clang
@@ -63,12 +65,14 @@ make_c_dependencies =\
   $(clang) $(clang_flags) $(clang_dependencies_flags) $(c_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(c_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) $<
 c_compile_it =\
   $(clang) $(clang_flags) $(c_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(c_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) -o $@ $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) -o $@ $<
 
 # clang++
 clangpp = clang++
@@ -80,6 +84,7 @@ make_cpp_dependencies =\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include)\
     $(addprefix -F,$(framework_directories))\
     $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks) $<
 cpp_compile_it =\
@@ -87,6 +92,7 @@ cpp_compile_it =\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include)\
     $(addprefix -F,$(framework_directories))\
     $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks) -o $@ $<
 
@@ -95,12 +101,14 @@ make_objective_c_dependencies =\
   $(clang) $(clang_flags) $(clang_dependencies_flags) $(objective_c_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(objective_c_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) $<
 objective_c_compile_it =\
   $(clang) $(clang_flags) $(objective_c_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(objective_c_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) -o $@ $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) -o $@ $<
 
 # objective-cpp compiler
 make_objective_cpp_dependencies =\
@@ -108,6 +116,7 @@ make_objective_cpp_dependencies =\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(objective_cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include)\
     $(addprefix -F,$(framework_directories))\
     $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks) $<
 objective_cpp_compile_it =\
@@ -115,6 +124,7 @@ objective_cpp_compile_it =\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(objective_cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include)\
     $(addprefix -F,$(framework_directories))\
     $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks) -o $@ $<
 
@@ -130,8 +140,10 @@ ifneq (,$(filter $(project_type),library plugin))
 else
   clangpp_linker_flags = -Wl,-rpath,@executable_path
 endif
-clangpp_linker_flags += $(addprefix -F,$(framework_directories))
-clangpp_linker_flags += $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks)
+clangpp_linker_flags +=\
+  $(addprefix -L,$(TOOLCHAIN_DIR)/lib)\
+  $(addprefix -F,$(framework_directories))\
+  $(addprefix -F,$(TOOLCHAIN_DIR)/frameworks)
 
 # librarian
 ar = ar

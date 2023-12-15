@@ -40,12 +40,14 @@ make_nasm_dependencies =\
   $(nasm) $(nasm_flags) $(nasm_dependencies_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(nasm_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) $<
 nasm_it =\
   $(nasm) $(nasm_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(nasm_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) -o $@ $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) -o $@ $<
 
 # gcc
 gcc = gcc
@@ -63,12 +65,14 @@ make_c_dependencies =\
   $(gcc) $(gcc_flags) $(gcc_dependencies_flags) $(c_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(c_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) $<
 c_compile_it =\
   $(gcc) $(gcc_flags) $(c_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(c_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) -o $@ $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) -o $@ $<
 
 # g++
 gpp = g++
@@ -79,36 +83,42 @@ make_cpp_dependencies =\
   $(gpp) $(gpp_flags) $(gcc_dependencies_flags) $(cpp_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) $<
 cpp_compile_it =\
   $(gpp) $(gpp_flags) $(cpp_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) -o $@ $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) -o $@ $<
 
 # objective-c compiler
 make_objective_c_dependencies =\
   $(gcc) $(gcc_flags) $(gcc_dependencies_flags) $(objective_c_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(objective_c_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) $<
 objective_c_compile_it =\
   $(gcc) $(gcc_flags) $(objective_c_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(objective_c_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) -o $@ $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) -o $@ $<
 
 # objective-cpp compiler
 make_objective_cpp_dependencies =\
   $(gpp) $(gpp_flags) $(gcc_dependencies_flags) $(objective_cpp_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(objective_cpp_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) $<
 objective_cpp_compile_it =\
   $(gpp) $(gpp_flags) $(objective_cpp_flags)\
     $(addprefix -D,$(linux_preprocessor_definitions))\
     $(addprefix -D,$(objective_cpp_preprocessor_definitions))\
-    $(addprefix -I,$(include_directories)) -o $@ $<
+    $(addprefix -I,$(include_directories))\
+    $(addprefix -I,$(TOOLCHAIN_DIR)/include) -o $@ $<
 
 # linker
 ifneq (,$(filter $(project_type),library plugin))
@@ -118,6 +128,7 @@ ifneq (,$(filter $(project_type),library plugin))
 else
   gpp_linker_flags = '-Wl,-rpath,$$ORIGIN'
 endif
+gpp_linker_flags += $(addprefix -L,$(TOOLCHAIN_DIR)/lib)
 
 # librarian
 ar = ar
