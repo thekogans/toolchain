@@ -402,9 +402,9 @@ cat > src/Options.cpp << EOF
 #include <thekogans/util/ConsoleLogger.h>
 #include <thekogans/util/FileLogger.h>
 #if defined (TOOLCHAIN_OS_Windows)
-    #include <thekogans/util/OutputDebugStringLogger.h>
+    #include <thekogans/util/os/windows/OutputDebugStringLogger.h>
 #elif defined (TOOLCHAIN_OS_OSX)
-    #include <thekogans/util/NSLogLogger.h>
+    #include <thekogans/util/os/osx/NSLogLogger.h>
 #endif // defined (TOOLCHAIN_OS_Windows)
 #include <thekogans/util/StringUtils.h>
 #include <thekogans/util/XMLUtils.h>
