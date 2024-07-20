@@ -27,6 +27,7 @@ $environment_options \
 [[-o | --organization]:organization] \
 [[-u | --url]:url] \
 [[-p | --project]:project] \
+[[-b | --branch]:[master ...]] \
 [[-v | --version]:version] \
 [[-as | --add-source]:[yes | no]] \
 [[-gu | --git-url]:url]"
@@ -45,6 +46,7 @@ fi
 organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 url=
 project="$TOOLCHAIN_DEFAULT_PROJECT"
+branch="$TOOLCHAIN_DEFAULT_BRANCH"
 version=
 add_source=yes
 git_url="$TOOLCHAIN_GIT_URL"
@@ -60,6 +62,9 @@ for i in "$@"; do
             ;;
         -p:*|--project:*)
             project="${i#*:}"
+            ;;
+        -b:*|--branch:*)
+            branch="${i#*:}"
             ;;
         -v:*|--version:*)
             version="${i#*:}"
@@ -95,6 +100,7 @@ if [ ! -d "$project_drops" ]; then
     check_errors $?
 fi
 cd "$project_drops"
+check_errors $?
 
 project_root="$organization/${project//_//}"
 
@@ -104,7 +110,11 @@ if [ -d foo ]; then
 fi
 
 # Check out the source tree.
-git clone "$git_url/$project.git" "foo/$project_root"
+if [ "$branch" == "" ]; then
+    git clone "$git_url/$project.git" "foo/$project_root"
+else
+    git clone -b "$branch" "$git_url/$project.git" "foo/$project_root"
+fi
 check_errors $?
 
 # Clean up the source tree.

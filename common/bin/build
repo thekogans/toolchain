@@ -54,7 +54,7 @@ fi
 
 organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
 project="$TOOLCHAIN_DEFAULT_PROJECT"
-branch=
+branch="$TOOLCHAIN_DEFAULT_BRANCH"
 version=
 example=
 project_root=

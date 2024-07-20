@@ -25,10 +25,10 @@ if [ ! -e "$TOOLCHAIN_COMMON_BIN"/version ]; then
     echo "Unable to find $TOOLCHAIN_COMMON_BIN/version."
     exit 1
 fi
+. "$TOOLCHAIN_COMMON_BIN"/version
 
 # Pull in a bunch of useful utility functions.
 . "$TOOLCHAIN_COMMON_BIN"/utils
-. "$TOOLCHAIN_COMMON_BIN"/version
 
 # Fill in what's missing from the environmnet with defaults provided during bootstrap.
 TOOLCHAIN_ROOT="$(dirname $(dirname $TOOLCHAIN_COMMON_BIN))"
