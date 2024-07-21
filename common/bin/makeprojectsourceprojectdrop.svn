@@ -114,8 +114,10 @@ check_errors $?
 cd foo
 check_errors $?
 
+IFS=$'\n'; set -f
 for f in $(find . -name '*.svn'); do rm -rf $f; done
 for f in $(find . -name '*.h' -or -name '*.cpp'); do chmod 664 $f; done
+unset IFS; set +f
 
 # Package the source tree.
 version="$(get_project_version -pr:$project_root)"
