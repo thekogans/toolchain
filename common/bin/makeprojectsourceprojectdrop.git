@@ -84,14 +84,18 @@ if [ "$organization" == "" ] || [ "$project" == "" ]; then
     exit 1
 fi
 
+if [ "$add_source" != "yes" ] && [ "$add_source" != "no" ]; then
+    echo "Unsupported add_source [-as | --add-source]: $add_source [yes | no]."
+    exit 1
+fi
+
 if [ "$git_url" == "" ]; then
     echo "Must specify git url."
     exit 1
 fi
 
-if [ "$add_source" != "yes" ] && [ "$add_source" != "no" ]; then
-    echo "Unsupported add_source [-as | --add-source]: $add_source [yes | no]."
-    exit 1
+if [ "$branch" == "" ]; then
+    branch=master
 fi
 
 project_drops="$DEVELOPMENT_ROOT/$organization/${project//_//}/drops"
@@ -110,22 +114,15 @@ if [ -d foo ]; then
 fi
 
 # Check out the source tree.
-if [ "$branch" == "" ]; then
-    git clone "$git_url/$project.git" "foo/$project_root"
-else
-    git clone -b "$branch" "$git_url/$project.git" "foo/$project_root"
-fi
+git clone -b "$branch" "$git_url/$project.git" "foo/$project_root"
 check_errors $?
 
 # Clean up the source tree.
 cd foo
 check_errors $?
-find . -name ".git" -print0 | xargs -0 rm -rf
-check_errors $?
-find . -name "*.h" -print0 | xargs -0 chmod 664
-check_errors $?
-find . -name "*.cpp" -print0 | xargs -0 chmod 664
-check_errors $?
+
+for f in $(find . -name '*.git'); do rm -rf $f; done
+for f in $(find . -name '*.h' -or -name '*.cpp'); do chmod 664 $f; done
 
 # Package the source tree.
 if [ "$version" == "" ]; then
