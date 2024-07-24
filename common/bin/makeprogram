@@ -340,8 +340,8 @@ namespace {
 int main (
         int argc,
         const char *argv[]) {
-    ${project//_/::}::Options::Instance ().Parse (argc, argv, "hvldcfamok");
-    if (${project//_/::}::Options::Instance ().help) {
+    ${project//_/::}::Options::Instance ()->Parse (argc, argv, "hvldcfamok");
+    if (${project//_/::}::Options::Instance ()->help) {
         std::cout << util::FormatString (
             "%s [-h] [-v] [-l:'%s'] [-d:'%s'] [-c] [-f:'path'] [-a[:archive count]] [-m:max size] [-o] [-k:'path']\\n\\n"
             "h - Display this help message.\\n"
@@ -354,17 +354,17 @@ int main (
             "m - Max log file size before archiving.\\n"
             "o - Log to debugger console.\\n"
             "k - Use lock file to prevent multiple instances (path - Path to lock file).\\n",
-            util::SystemInfo::Instance ().GetProcessPath ().c_str (),
+            util::SystemInfo::Instance ()->GetProcessPath ().c_str (),
             GetLevelsList (" | ").c_str (),
             GetDecorationsList (" | ").c_str ());
     }
-    else if (${project//_/::}::Options::Instance ().version) {
+    else if (${project//_/::}::Options::Instance ()->version) {
         std::cout << util::FormatString (
             "%s - %s\n"
             "%s - %s\n",
             THEKOGANS_UTIL,
             util::GetVersion ().ToString ().c_str (),
-            util::SystemInfo::Instance ().GetProcessPath ().c_str (),
+            util::SystemInfo::Instance ()->GetProcessPath ().c_str (),
             ${project//_/::}::GetVersion ().ToString ().c_str ());
     }
     else {
@@ -373,17 +373,17 @@ int main (
                 App () {
                     THEKOGANS_UTIL_IMPLEMENT_LOG_FLUSHER;
                     THEKOGANS_UTIL_LOG_INFO ("%s starting.\n",
-                        util::SystemInfo::Instance ().GetProcessPath ().c_str ());
-                    util::LockFile lockFile (${project//_/::}::Options::Instance ().lockFilePath);
+                        util::SystemInfo::Instance ()->GetProcessPath ().c_str ());
+                    util::LockFile lockFile (${project//_/::}::Options::Instance ()->lockFilePath);
                     // FIXME: Application startup code goes here.
                 }
                 ~App () {
                     // FIXME: Application shutdown code goes here.
                     THEKOGANS_UTIL_LOG_INFO ("%s exiting.\n",
-                        util::SystemInfo::Instance ().GetProcessPath ().c_str ());
+                        util::SystemInfo::Instance ()->GetProcessPath ().c_str ());
                 }
                 void Run () {
-                    util::MainRunLoop::Instance ().Start ();
+                    util::MainRunLoop::Instance ()->Start ();
                 }
             } app;
             app.Run ();
@@ -441,9 +441,9 @@ $(indent_namespace -o:$organization -p:$project)        help (false),
 $(indent_namespace -o:$organization -p:$project)        version (false),
 $(indent_namespace -o:$organization -p:$project)        processDirectory (
 $(indent_namespace -o:$organization -p:$project)            util::Path (
-$(indent_namespace -o:$organization -p:$project)                util::SystemInfo::Instance ().GetProcessPath ()).GetDirectory ()),
+$(indent_namespace -o:$organization -p:$project)                util::SystemInfo::Instance ()->GetProcessPath ()).GetDirectory ()),
 $(indent_namespace -o:$organization -p:$project)        watchId (
-$(indent_namespace -o:$organization -p:$project)            util::Directory::Watcher::Instance ().AddWatch (
+$(indent_namespace -o:$organization -p:$project)            util::Directory::Watcher::Instance ()->AddWatch (
 $(indent_namespace -o:$organization -p:$project)                processDirectory, *this)) {
 $(indent_namespace -o:$organization -p:$project)    // FIXME: Application option initialization go here.
 $(indent_namespace -o:$organization -p:$project)    ParseOptions ();
@@ -625,7 +625,7 @@ $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)    if (loggerMgr.debuggerLogger) {
 $(indent_namespace -o:$organization -p:$project)    #if defined (TOOLCHAIN_OS_Windows)
 $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-$(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::OutputDebugStringLogger));
+$(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::os::windows::OutputDebugStringLogger));
 $(indent_namespace -o:$organization -p:$project)    #elif defined (TOOLCHAIN_OS_OSX)
 $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
 $(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::NSLogLogger));
