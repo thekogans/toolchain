@@ -226,7 +226,7 @@ else
 endif
 
 # Build and run the tests.
-tests tests_self: $(tests_goals)
+tests tests_self: $(goal) $(tests_goals)
 	$(foreach tests_goal,$(tests_goals),$(tests_goal);)
 
 # Clean project.
