@@ -341,8 +341,8 @@ int main (
         int argc,
         const char *argv[]) {
     #if defined (THEKOGANS_UTIL_TYPE_Static)
-        // FIXME: Add other library (crypto, stream, packet) static initialization here.
         util::StaticInit ();
+        // FIXME: Add other library (crypto, stream, packet) static initialization here.
     #endif // defined (THEKOGANS_UTIL_TYPE_Static)
     ${project//_/::}::Options::Instance ()->Parse (argc, argv, "hvldcfamok");
     if (${project//_/::}::Options::Instance ()->help) {

@@ -36,8 +36,8 @@ if [ "$TOOLCHAIN_ROOT" == "" ]; then
     . "$TOOLCHAIN_COMMON_BIN"/setenvironment "$@"
 fi
 
-organization=
-project=
+organization="$TOOLCHAIN_DEFAULT_ORGANIZATION"
+project="$TOOLCHAIN_DEFAULT_PROJECT"
 
 # Parse command line options.
 for i in "$@"; do
