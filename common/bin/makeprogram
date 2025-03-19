@@ -382,9 +382,9 @@ int main (
                     // FIXME: Application startup code goes here.
                 }
                 ~App () {
-                    // FIXME: Application shutdown code goes here.
                     THEKOGANS_UTIL_LOG_INFO ("%s exiting.\n",
                         util::SystemInfo::Instance ()->GetProcessPath ().c_str ());
+                    // FIXME: Application shutdown code goes here.
                 }
                 void Run () {
                     util::MainRunLoop::Instance ()->Start ();
