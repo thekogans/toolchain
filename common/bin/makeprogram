@@ -344,6 +344,7 @@ int main (
         util::StaticInit ();
         // FIXME: Add other library (crypto, stream, packet) static initialization here.
     #endif // defined (THEKOGANS_UTIL_TYPE_Static)
+    // FIXME: Application options go here.
     ${project//_/::}::Options::Instance ()->Parse (argc, argv, "hvldcfamok");
     if (${project//_/::}::Options::Instance ()->help) {
         std::cout << util::FormatString (
@@ -358,9 +359,11 @@ int main (
             "m - Max log file size before archiving.\\n"
             "o - Log to debugger console.\\n"
             "k - Use lock file to prevent multiple instances (path - Path to lock file).\\n",
+            // FIXME: Application options go here.
             util::SystemInfo::Instance ()->GetProcessPath ().c_str (),
             GetLevelsList (" | ").c_str (),
             GetDecorationsList (" | ").c_str ());
+            // FIXME: Application options go here.
     }
     else if (${project//_/::}::Options::Instance ()->version) {
         std::cout << util::FormatString (
