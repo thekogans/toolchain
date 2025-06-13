@@ -205,8 +205,7 @@ ifneq (,$(filter $(project_type),library plugin))
         -IMPLIB:$(addsuffix .$(link_library_suffix),$(basename $(windows_goal)))
     endif
     ifneq "$(def_file)" ""
-      linker_flags +=\
-        -DEF:$(windowspath $(def_file))
+      linker_flags += -DEF:$(windowspath $(def_file))
     endif
   endif
 else

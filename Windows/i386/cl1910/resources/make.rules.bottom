@@ -58,7 +58,7 @@ else
 endif
 
 # Convert include directories form Cygwin path to Windows path.
-windows_include_directories = $(windowspath $(include_directories))
+windows_include_directories = $(windowspath $(include_directories) $(TOOLCHAIN_DIR)/include)
 
 # IMPORTANT: If you introduce a new assembler,
 # don't forget to update thekogans_make.
