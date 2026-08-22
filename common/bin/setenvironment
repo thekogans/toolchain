@@ -152,7 +152,7 @@ if [ ! -e "$TOOLCHAIN_SHELL" ]; then
     echo "System shell (bash) is missing."
     exit 1
 fi
-PKG_CONFIG_ROOT="$THEKOGANS_DIR"/lib/pkgconfig
+PKG_CONFIG_ROOT="$TOOLCHAIN_DIR"/lib/pkgconfig
 
 # ...and export it.
 # NOTE: If you ever add new environment variables,
