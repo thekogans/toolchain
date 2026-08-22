@@ -52,6 +52,7 @@ OSX/x86_64/clang/include
 OSX/x86_64/clang/lib
 OSX/x86_64/clang/share
 OSX/x86_64/clang/ssl
+OSX/x86_64/clang/man
 OSX/arm64/clang/bin
 OSX/arm64/clang/config
 OSX/arm64/clang/frameworks
@@ -59,6 +60,7 @@ OSX/arm64/clang/include
 OSX/arm64/clang/lib
 OSX/arm64/clang/share
 OSX/arm64/clang/ssl
+OSX/arm64/clang/man
 common/resources/cygwin_mount_table.txt
 common/setenvironment
 sources
