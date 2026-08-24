@@ -152,7 +152,6 @@ if [ ! -e "$TOOLCHAIN_SHELL" ]; then
     echo "System shell (bash) is missing."
     exit 1
 fi
-PKG_CONFIG_PATH="$TOOLCHAIN_DIR"/lib/pkgconfig
 
 # ...and export it.
 # NOTE: If you ever add new environment variables,
@@ -175,8 +174,7 @@ export DEVELOPMENT_ROOT \
     TOOLCHAIN_BRANCH \
     TOOLCHAIN_DIR \
     TOOLCHAIN_TRIPLET \
-    TOOLCHAIN_SHELL \
-    PKG_CONFIG_PATH
+    TOOLCHAIN_SHELL
 
 # Pull in toolchain specific environment (if specified).
 if [ -e "$TOOLCHAIN_ROOT"/common/setenvironment ]; then
