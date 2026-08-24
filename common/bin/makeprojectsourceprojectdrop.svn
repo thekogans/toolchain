@@ -128,7 +128,7 @@ tarball="$organization"_"$project-${branch////_}-$version.tar.gz"
 tar zcvf "../$tarball" "$organization"
 check_errors $?
 
-sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n ../$tarball`
+sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:thekogans::util::SHA2 -d:256 -n ../$tarball`
 
 if [ "$add_source" == "yes" ]; then
     "$(get_toolchain_program -o:thekogans -p:make)"\

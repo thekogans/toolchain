@@ -153,7 +153,7 @@ if [ "$add_source" == "yes" ]; then
     pushd "$source"
     check_errors $?
     git add projects/"$tarball"
-    sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:SHA2 -d:256 -n projects/$tarball`
+    sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:thekogans::util::SHA2 -d:256 -n projects/$tarball`
     "$(get_toolchain_program -o:thekogans -p:make)"\
         -a:add_source_project\
         -o:"$organization"\

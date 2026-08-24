@@ -114,7 +114,7 @@ to="$TOOLCHAIN_ROOT/sources/$project_file"
 
 function get_file_sha2_256 () {
     local sha2_256=`"$(get_toolchain_program -o:thekogans -p:hash)" \
-        -h:SHA2 \
+        -h:thekogans::util::SHA2 \
         -d:256 \
         -n \
         "$(to_system_path -p:$to)"`
