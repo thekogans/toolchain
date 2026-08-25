@@ -161,7 +161,7 @@ c_compile_it =\
 
 # cpp_compiler
 make_cpp_dependencies =\
-  "$(cl)" $(cl_flags) $(cl_dependencies_flags) $(cpp_flags)\
+  "$(cl)" $(cl_flags) $(cl_dependencies_flags) $(c_flags) $(cpp_flags)\
     $(addprefix -D,$(windows_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
     $(addprefix -I,$(windows_include_directories)) $(windowspath $<);\
@@ -169,7 +169,7 @@ make_cpp_dependencies =\
   "$(thekogans_make)" -a:update_cl_dependencies -d:"$@" -y:"$<"\
     $(windowspath $(subst .$(object_suffix),.$(dependencies_suffix),$@))
 cpp_compile_it =\
-  "$(cl)" $(cl_flags) $(cpp_flags)\
+  "$(cl)" $(cl_flags) $(c_flags) $(cpp_flags)\
     $(addprefix -D,$(windows_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
     $(addprefix -I,$(windows_include_directories))\
