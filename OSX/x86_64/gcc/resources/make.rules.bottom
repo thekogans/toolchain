@@ -72,16 +72,16 @@ c_compile_it =\
 
 # g++
 gpp = g++
-gpp_flags = -std=c++11 $(gcc_flags)
+gpp_flags = -std=c++17 $(gcc_flags)
 
 # cpp compiler
 make_cpp_dependencies =\
-  $(gpp) $(gpp_flags) $(gcc_dependencies_flags) $(cpp_flags)\
+  $(gpp) $(gpp_flags) $(gcc_dependencies_flags) $(c_flags) $(cpp_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories)) $<
 cpp_compile_it =\
-  $(gpp) $(gpp_flags) $(cpp_flags)\
+  $(gpp) $(gpp_flags) $(c_flags) $(cpp_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories)) -o $@ $<
@@ -100,12 +100,12 @@ objective_c_compile_it =\
 
 # objective-cpp compiler
 make_objective_cpp_dependencies =\
-  $(gpp) $(gpp_flags) $(gcc_dependencies_flags) $(objective_cpp_flags)\
+  $(gpp) $(gpp_flags) $(gcc_dependencies_flags) $(objective_c_flags) $(objective_cpp_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(objective_cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories)) $<
 objective_cpp_compile_it =\
-  $(gpp) $(gpp_flags) $(objective_cpp_flags)\
+  $(gpp) $(gpp_flags) $(objective_c_flags) $(objective_cpp_flags)\
     $(addprefix -D,$(osx_preprocessor_definitions))\
     $(addprefix -D,$(objective_cpp_preprocessor_definitions))\
     $(addprefix -I,$(include_directories)) -o $@ $<
