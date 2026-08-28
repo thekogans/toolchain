@@ -152,6 +152,11 @@ if [ ! -e "$TOOLCHAIN_SHELL" ]; then
     echo "System shell (bash) is missing."
     exit 1
 fi
+TOOLCHAIN_MAKE=`which make`
+if [ ! -e "$TOOLCHAIN_MAKE" ]; then
+    echo "System make is missing."
+    exit 1
+fi
 
 # ...and export it.
 # NOTE: If you ever add new environment variables,
@@ -174,7 +179,8 @@ export DEVELOPMENT_ROOT \
     TOOLCHAIN_BRANCH \
     TOOLCHAIN_DIR \
     TOOLCHAIN_TRIPLET \
-    TOOLCHAIN_SHELL
+    TOOLCHAIN_SHELL \
+    TOOLCHAIN_MAKE
 
 # Pull in toolchain specific environment (if specified).
 if [ -e "$TOOLCHAIN_ROOT"/common/setenvironment ]; then
