@@ -157,6 +157,11 @@ if [ ! -e "$TOOLCHAIN_MAKE" ]; then
     echo "System make is missing."
     exit 1
 fi
+TOOLCHAIN_CURL=`which curl`
+if [ ! -e "$TOOLCHAIN_CURL" ]; then
+    echo "System curl is missing."
+    exit 1
+fi
 
 # ...and export it.
 # NOTE: If you ever add new environment variables,
@@ -180,7 +185,8 @@ export DEVELOPMENT_ROOT \
     TOOLCHAIN_DIR \
     TOOLCHAIN_TRIPLET \
     TOOLCHAIN_SHELL \
-    TOOLCHAIN_MAKE
+    TOOLCHAIN_MAKE \
+    TOOLCHAIN_CURL
 
 # Pull in toolchain specific environment (if specified).
 if [ -e "$TOOLCHAIN_ROOT"/common/setenvironment ]; then

@@ -62,7 +62,6 @@ OSX/arm64/clang/share
 OSX/arm64/clang/ssl
 OSX/arm64/clang/man
 common/resources/cygwin_mount_table.txt
-common/setenvironment
 sources
 Sources.xml
 defaultenvironment
