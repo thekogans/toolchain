@@ -28,7 +28,7 @@ endif
 # clang
 clang = clang
 clang_flags = -c -Wall -Wno-deprecated-declarations -Wno-unused-command-line-argument\
-    -fPIC -fno-common -pipe -march=native -Wno-unused-const-variable -Wno-unused-function
+    -fPIC -fno-common -pipe -pthread -march=native -Wno-unused-const-variable -Wno-unused-function
 ifeq "$(config)" "Debug"
   clang_flags += -g
 else
@@ -140,6 +140,7 @@ else
   clangpp_linker_flags = -Wl,-rpath,@executable_path
 endif
 clangpp_linker_flags +=\
+  $(addprefix -L,$(library_direcories))\
   $(addprefix -L,$(toolchain_lib))\
   $(addprefix -F,$(framework_directories))\
   $(addprefix -F,$(toolchain_frameworks))

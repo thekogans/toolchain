@@ -51,7 +51,8 @@ nasm_it =\
 
 # clang
 clang = clang
-clang_flags = -c -m64 -Wall -Wno-deprecated-declarations -fPIC -fno-common -pipe -march=native
+clang_flags = -c -m64 -Wall -Wno-deprecated-declarations -Wno-unused-command-line-argument\
+    -fPIC -fno-common -pipe -pthread -march=native -Wno-unused-const-variable -Wno-unused-function
 ifeq "$(config)" "Debug"
   clang_flags += -g
 else
@@ -163,6 +164,7 @@ else
   clangpp_linker_flags = -Wl,-rpath,@executable_path
 endif
 clangpp_linker_flags +=\
+  $(addprefix -L,$(library_direcories))\
   $(addprefix -L,$(toolchain_lib))\
   $(addprefix -F,$(framework_directories))\
   $(addprefix -F,$(toolchain_frameworks))

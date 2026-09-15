@@ -5,6 +5,10 @@
 (set-border-color "lightgray")
 (set-mouse-color "lightgray")
 
+; force top-and-bottom (vertical) splits
+(setq split-width-threshold nil)
+;(setq split-height-threshold 0)
+
 ; turn off all decorations
 (menu-bar-mode nil)
 (if window-system
@@ -14,6 +18,10 @@
 (custom-set-variables
  '(show-trailing-whitespace t))
 
+; prompt color
+(add-hook 'shell-mode-hook
+      (lambda ()
+        (face-remap-set-base 'comint-highlight-prompt :inherit nil)))
 ; hide passwords
 (add-hook 'comint-output-filter-functions
   'comint-watch-for-password-prompt)

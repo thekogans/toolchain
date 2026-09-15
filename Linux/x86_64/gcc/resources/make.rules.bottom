@@ -51,7 +51,7 @@ nasm_it =\
 
 # gcc
 gcc = gcc
-gcc_flags = -c -m64 -Wall -fPIC -fno-common -pipe -march=native -Wno-unused-function
+gcc_flags = -c -m64 -Wall -fPIC -fno-common -pipe -march=native -pthread -Wno-unused-function
 ifeq "$(config)" "Debug"
   gcc_flags += -g
 else

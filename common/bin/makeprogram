@@ -635,7 +635,7 @@ $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_L
 $(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::os::windows::OutputDebugStringLogger));
 $(indent_namespace -o:$organization -p:$project)    #elif defined (TOOLCHAIN_OS_OSX)
 $(indent_namespace -o:$organization -p:$project)        THEKOGANS_UTIL_LOG_ADD_LOGGER (
-$(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::NSLogLogger));
+$(indent_namespace -o:$organization -p:$project)            util::Logger::SharedPtr (new util::os::osx::NSLogLogger));
 $(indent_namespace -o:$organization -p:$project)    #endif // defined (TOOLCHAIN_OS_Windows)
 $(indent_namespace -o:$organization -p:$project)    }
 $(indent_namespace -o:$organization -p:$project)}
