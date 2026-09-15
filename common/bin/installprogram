@@ -55,8 +55,8 @@ branch="$TOOLCHAIN_DEFAULT_BRANCH"
 version=
 example=
 project_root=
-config=
-type=
+config=Release
+type=Shared
 hide_commands=yes
 parallel_build=yes
 
