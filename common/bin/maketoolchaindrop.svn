@@ -129,7 +129,7 @@ fi
 
 # Package the toolchain tree.
 . "$TOOLCHAIN_NAME"/common/bin/version
-tar zcvf "$TAR_FLAGS" ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
+tar "$TAR_FLAGS" -zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.

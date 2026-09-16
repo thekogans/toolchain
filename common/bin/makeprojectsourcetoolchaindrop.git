@@ -219,7 +219,7 @@ directory="$organization"_"$project-$version"
 mv foo "$directory"
 check_errors $?
 tarball="$directory".tar.gz
-tar zcvf "$TAR_FLAGS" "$tarball" "$directory"
+tar "$TAR_FLAGS" -zcvf "$tarball" "$directory"
 check_errors $?
 
 if [ "$add_source" == "yes" ]; then

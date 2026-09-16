@@ -98,6 +98,10 @@ if [ -e "$to" ]; then
 fi
 echo "Available toolchain version: $AVAILABLE_TOOLCHAIN_VERSION"
 
+if [ "$TOOLCHAIN_OS" != "OSX" ]; then
+    TAR_FLAGS=--warning=no-unknown-keyword
+fi
+
 if [ "$install" == "yes" ]; then
     if [ "$(is_version_less_then -v1:$CURRENT_BUILD_SYSTEM_VERSION -v2:$AVAILABLE_BUILD_SYSTEM_VERSION)" == "yes" ]; then
         "$TOOLCHAIN_COMMON_BIN"/makebuildsystemdrop.svn --svn-url:"$svn_url"
@@ -107,7 +111,7 @@ if [ "$install" == "yes" ]; then
             check_errors $?
         fi
         TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$AVAILABLE_TOOLCHAIN_VERSION"-"$AVAILABLE_BUILD_SYSTEM_VERSION".tar.gz
-        tar zxvf "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME" -C "$TOOLCHAIN_ROOT"/drops
+        tar "$TAR_FLAGS" -zxvf "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME" -C "$TOOLCHAIN_ROOT"/drops
         check_errors $?
         "$TOOLCHAIN_ROOT"/drops/toolchain/install
         check_errors $?
@@ -121,7 +125,7 @@ if [ "$install" == "yes" ]; then
             check_errors $?
         fi
         TARBALL_NAME=thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$AVAILABLE_TOOLCHAIN_VERSION".tar.gz
-        tar zxvf "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME" -C "$TOOLCHAIN_ROOT"/drops
+        tar "$TAR_FLAGS" -zxvf "$TOOLCHAIN_ROOT"/drops/"$TARBALL_NAME" -C "$TOOLCHAIN_ROOT"/drops
         check_errors $?
         "$TOOLCHAIN_ROOT"/drops/toolchain/install
         check_errors $?

@@ -210,7 +210,7 @@ directory="$organization"_"$project-$version"
 mv foo "$directory"
 check_errors $?
 tarball="$directory".tar.gz
-tar zcvf "$TAR_FLAGS" "$tarball" "$directory"
+tar "$TAR_FLAGS" -zcvf "$tarball" "$directory"
 check_errors $?
 
 sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:thekogans::util::SHA2 -d:256 -n $tarball`

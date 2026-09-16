@@ -186,7 +186,11 @@ if [ -d "$project_root" ]; then
     check_errors $?
 fi
 
-tar zxvf "$to" -C "$TOOLCHAIN_ROOT/sources"
+if [ "$TOOLCHAIN_OS" != "OSX" ]; then
+    TAR_FLAGS=--warning=no-unknown-keyword
+fi
+
+tar "$TAR_FLAGS" -zxvf "$to" -C "$TOOLCHAIN_ROOT/sources"
 check_errors $?
 
 cd "$project_root"

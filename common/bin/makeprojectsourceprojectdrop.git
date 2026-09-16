@@ -138,7 +138,7 @@ fi
 mv "$project_root" "$project_root-$version"
 check_errors $?
 tarball="$organization"_"$project-$version.tar.gz"
-tar zcvf "$TAR_FLAGS" "../$tarball" "$organization"
+tar "$TAR_FLAGS" -zcvf "../$tarball" "$organization"
 check_errors $?
 
 if [ "$add_source" == "yes" ]; then
