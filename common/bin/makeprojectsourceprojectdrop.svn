@@ -119,13 +119,17 @@ for f in $(find . -name '*.svn'); do rm -rf $f; done
 for f in $(find . -name '*.h' -or -name '*.cpp'); do chmod 664 $f; done
 unset IFS; set +f
 
+if [ "$TOOLCHAIN_OS" == "OSX" ]; then
+    TAR_FLAGS=--no-xattrs
+fi
+
 # Package the source tree.
 version="$(get_project_version -pr:$project_root)"
 check_errors $?
 mv "$project_root" "$project_root-$version"
 check_errors $?
 tarball="$organization"_"$project-${branch////_}-$version.tar.gz"
-tar zcvf "../$tarball" "$organization"
+tar zcvf "$TAR_FLAGS" "../$tarball" "$organization"
 check_errors $?
 
 sha2_256=`$(get_toolchain_program -o:thekogans -p:hash) -h:thekogans::util::SHA2 -d:256 -n ../$tarball`

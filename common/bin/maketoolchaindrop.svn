@@ -123,9 +123,13 @@ DEVELOPMENT_ROOT=
 SOURCES_ROOT=
 "$TOOLCHAIN_NAME"/common/bin/setdefaultenvironment
 
+if [ "$TOOLCHAIN_OS" == "OSX" ]; then
+    TAR_FLAGS=--no-xattrs
+fi
+
 # Package the toolchain tree.
 . "$TOOLCHAIN_NAME"/common/bin/version
-tar zcvf ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
+tar zcvf "$TAR_FLAGS" ../thekogans_"$TOOLCHAIN_NAME"-"$TOOLCHAIN_TRIPLET"-"$(get_toolchain_version)".tar.gz "$TOOLCHAIN_NAME"
 check_errors $?
 
 # Clean up.

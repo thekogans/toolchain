@@ -126,6 +126,10 @@ for f in $(find . -name '*.git'); do rm -rf $f; done
 for f in $(find . -name '*.h' -or -name '*.cpp'); do chmod 664 $f; done
 unset IFS; set +f
 
+if [ "$TOOLCHAIN_OS" == "OSX" ]; then
+    TAR_FLAGS=--no-xattrs
+fi
+
 # Package the source tree.
 if [ "$version" == "" ]; then
     version="$(get_project_version -pr:$project_root)"
@@ -134,7 +138,7 @@ fi
 mv "$project_root" "$project_root-$version"
 check_errors $?
 tarball="$organization"_"$project-$version.tar.gz"
-tar zcvf "../$tarball" "$organization"
+tar zcvf "$TAR_FLAGS" "../$tarball" "$organization"
 check_errors $?
 
 if [ "$add_source" == "yes" ]; then

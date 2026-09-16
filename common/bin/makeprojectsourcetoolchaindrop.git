@@ -206,6 +206,10 @@ check_errors $?
 chmod +x foo/install
 check_errors $?
 
+if [ "$TOOLCHAIN_OS" == "OSX" ]; then
+    TAR_FLAGS=--no-xattrs
+fi
+
 # Package the source tree.
 if [ "$version" == "" ]; then
     version="$(get_project_version -pr:foo)"
@@ -215,7 +219,7 @@ directory="$organization"_"$project-$version"
 mv foo "$directory"
 check_errors $?
 tarball="$directory".tar.gz
-tar zcvf "$tarball" "$directory"
+tar zcvf "$TAR_FLAGS" "$tarball" "$directory"
 check_errors $?
 
 if [ "$add_source" == "yes" ]; then
