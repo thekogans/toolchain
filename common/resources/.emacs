@@ -109,3 +109,48 @@
 (add-hook 'asm-mode-hook 'my-development-setup)
 
 (put 'downcase-region 'disabled nil)
+
+(use-package dape
+  :ensure t
+  :init
+  ;; Pull your Mac's native developer paths directly into Emacs' environment
+  (when (eq system-type 'darwin)
+    (let ((xcrun-path (string-trim (shell-command-to-string "xcrun -f lldb-dap"))))
+      (unless (string-empty-p xcrun-path)
+        ;; Add the folder containing lldb-dap to Emacs exec-path
+        (add-to-list 'exec-path (file-name-directory xcrun-path))
+        ;; Add it to the standard shell PATH for sub-processes
+        (setenv "PATH" (concat (getenv "PATH") ":" (file-name-directory xcrun-path)))))))
+
+(with-eval-after-load 'dape
+  ;; Bind standard IDE keys for stepping
+  (keymap-global-set "<f6>" 'dape-continue)
+  (keymap-global-set "<f8>" 'dape-next)        ; Step Over
+  (keymap-global-set "<f9>" 'dape-step-in)     ; Step Into
+  (keymap-global-set "<f10>" 'dape-step-out)    ; Step Out
+  (keymap-global-set "<f11>" 'dape-breakpoint-toggle)    ; Toggle breakpoint
+
+  ;; Configure lldb-dap adapter settings
+  (add-to-list 'dape-configs
+               `(cpp-mac
+                 modes (c-mode c++-mode c-ts-mode c++-ts-mode)
+                 ensure dape-ensure-command
+                 command "lldb-dap"
+                 :request "launch"
+                 :type "lldb-dap"
+                 ;; Use a comma lambda proxy so Dape evaluates the function at session launch
+                 :program ,(lambda () (funcall 'dape-buffer-default))
+                 :stopOnEntry t
+                 ;; FIX: Replaced string-empty-p with vanilla string= to prevent variable errors
+                 :args ,(lambda ()
+                          (let ((input (read-string "Arguments (space separated): ")))
+                            (if (string= input "")
+                                []
+                              (vconcat (split-string input " " t))))))))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
