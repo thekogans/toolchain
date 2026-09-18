@@ -392,11 +392,20 @@ using namespace thekogans;
 $(begin_namespace -o:$organization -p:$project -e:$example)
 
 $(indent_namespace -o:$organization -p:$project -e:$example)const util::Version &GetVersion () {
-$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version *version = new util::Version (
-$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION,
-$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION,
-$(indent_namespace -o:$organization -p:$project -e:$example)        ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION);
-$(indent_namespace -o:$organization -p:$project -e:$example)    return *version;
+$(indent_namespace -o:$organization -p:$project -e:$example)    util::ui32 major = 0;
+$(indent_namespace -o:$organization -p:$project -e:$example)    util::ui32 minor = 0;
+$(indent_namespace -o:$organization -p:$project -e:$example)    util::ui32 patch = 0;
+$(indent_namespace -o:$organization -p:$project -e:$example)#if defined (${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION)
+$(indent_namespace -o:$organization -p:$project -e:$example)    major = ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MAJOR_VERSION;
+$(indent_namespace -o:$organization -p:$project -e:$example)#endif
+$(indent_namespace -o:$organization -p:$project -e:$example)#if defined (${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION)
+$(indent_namespace -o:$organization -p:$project -e:$example)    minor = ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_MINOR_VERSION;
+$(indent_namespace -o:$organization -p:$project -e:$example)#endif
+$(indent_namespace -o:$organization -p:$project -e:$example)#if defined (${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION)
+$(indent_namespace -o:$organization -p:$project -e:$example)    patch = ${ORGANIZATION}_${PROJECT}_${EXAMPLE}_PATCH_VERSION;
+$(indent_namespace -o:$organization -p:$project -e:$example)#endif
+$(indent_namespace -o:$organization -p:$project -e:$example)    static const util::Version version (major, minor, patch);
+$(indent_namespace -o:$organization -p:$project -e:$example)    return version;
 $(indent_namespace -o:$organization -p:$project -e:$example)}
 
 $(end_namespace -o:$organization -p:$project -e:$example)
