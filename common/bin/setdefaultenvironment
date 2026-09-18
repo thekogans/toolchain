@@ -54,7 +54,7 @@ if [ "\$TOOLCHAIN_DEFAULT_SVC" == "" ]; then
     TOOLCHAIN_DEFAULT_SVC=$TOOLCHAIN_DEFAULT_SVC
 fi
 if [ "\$TOOLCHAIN_DEFAULT_MAKE_JOBS" == "" ]; then
-    TOOLCHAIN_DEFAULT_MAKE_JOBS=$(sysctl -n hw.ncpu)
+    TOOLCHAIN_DEFAULT_MAKE_JOBS=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo "${NUMBER_OF_PROCESSORS:-1}")
 fi
 EOF
 
