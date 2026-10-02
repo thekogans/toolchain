@@ -164,7 +164,7 @@ else
   clangpp_linker_flags = -Wl,-rpath,@executable_path
 endif
 clangpp_linker_flags +=\
-  $(addprefix -L,$(library_direcories))\
+  $(addprefix -L,$(library_directories))\
   $(addprefix -L,$(toolchain_lib))\
   $(addprefix -F,$(framework_directories))\
   $(addprefix -F,$(toolchain_frameworks))
